@@ -1,48 +1,119 @@
-<!doctype html>
-<html lang="en" class="dark"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Smart Resume Analyzer — the intelligent career operating system for ambitious professionals.">
-  <title>Smart Resume Analyzer — Your career, intelligently accelerated.</title>
-  @vite(['resources/css/app.css','resources/js/app.js'])
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartCV helps you build a stronger resume, improve ATS readiness, and prepare for the next step in your career.">
+    <title>SmartCV - Build your next career move</title>
+    <style>
+        :root { color-scheme: dark; --ink: #070b18; --panel: rgba(16, 25, 48, .78); --line: rgba(255,255,255,.10); --muted: #98a5c2; --white: #f8fafc; --violet: #7c6cff; --cyan: #40d8ff; }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin: 0; min-width: 320px; color: var(--white); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--ink); }
+        a { color: inherit; text-decoration: none; }
+        .page { min-height: 100vh; overflow: hidden; background: radial-gradient(circle at 12% 5%, rgba(91, 81, 225, .27), transparent 28rem), radial-gradient(circle at 88% 30%, rgba(21, 174, 230, .16), transparent 26rem), #070b18; }
+        .shell { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+        nav { height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 800; font-size: 20px; letter-spacing: -.04em; }
+        .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, var(--violet), var(--cyan)); box-shadow: 0 10px 30px rgba(102, 92, 255, .35); color: white; font-size: 20px; }
+        .nav-links, .nav-actions { display: flex; align-items: center; gap: 26px; }
+        .nav-actions form { margin: 0; }
+        .nav-links a { color: #b7c1d7; font-size: 14px; transition: color .2s; }
+        .nav-links a:hover { color: white; }
+        .button { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 19px; border: 1px solid transparent; border-radius: 12px; font-weight: 750; font-size: 14px; transition: transform .2s, box-shadow .2s, background .2s; cursor: pointer; }
+        .button:hover { transform: translateY(-2px); }
+        .button-quiet { color: #d8def0; background: rgba(255,255,255,.04); border-color: var(--line); }
+        .button-quiet:hover { background: rgba(255,255,255,.09); }
+        .button-main { background: linear-gradient(135deg, #7567ff, #46cfff); box-shadow: 0 12px 26px rgba(70, 163, 255, .25); color: white; }
+        .button-main:hover { box-shadow: 0 16px 32px rgba(70, 163, 255, .38); }
+        .signed-in { color: #91a0bd; font-size: 13px; white-space: nowrap; }
+        .hero { position: relative; padding: 90px 0 112px; text-align: center; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; color: #c6c5ff; border: 1px solid rgba(137,130,255,.30); border-radius: 999px; background: rgba(111, 99, 255, .11); font-weight: 700; font-size: 12px; letter-spacing: .10em; text-transform: uppercase; }
+        .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: #55e8ca; box-shadow: 0 0 12px #55e8ca; }
+        h1 { max-width: 850px; margin: 26px auto 22px; font-size: clamp(42px, 6vw, 76px); line-height: 1.02; letter-spacing: -.065em; }
+        h1 span { color: transparent; background: linear-gradient(100deg, #a89cff, #4ed6ff); -webkit-background-clip: text; background-clip: text; }
+        .hero-copy { max-width: 630px; margin: 0 auto; color: var(--muted); font-size: clamp(17px, 2vw, 19px); line-height: 1.65; }
+        .hero-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+        .hero-actions .button { min-width: 172px; }
+        .fine-print { margin-top: 17px; color: #7885a2; font-size: 13px; }
+        .dashboard { position: relative; max-width: 1030px; margin: 0 auto; padding: 18px; border: 1px solid rgba(171, 188, 255, .17); border-radius: 24px; background: linear-gradient(135deg, rgba(32, 43, 77, .90), rgba(10, 17, 36, .80)); box-shadow: 0 32px 80px rgba(0,0,0,.45), inset 0 1px rgba(255,255,255,.08); text-align: left; }
+        .dashboard-top { display: flex; align-items: center; justify-content: space-between; padding: 5px 5px 18px; color: #aeb9d2; font-size: 13px; }
+        .dots { display: flex; gap: 6px; }.dots span { width: 8px; height: 8px; border-radius: 50%; background: #33405e; }.dots span:first-child { background: #ff6d84; }.dots span:nth-child(2) { background: #ffc968; }.dots span:last-child { background: #55dbb7; }
+        .dashboard-grid { display: grid; grid-template-columns: 190px 1fr; min-height: 300px; border: 1px solid var(--line); border-radius: 15px; overflow: hidden; background: rgba(3, 8, 21, .55); }
+        .mini-side { padding: 18px 13px; border-right: 1px solid var(--line); }.mini-label { color: #71809f; margin: 16px 8px 8px; font-size: 10px; font-weight: 800; letter-spacing: .12em; }.mini-item { display: block; padding: 9px; border-radius: 8px; color: #9cabc7; font-size: 12px; }.mini-item.active { color: white; background: linear-gradient(90deg, rgba(112,98,255,.24), rgba(74,203,255,.08)); }
+        .mini-main { padding: 24px; }.mini-main h2 { margin: 0; font-size: 22px; letter-spacing: -.04em; }.mini-main p { margin: 7px 0 21px; color: #8290ad; font-size: 13px; }.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }.metric { min-height: 104px; padding: 15px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); }.metric small { color: #8290ad; font-size: 11px; }.metric strong { display: block; margin-top: 13px; font-size: 27px; letter-spacing: -.05em; }.metric strong.good { color: #63e3c1; }.progress { height: 7px; margin-top: 13px; border-radius: 20px; background: #202b44; overflow: hidden; }.progress b { display: block; width: 82%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7567ff, #4ed6ff); }.mini-card { margin-top: 13px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; }.mini-card b { font-size: 13px; }.mini-card span { display: block; margin-top: 8px; color: #8391ae; font-size: 12px; }
+        .features { padding: 110px 0; }.section-heading { max-width: 670px; margin: 0 auto 42px; text-align: center; }.section-heading h2 { margin: 12px 0; font-size: clamp(30px, 4vw, 45px); letter-spacing: -.055em; }.section-heading p { margin: 0; color: var(--muted); line-height: 1.65; }.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }.feature { padding: 25px; border: 1px solid var(--line); border-radius: 18px; background: rgba(21, 31, 58, .58); transition: border-color .2s, transform .2s, background .2s; }.feature:hover { transform: translateY(-4px); border-color: rgba(124,108,255,.52); background: rgba(29, 41, 76, .78); }.feature-icon { display: grid; place-items: center; width: 43px; height: 43px; margin-bottom: 19px; border-radius: 13px; background: linear-gradient(135deg, rgba(126,111,255,.28), rgba(64,216,255,.16)); color: #a79fff; font-size: 21px; }.feature h3 { margin: 0 0 9px; font-size: 17px; letter-spacing: -.03em; }.feature p { margin: 0; color: #91a0bd; font-size: 14px; line-height: 1.6; }
+        .cta { padding: 0 0 90px; }.cta-box { padding: 54px 30px; border: 1px solid rgba(125,110,255,.34); border-radius: 24px; background: radial-gradient(circle at 50% 0%, rgba(105,90,255,.29), transparent 55%), rgba(16,24,49,.7); text-align: center; }.cta-box h2 { margin: 0; font-size: clamp(28px, 4vw, 43px); letter-spacing: -.055em; }.cta-box p { max-width: 520px; margin: 14px auto 27px; color: #a1aed0; line-height: 1.6; }
+        footer { display: flex; justify-content: space-between; gap: 20px; padding: 27px 0 35px; border-top: 1px solid var(--line); color: #7e8ba6; font-size: 13px; }.footer-links { display: flex; gap: 18px; }.footer-links a:hover { color: white; }
+        @media (max-width: 720px) { .shell { width: min(100% - 28px, 1160px); } nav { height: 72px; }.nav-links, .signed-in { display: none; }.nav-actions { gap: 8px; }.nav-actions .button { min-height: 40px; padding: 0 12px; }.hero { padding: 68px 0 70px; }.dashboard { padding: 10px; }.dashboard-grid { grid-template-columns: 1fr; }.mini-side { display: none; }.mini-main { padding: 17px; }.metric-grid { grid-template-columns: 1fr 1fr; }.metric:last-child { grid-column: span 2; }.feature-grid { grid-template-columns: 1fr; }.features { padding: 76px 0; } footer { flex-direction: column; }.cta { padding-bottom: 65px; } }
+    </style>
 </head>
-<body class="overflow-x-hidden">
-  <div class="fixed inset-0 -z-20 grid-bg opacity-30"></div><div class="noise fixed inset-0 -z-10 opacity-[.025]"></div>
-  <div class="pointer-events-none fixed -top-64 left-1/2 -z-10 h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-violet-700/20 blur-[140px]"></div>
-  <header class="sticky top-0 z-40 border-b border-white/[.07] bg-[#060609]/75 backdrop-blur-xl">
-    <div class="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 lg:px-8">
-      <a href="/" class="flex items-center gap-2.5"><span class="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-violet-300 to-violet-700 shadow-lg shadow-violet-900/40"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 3v18M18 3v18M6 12h12"/><path d="m14 7 4 5-4 5"/></svg></span><span class="text-sm font-bold tracking-tight">SMART<span class="text-violet-400">CV</span></span></a>
-      <nav class="hidden items-center gap-7 text-sm text-zinc-400 md:flex"><a href="#platform" class="hover:text-white">Platform</a><a href="#how" class="hover:text-white">How it works</a><a href="#security" class="hover:text-white">Security</a><a href="/pricing" class="hover:text-white">Pricing</a></nav>
-      <div class="flex items-center gap-3"><a href="/dashboard" class="hidden text-sm text-zinc-300 hover:text-white sm:block">Sign in</a><a href="/dashboard" class="btn btn-primary px-4">Start for free <span>→</span></a></div>
+<body>
+<div class="page">
+    <div class="shell">
+        <nav aria-label="Main navigation">
+            <a class="brand" href="{{ route('home') }}"><span class="brand-mark">S</span>SmartCV</a>
+            <div class="nav-links">
+                <a href="#tools">Career tools</a>
+                <a href="#how-it-works">How it works</a>
+                <a href="{{ route('help') }}">Help center</a>
+            </div>
+            <div class="nav-actions">
+                @auth
+                    <span class="signed-in">Signed in as {{ auth()->user()->name }}</span>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="button button-quiet" type="submit">Sign out</button>
+                    </form>
+                    <a class="button button-main" href="{{ route('dashboard') }}">Open workspace</a>
+                @else
+                    <a class="button button-quiet" href="{{ route('login') }}">Log in</a>
+                    <a class="button button-main" href="{{ route('register') }}">Create account</a>
+                @endauth
+            </div>
+        </nav>
+
+        <main>
+            <section class="hero" id="how-it-works">
+                <div class="eyebrow"><i></i> Your free AI career workspace</div>
+                <h1>Turn career effort into <span>real momentum.</span></h1>
+                <p class="hero-copy">SmartCV gives you a clear place to improve your resume, understand ATS readiness, prepare for interviews, and confidently plan your next move.</p>
+                <div class="hero-actions">
+                    @auth
+                        <a class="button button-main" href="{{ route('dashboard') }}">Open my workspace</a>
+                    @else
+                        <a class="button button-main" href="{{ route('register') }}">Create your free account</a>
+                        <a class="button button-quiet" href="{{ route('login') }}">I already have an account</a>
+                    @endauth
+                </div>
+                <p class="fine-print">Free forever. No credit card. Built for your next opportunity.</p>
+            </section>
+
+            <section class="dashboard" aria-label="SmartCV workspace preview">
+                <div class="dashboard-top"><div class="dots"><span></span><span></span><span></span></div><span>SMARTCV WORKSPACE</span><span>Today</span></div>
+                <div class="dashboard-grid">
+                    <aside class="mini-side"><b style="font-size:14px">Workspace</b><div class="mini-label">CAREER</div><span class="mini-item active">Overview</span><span class="mini-item">My resumes</span><span class="mini-item">ATS analysis</span><span class="mini-item">Interview prep</span><div class="mini-label">GROW</div><span class="mini-item">Skill plan</span><span class="mini-item">Career insights</span></aside>
+                    <div class="mini-main"><h2>Good morning, Noah</h2><p>Here is the clearest next step for your career today.</p><div class="metric-grid"><div class="metric"><small>Resume readiness</small><strong class="good">82%</strong><div class="progress"><b></b></div></div><div class="metric"><small>ATS match score</small><strong>74</strong><div class="progress"><b style="width:74%"></b></div></div><div class="metric"><small>Interview practice</small><strong>06</strong><div class="progress"><b style="width:60%"></b></div></div></div><div class="mini-card"><b>Recommended next action</b><span>Tailor your resume summary to the role you want next.</span></div></div>
+                </div>
+            </section>
+
+            <section class="features" id="tools">
+                <div class="section-heading"><div class="eyebrow">Everything in one place</div><h2>A stronger career system, not just a resume checker.</h2><p>Use focused tools that help you present your experience clearly and keep your job search moving.</p></div>
+                <div class="feature-grid">
+                    <article class="feature"><div class="feature-icon">▤</div><h3>Resume analysis</h3><p>Review the strength, clarity, and structure of your resume before you send it.</p></article>
+                    <article class="feature"><div class="feature-icon">◎</div><h3>ATS readiness</h3><p>Find important keywords and improve how your resume matches a target role.</p></article>
+                    <article class="feature"><div class="feature-icon">◈</div><h3>Interview preparation</h3><p>Practice thoughtful answers and prepare examples that show your best work.</p></article>
+                    <article class="feature"><div class="feature-icon">↗</div><h3>Job tracker</h3><p>Keep applications, follow-ups, interviews, and next actions organised.</p></article>
+                    <article class="feature"><div class="feature-icon">✦</div><h3>Skill planning</h3><p>See which skills can make the biggest difference for the path you want.</p></article>
+                    <article class="feature"><div class="feature-icon">◌</div><h3>Career insights</h3><p>Use one calm workspace to track progress and make better career decisions.</p></article>
+                </div>
+            </section>
+
+            <section class="cta"><div class="cta-box"><h2>Start with the career you want next.</h2><p>Create a free SmartCV account and build a clearer, more confident path forward.</p>@auth<a class="button button-main" href="{{ route('dashboard') }}">Open my workspace</a>@else<a class="button button-main" href="{{ route('register') }}">Create free account</a>@endauth</div></section>
+        </main>
+
+        <footer><span>© {{ date('Y') }} SmartCV. Free career tools for everyone.</span><div class="footer-links"><a href="{{ route('privacy') }}">Privacy</a><a href="{{ route('terms') }}">Terms</a><a href="{{ route('help') }}">Help</a></div></footer>
     </div>
-  </header>
-  <main>
-    <section class="relative mx-auto max-w-7xl px-5 pb-20 pt-20 text-center lg:px-8 lg:pb-28 lg:pt-28">
-      <div class="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/[.07] px-3 py-1.5 text-xs text-violet-200"><span class="pulse-dot h-1.5 w-1.5 rounded-full bg-violet-400"></span> AI career intelligence, built for serious professionals</div>
-      <h1 class="mx-auto max-w-5xl text-5xl font-semibold leading-[.98] tracking-[-.055em] text-white sm:text-6xl lg:text-8xl">Your next career move,<br><span class="bg-gradient-to-r from-violet-300 via-purple-400 to-fuchsia-300 bg-clip-text text-transparent">made unmistakably clear.</span></h1>
-      <p class="mx-auto mt-7 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">Turn your experience into opportunity. SmartCV analyzes your resume, strengthens every application, and gives you the confidence to show up prepared.</p>
-      <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row"><a href="/dashboard" class="btn btn-primary px-6 py-3 text-sm">Analyze my resume <span>→</span></a><a href="#platform" class="btn btn-secondary px-6 py-3 text-sm">Explore the platform</a></div>
-      <p class="mt-4 text-xs text-zinc-600">No credit card required · Free analysis included</p>
-      <div class="relative mx-auto mt-16 max-w-5xl rounded-[28px] border border-white/[.12] bg-gradient-to-b from-[#191524] to-[#0b0b11] p-2 shadow-2xl shadow-violet-950/30">
-        <div class="overflow-hidden rounded-[22px] border border-white/[.07] bg-[#0c0c12] text-left">
-          <div class="flex h-11 items-center gap-2 border-b border-white/[.07] px-4"><i class="h-2.5 w-2.5 rounded-full bg-red-400/70"></i><i class="h-2.5 w-2.5 rounded-full bg-amber-300/70"></i><i class="h-2.5 w-2.5 rounded-full bg-emerald-400/70"></i><div class="mx-auto rounded-md bg-white/[.04] px-12 py-1 text-[10px] text-zinc-600">app.smartcv.ai/dashboard</div></div>
-          <div class="grid min-h-[340px] grid-cols-[145px_1fr] sm:min-h-[420px] sm:grid-cols-[190px_1fr]">
-            <div class="border-r border-white/[.07] p-3 sm:p-5"><div class="mb-7 flex items-center gap-1.5 text-[9px] font-bold sm:text-xs"><span class="h-5 w-5 rounded-md bg-violet-500"></span> SMART<span class="text-violet-400">CV</span></div><div class="space-y-2 text-[9px] text-zinc-500 sm:text-xs"><div class="rounded-md bg-violet-400/15 px-2 py-2 text-violet-200">◈ Overview</div><div class="px-2 py-1.5">▤ My resumes</div><div class="px-2 py-1.5">◎ Job tracker</div><div class="px-2 py-1.5">◌ Interview lab</div><div class="px-2 py-1.5">⌁ Insights</div></div></div>
-            <div class="p-5 sm:p-8"><div class="flex justify-between"><div><p class="text-[10px] text-zinc-500 sm:text-xs">Thursday, July 19</p><h2 class="mt-1 text-lg font-semibold sm:text-2xl">Good morning, Noah.</h2></div><span class="hidden h-8 w-8 rounded-full bg-gradient-to-br from-amber-200 to-violet-500 sm:block"></span></div><div class="mt-6 grid gap-3 sm:grid-cols-3"><div class="rounded-xl border border-violet-300/20 bg-violet-500/[.08] p-3 sm:p-4"><p class="text-[9px] text-violet-200 sm:text-xs">Career strength</p><p class="mt-2 text-2xl font-semibold sm:text-3xl">82<span class="text-sm text-violet-300">/100</span></p><div class="mt-3 h-1 rounded bg-white/10"><div class="h-1 w-[82%] rounded bg-violet-400"></div></div></div><div class="rounded-xl border border-white/[.08] p-3 sm:p-4"><p class="text-[9px] text-zinc-500 sm:text-xs">Applications</p><p class="mt-2 text-2xl font-semibold sm:text-3xl">14</p><p class="mt-3 text-[9px] text-emerald-400">↑ 3 this week</p></div><div class="hidden rounded-xl border border-white/[.08] p-4 sm:block"><p class="text-xs text-zinc-500">Interview readiness</p><p class="mt-2 text-3xl font-semibold">76<span class="text-sm text-zinc-500">%</span></p><p class="mt-3 text-[9px] text-amber-300">2 skills to improve</p></div></div><div class="mt-4 rounded-xl border border-white/[.08] p-4"><div class="flex justify-between text-[10px] sm:text-xs"><span class="font-medium">Your application momentum</span><span class="text-violet-300">Last 30 days</span></div><svg class="mt-3 h-20 w-full" viewBox="0 0 500 90" preserveAspectRatio="none"><defs><linearGradient id="a" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#8b5cf6" stop-opacity=".35"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient></defs><path d="M0 73 C35 63,48 75,77 56 S129 65,160 49 S211 55,237 32 S286 54,318 39 S370 27,400 42 S442 19,500 12 V90 H0Z" fill="url(#a)"/><path d="M0 73 C35 63,48 75,77 56 S129 65,160 49 S211 55,237 32 S286 54,318 39 S370 27,400 42 S442 19,500 12" fill="none" stroke="#a78bfa" stroke-width="2"/></svg></div></div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="border-y border-white/[.06] bg-white/[.02] py-10"><p class="text-center text-xs font-medium uppercase tracking-[.2em] text-zinc-600">Built for professionals shaping what’s next</p><div class="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-x-12 gap-y-5 text-lg font-bold tracking-tight text-zinc-600 sm:gap-x-20"><span>vertex</span><span>northstar</span><span>mosaic</span><span>ALTO</span><span>cloudline</span></div></section>
-    <section id="platform" class="mx-auto max-w-7xl px-5 py-24 lg:px-8"><div class="max-w-2xl"><p class="eyebrow">One intelligent workspace</p><h2 class="mt-4 text-4xl font-semibold tracking-[-.04em] sm:text-5xl">Every signal. One clear path forward.</h2><p class="mt-5 text-zinc-400">A connected set of tools that helps you make better career decisions — from your first draft to your final offer.</p></div><div class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      @foreach ([['✦','Resume intelligence','Find what recruiters see, fix what ATS systems miss, and turn your experience into a compelling story.'],['⌘','Job command center','Organize every opportunity, follow-up, contact, and interview in one calm workspace.'],['◉','Interview lab','Practice with AI-guided simulations and receive precise, actionable feedback.'],['↗','Career insights','See your strongest signals, skill gaps, market fit, and the moves that will create momentum.'],['◇','Portfolio studio','Build a polished professional presence that lets your best work speak first.'],['∿','Growth plan','Build an adaptive learning plan based on where you are and where you want to go.']] as [$icon,$title,$text])
-        <article class="card card-hover p-6"><div class="grid h-10 w-10 place-items-center rounded-xl border border-violet-300/20 bg-violet-400/10 text-lg text-violet-300">{{ $icon }}</div><h3 class="mt-5 font-semibold">{{ $title }}</h3><p class="mt-2 text-sm leading-6 text-zinc-400">{{ $text }}</p><a href="/dashboard" class="mt-5 inline-flex text-sm text-violet-300 hover:text-violet-200">Explore tool <span class="ml-2">→</span></a></article>
-      @endforeach
-    </div></section>
-    <section id="how" class="mx-auto max-w-7xl px-5 py-20 lg:px-8"><div class="card overflow-hidden p-7 md:p-12"><div class="grid items-center gap-12 lg:grid-cols-2"><div><p class="eyebrow">Designed around your progress</p><h2 class="mt-4 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">A smarter rhythm for your career.</h2><div class="mt-9 space-y-6">@foreach ([['01','Tell us where you’re headed','Upload a resume or start with a role you want to pursue.'],['02','See the path clearly','Your workspace turns your career data into practical next steps.'],['03','Make better moves','Prepare, apply, learn, and grow with every action connected.']] as [$number,$title,$text])<div class="flex gap-4"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-400/10 text-xs font-bold text-violet-300">{{ $number }}</span><div><h3 class="text-sm font-semibold">{{ $title }}</h3><p class="mt-1 text-sm text-zinc-400">{{ $text }}</p></div></div>@endforeach</div></div><div class="relative rounded-2xl border border-white/[.08] bg-black/30 p-5"><div class="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-violet-600/20 blur-3xl"></div><p class="text-xs text-zinc-500">Next best action</p><h3 class="mt-2 text-xl font-semibold">Tailor your resume for the<br>Senior Product Designer role</h3><div class="mt-6 rounded-xl border border-white/[.09] bg-white/[.04] p-4"><div class="flex items-center justify-between"><span class="text-sm">Role match</span><span class="font-semibold text-emerald-400">+18 points</span></div><div class="mt-3 h-2 overflow-hidden rounded-full bg-white/10"><div class="h-full w-[86%] rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-400"></div></div><div class="mt-4 flex items-center gap-2 text-xs text-zinc-400"><span class="h-2 w-2 rounded-full bg-emerald-400"></span> 3 high-impact updates identified</div></div><button data-open-modal class="btn btn-primary mt-5 w-full">View recommendation</button></div></div></div>
-    </section>
-    <section id="security" class="border-y border-white/[.06] bg-white/[.02] px-5 py-20 text-center"><p class="eyebrow">Privacy is part of the product</p><h2 class="mx-auto mt-4 max-w-2xl text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Your career story stays yours.</h2><p class="mx-auto mt-4 max-w-xl text-sm leading-6 text-zinc-400">Your documents are protected with enterprise-grade safeguards. We never sell your personal information or train public models on your resume.</p><div class="mx-auto mt-8 flex max-w-2xl flex-wrap justify-center gap-3 text-xs text-zinc-300"><span class="rounded-full border border-white/10 px-4 py-2">◈ Encrypted in transit & at rest</span><span class="rounded-full border border-white/10 px-4 py-2">◈ You control your data</span><span class="rounded-full border border-white/10 px-4 py-2">◈ Built for privacy</span></div></section>
-    <section class="mx-auto max-w-4xl px-5 py-28 text-center"><p class="eyebrow">Your career deserves momentum</p><h2 class="mt-4 text-4xl font-semibold tracking-[-.05em] sm:text-6xl">Make your next move<br>your best one.</h2><p class="mx-auto mt-5 max-w-xl text-zinc-400">Join thousands of professionals building a clearer, more confident career path.</p><a href="/dashboard" class="btn btn-primary mt-8 px-6 py-3">Build your career workspace <span>→</span></a></section>
-  </main>
-  <footer class="border-t border-white/[.07] px-5 py-9"><div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-xs text-zinc-600 sm:flex-row"><div class="flex items-center gap-2 font-semibold text-zinc-400"><span class="text-violet-400">✦</span> SMARTCV</div><div class="flex gap-5"><a href="/privacy" class="hover:text-zinc-300">Privacy</a><a href="/terms" class="hover:text-zinc-300">Terms</a><a href="/help" class="hover:text-zinc-300">Help center</a></div><span>© {{ date('Y') }} SmartCV, Inc.</span></div></footer>
-  <div data-modal class="fixed inset-0 z-50 hidden place-items-center bg-black/70 p-4 backdrop-blur-sm"><div class="card glow w-full max-w-md p-6"><div class="flex items-start justify-between"><div><p class="eyebrow">Smart recommendation</p><h3 class="mt-2 text-xl font-semibold">Make your impact visible.</h3></div><button data-close-modal class="text-zinc-500 hover:text-white">✕</button></div><p class="mt-4 text-sm leading-6 text-zinc-400">Your resume has strong experience. Adding measurable outcomes to two recent roles could increase your match score by 18 points.</p><a href="/analyze" class="btn btn-primary mt-6 w-full">Open resume studio</a></div></div>
-</body></html>
+</div>
+</body>
+</html>
