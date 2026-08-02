@@ -42,7 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
 
     foreach ($screens as $screen) {
         Route::get("/{$screen}", function () use ($screen) {
-            if (! auth()->user()->onboarding_completed_at && $screen !== 'onboarding') {
+            if (! request()->user()->onboarding_completed_at && $screen !== 'onboarding') {
                 return redirect()->route('onboarding.show');
             }
 
