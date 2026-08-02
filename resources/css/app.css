@@ -5,36 +5,41 @@
 
 @theme {
   --font-sans: "Inter", "Segoe UI", sans-serif;
-  --color-ink: #060609;
-  --color-surface: #0c0c12;
-  --color-panel: #13131c;
+  --color-ink: #070b18;
+  --color-surface: #0d1426;
+  --color-panel: #111a30;
   --color-line: rgba(255,255,255,.09);
-  --color-violet: #8b5cf6;
+  --color-violet: #6366f1;
 }
 
 * { box-sizing: border-box; }
-html { background: #060609; scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; background: #060609; color: #f7f7fb; font-family: var(--font-sans); }
+html { background: #070b18; scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; background: radial-gradient(circle at 85% -15%, rgba(34,211,238,.12), transparent 28%), radial-gradient(circle at 15% 0%, rgba(99,102,241,.17), transparent 30%), #070b18; color: #f7f7fb; font-family: var(--font-sans); }
 button, input, select { font: inherit; }
 button { cursor: pointer; }
 .noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E"); }
 .grid-bg { background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 36px 36px; }
-.glow { box-shadow: 0 0 0 1px rgba(167,139,250,.2), 0 15px 60px rgba(109,40,217,.18); }
+.glow { box-shadow: 0 0 0 1px rgba(103,232,249,.18), 0 18px 70px rgba(79,70,229,.2); }
 .glass { background: rgba(19,19,28,.78); border: 1px solid rgba(255,255,255,.09); backdrop-filter: blur(18px); }
-.card { border: 1px solid rgba(255,255,255,.09); background: linear-gradient(145deg, rgba(24,24,35,.92), rgba(13,13,20,.92)); border-radius: 20px; }
+.card { border: 1px solid rgba(148,163,184,.13); background: linear-gradient(145deg, rgba(20,31,56,.94), rgba(11,17,34,.94)); border-radius: 20px; box-shadow: inset 0 1px 0 rgba(255,255,255,.025); }
 .card-hover { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
-.card-hover:hover { transform: translateY(-3px); border-color: rgba(167,139,250,.45); box-shadow: 0 18px 45px rgba(0,0,0,.25); }
+.card-hover:hover { transform: translateY(-3px); border-color: rgba(34,211,238,.38); box-shadow: 0 20px 50px rgba(2,6,23,.42), 0 0 25px rgba(99,102,241,.12); }
 .nav-link { display:flex; align-items:center; gap:.7rem; border-radius:10px; padding:.62rem .75rem; color:#a7a7b5; font-size:.85rem; transition:.18s; }
-.nav-link:hover,.nav-link.active { background:rgba(139,92,246,.13); color:#f4f0ff; }
-.nav-link.active { box-shadow: inset 2px 0 #9f77ff; }
+.nav-link:hover,.nav-link.active { background:linear-gradient(90deg,rgba(99,102,241,.2),rgba(34,211,238,.06)); color:#f4faff; }
+.nav-link.active { box-shadow: inset 2px 0 #22d3ee; }
 .btn { display:inline-flex; align-items:center; justify-content:center; gap:.55rem; border-radius:11px; padding:.68rem 1rem; font-size:.83rem; font-weight:650; transition:.2s; }
-.btn-primary { background: linear-gradient(135deg,#a78bfa,#7c3aed); color:white; box-shadow:0 8px 24px rgba(124,58,237,.28); }
-.btn-primary:hover { filter:brightness(1.12); transform:translateY(-1px); }
-.btn-secondary { border:1px solid rgba(255,255,255,.12); color:#e8e5ef; background:rgba(255,255,255,.045); }
+.btn-primary { background: linear-gradient(135deg,#6366f1,#4f46e5 55%,#0891b2); color:white; box-shadow:0 10px 28px rgba(79,70,229,.3); }
+.btn-primary:hover { filter:brightness(1.12); transform:translateY(-1px); box-shadow:0 12px 32px rgba(34,211,238,.17); }
+.btn-secondary { border:1px solid rgba(148,163,184,.18); color:#e8f3ff; background:rgba(148,163,184,.055); }
 .btn-secondary:hover { background:rgba(255,255,255,.09); }
-.eyebrow { color:#a78bfa; letter-spacing:.14em; font-size:.68rem; font-weight:800; text-transform:uppercase; }
-.input { width:100%; border:1px solid rgba(255,255,255,.12); border-radius:10px; background:rgba(255,255,255,.045); padding:.68rem .8rem; color:#fff; outline:none; font-size:.85rem; }
-.input:focus { border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.15); }
+.eyebrow { color:#67e8f9; letter-spacing:.14em; font-size:.68rem; font-weight:800; text-transform:uppercase; }
+.input { width:100%; border:1px solid rgba(148,163,184,.18); border-radius:10px; background:rgba(15,23,42,.65); padding:.68rem .8rem; color:#fff; outline:none; font-size:.85rem; }
+.input:focus { border-color:#22d3ee; box-shadow:0 0 0 3px rgba(34,211,238,.13); }
+.fixed.w-64 { background: linear-gradient(180deg, rgba(10,18,39,.98), rgba(7,11,24,.98)) !important; border-color: rgba(34,211,238,.11) !important; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(34,211,238,.45) transparent; }
+.fixed.w-64::-webkit-scrollbar { width: 6px; }
+.fixed.w-64::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(34,211,238,.38); }
+header.sticky { background: rgba(7,11,24,.84) !important; border-color: rgba(34,211,238,.1) !important; }
+.grid-bg { background-image: linear-gradient(rgba(103,232,249,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.035) 1px, transparent 1px); }
 .progress-ring { stroke-linecap:round; transform:rotate(-90deg); transform-origin:50% 50%; }
 .chart-grid line { stroke:rgba(255,255,255,.08); stroke-dasharray:3 5; }
 @keyframes float { 50% { transform:translateY(-8px); } }
@@ -45,4 +50,28 @@ button { cursor: pointer; }
 .skeleton { overflow:hidden; position:relative; background:rgba(255,255,255,.07); }
 .skeleton:after { content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent); animation:shimmer 1.5s infinite; }
 [x-cloak] { display:none!important; }
-@media (max-height: 800px) and (min-width: 1024px) { [data-trial-card] { display: none; } }
+
+/* SmartCV is free for everyone: payment-only interfaces are intentionally removed. */
+a[href="/billing"],
+a[href="/pricing"],
+[data-trial-card] { display: none !important; }
+
+@media (min-width: 1024px) {
+  aside.fixed::after {
+    content: "FREE FOREVER\A Every career tool. No paywall.";
+    white-space: pre-line;
+    position: relative;
+    display: block;
+    margin-top: 1.5rem;
+    padding: .85rem .9rem;
+    border: 1px solid rgba(34,211,238,.2);
+    border-radius: .8rem;
+    color: #cffafe;
+    background: linear-gradient(135deg, rgba(79,70,229,.2), rgba(8,145,178,.1));
+    box-shadow: 0 12px 30px rgba(2,6,23,.28);
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.6;
+    letter-spacing: .02em;
+  }
+}
