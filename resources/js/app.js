@@ -22,4 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
     button.classList.add('bg-violet/15','text-white');
     document.querySelectorAll(`[data-panel-group="${group}"]`).forEach(el => el.classList.toggle('hidden', el.dataset.panel !== button.dataset.tab));
   }));
+  document.querySelectorAll('[data-upload-form]').forEach(form => form.addEventListener('submit', () => {
+    const progress = form.querySelector('[data-upload-progress]');
+    const bar = form.querySelector('[data-upload-bar]');
+    const percent = form.querySelector('[data-upload-percent]');
+    const label = form.querySelector('[data-upload-label]');
+    progress?.classList.remove('hidden');
+    if (label) label.textContent = 'Uploading and parsing';
+    if (bar) bar.style.width = '72%';
+    if (percent) percent.textContent = '72%';
+    form.querySelector('button')?.setAttribute('disabled', 'disabled');
+  }));
+  document.querySelectorAll('[data-ai-form]').forEach(form => form.addEventListener('submit', () => {
+    const button = form.querySelector('button');
+    if (!button) return;
+    button.textContent = 'Analyzing...';
+    button.setAttribute('disabled', 'disabled');
+  }));
 });
