@@ -30,6 +30,7 @@ class ResumeVersionController extends Controller
 
         $resumeVersion->update([
             'label' => $attributes['label'],
+            'name' => $attributes['label'],
             'change_summary' => 'User corrected extracted resume data.',
             'content' => $content,
         ]);
