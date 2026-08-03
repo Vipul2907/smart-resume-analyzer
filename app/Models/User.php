@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -49,5 +51,45 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'onboarding_completed_at' => 'datetime',
         ];
+    }
+
+    public function careerProfile(): HasOne
+    {
+        return $this->hasOne(CareerProfile::class);
+    }
+
+    public function resumes(): HasMany
+    {
+        return $this->hasMany(Resume::class);
+    }
+
+    public function jobApplications(): HasMany
+    {
+        return $this->hasMany(JobApplication::class);
+    }
+
+    public function interviewSessions(): HasMany
+    {
+        return $this->hasMany(InterviewSession::class);
+    }
+
+    public function skills(): HasMany
+    {
+        return $this->hasMany(Skill::class);
+    }
+
+    public function careerGoals(): HasMany
+    {
+        return $this->hasMany(CareerGoal::class);
+    }
+
+    public function portfolioProjects(): HasMany
+    {
+        return $this->hasMany(PortfolioProject::class);
+    }
+
+    public function aiAnalyses(): HasMany
+    {
+        return $this->hasMany(AiAnalysis::class);
     }
 }
