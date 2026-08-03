@@ -59,30 +59,39 @@ class ResumeController extends Controller
         ]);
 
         $file = $request->file('resume_file');
-        $path = $file->storeAs(
-            'resumes/'.$request->user()->id,
-            Str::uuid().'.'.$file->getClientOriginalExtension(),
-            'local'
+        $extension = $file->extension();
+        $path = $file->storeAs('resumes/'.$request->user()->id, Str::uuid().'.'.$extension, 'local');
+
+        try {
+            $resume = DB::transaction(function () use ($request, $file, $path, $attributes): Resume {
+                $isFirstResume = ! $request->user()->resumes()->exists();
+
+                return $request->user()->resumes()->create([
+                    'name' => $attributes['name'] ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                    'title' => $attributes['name'] ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                    'original_filename' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'file_disk' => 'local',
+                    'mime_type' => $file->getMimeType() ?: 'application/octet-stream',
+                    'file_size' => $file->getSize(),
+                    'parse_status' => 'pending',
+                    'is_primary' => $isFirstResume,
+                    'is_default' => $isFirstResume,
+                ]);
+            });
+        } catch (\Throwable $exception) {
+            Storage::disk('local')->delete($path);
+            report($exception);
+
+            return back()->withInput()->with('error', 'Your resume could not be saved. Please try again.');
+        }
+
+        $parsed = $this->parseResume($resume, $extractor, $parser);
+
+        return redirect()->route('resumes.show', $resume)->with(
+            $parsed ? 'status' : 'error',
+            $parsed ? 'Resume uploaded and parsed.' : 'Resume uploaded, but SmartCV could not read it yet. You can try re-parsing it.'
         );
-
-        $resume = DB::transaction(function () use ($request, $file, $path, $attributes): Resume {
-            $isFirstResume = ! $request->user()->resumes()->exists();
-
-            return $request->user()->resumes()->create([
-                'name' => $attributes['name'] ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-                'original_filename' => $file->getClientOriginalName(),
-                'file_path' => $path,
-                'file_disk' => 'local',
-                'mime_type' => $file->getMimeType() ?: 'application/octet-stream',
-                'file_size' => $file->getSize(),
-                'parse_status' => 'pending',
-                'is_primary' => $isFirstResume,
-            ]);
-        });
-
-        $this->parseResume($resume, $extractor, $parser);
-
-        return redirect()->route('resumes.show', $resume)->with('status', 'Resume uploaded and parsed.');
     }
 
     public function update(Request $request, Resume $resume): RedirectResponse
@@ -97,7 +106,7 @@ class ResumeController extends Controller
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        $resume->update($attributes);
+        $resume->update($attributes + ['title' => $attributes['name']]);
 
         return back()->with('status', 'Resume renamed.');
     }
@@ -132,8 +141,8 @@ class ResumeController extends Controller
         $this->authorizeUser($request, $resume);
 
         DB::transaction(function () use ($request, $resume): void {
-            $request->user()->resumes()->update(['is_primary' => false]);
-            $resume->update(['is_primary' => true]);
+            $request->user()->resumes()->update(['is_primary' => false, 'is_default' => false]);
+            $resume->update(['is_primary' => true, 'is_default' => true]);
         });
 
         return back()->with('status', 'Primary resume updated.');
@@ -142,11 +151,12 @@ class ResumeController extends Controller
     public function download(Request $request, Resume $resume)
     {
         $this->authorizeUser($request, $resume);
+        abort_unless(Storage::disk($resume->file_disk)->exists($resume->file_path), 404);
 
         return Storage::disk($resume->file_disk)->download($resume->file_path, $resume->original_filename);
     }
 
-    private function parseResume(Resume $resume, ResumeTextExtractor $extractor, ResumeParser $parser): void
+    private function parseResume(Resume $resume, ResumeTextExtractor $extractor, ResumeParser $parser): bool
     {
         try {
             $extracted = $extractor->extract($resume);
@@ -169,15 +179,22 @@ class ResumeController extends Controller
 
             $resume->versions()->update(['is_current' => false]);
             $resume->versions()->create([
+                'user_id' => $resume->user_id,
                 'version_number' => (int) $resume->versions()->max('version_number') + 1,
                 'label' => 'Parsed import',
+                'name' => 'Parsed import',
                 'change_summary' => $extracted['message'] ?: 'Created from uploaded resume text.',
                 'content' => $content,
                 'is_current' => true,
+                'is_active' => true,
             ]);
+
+            return true;
         } catch (\Throwable $exception) {
             $resume->update(['parse_status' => 'failed']);
             report($exception);
+
+            return false;
         }
     }
 
