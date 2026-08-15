@@ -6,6 +6,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ResumeParseController;
 use App\Http\Controllers\ResumeVersionController;
+use App\Http\Controllers\WorkspaceController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -55,7 +56,37 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::patch('/resume-versions/{resumeVersion}', [ResumeVersionController::class, 'update'])->name('resume-versions.update');
     Route::post('/resumes/{resume}/ai-analyses', [AiAnalysisController::class, 'store'])->middleware('throttle:3,1')->name('ai-analyses.store');
 
-    foreach ($screens as $screen) {
+    Route::get('/dashboard', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'dashboard'))->name('dashboard');
+
+    Route::get('/jobs', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'jobs'))->name('jobs');
+    Route::post('/jobs', [WorkspaceController::class, 'storeJob'])->name('jobs.store');
+    Route::patch('/jobs/{job}', [WorkspaceController::class, 'updateJob'])->name('jobs.update');
+    Route::delete('/jobs/{job}', [WorkspaceController::class, 'destroyJob'])->name('jobs.destroy');
+
+    Route::get('/interviews', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'interviews'))->name('interviews');
+    Route::post('/interviews', [WorkspaceController::class, 'storeInterview'])->name('interviews.store');
+    Route::patch('/interviews/{interview}/complete', [WorkspaceController::class, 'completeInterview'])->name('interviews.complete');
+    Route::delete('/interviews/{interview}', [WorkspaceController::class, 'destroyInterview'])->name('interviews.destroy');
+
+    Route::get('/skills', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'skills'))->name('skills');
+    Route::post('/skills', [WorkspaceController::class, 'storeSkill'])->name('skills.store');
+    Route::delete('/skills/{skill}', [WorkspaceController::class, 'destroySkill'])->name('skills.destroy');
+
+    Route::get('/insights', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'insights'))->name('insights');
+    Route::post('/goals', [WorkspaceController::class, 'storeGoal'])->name('goals.store');
+    Route::patch('/goals/{goal}', [WorkspaceController::class, 'updateGoal'])->name('goals.update');
+    Route::delete('/goals/{goal}', [WorkspaceController::class, 'destroyGoal'])->name('goals.destroy');
+
+    Route::get('/portfolio', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'portfolio'))->name('portfolio');
+    Route::post('/portfolio', [WorkspaceController::class, 'storeProject'])->name('portfolio.store');
+    Route::delete('/portfolio/{project}', [WorkspaceController::class, 'destroyProject'])->name('portfolio.destroy');
+
+    Route::get('/analytics', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'analytics'))->name('analytics');
+    Route::get('/profile', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'profile'))->name('profile');
+    Route::get('/settings', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'settings'))->name('settings');
+    Route::patch('/profile', [WorkspaceController::class, 'updateProfile'])->name('profile.update');
+
+    foreach (array_diff($screens, ['dashboard', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings']) as $screen) {
         Route::get("/{$screen}", function () use ($screen) {
             if (! request()->user()->onboarding_completed_at && $screen !== 'onboarding') {
                 return redirect()->route('onboarding.show');
