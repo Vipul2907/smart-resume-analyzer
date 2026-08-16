@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -66,7 +67,7 @@ class ResumeController extends Controller
             $resume = DB::transaction(function () use ($request, $file, $path, $attributes): Resume {
                 $isFirstResume = ! $request->user()->resumes()->exists();
 
-                return $request->user()->resumes()->create([
+                return $request->user()->resumes()->create($this->available('resumes', [
                     'name' => $attributes['name'] ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
                     'title' => $attributes['name'] ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
                     'original_filename' => $file->getClientOriginalName(),
@@ -77,7 +78,7 @@ class ResumeController extends Controller
                     'parse_status' => 'pending',
                     'is_primary' => $isFirstResume,
                     'is_default' => $isFirstResume,
-                ]);
+                ]));
             });
         } catch (\Throwable $exception) {
             Storage::disk('local')->delete($path);
@@ -106,7 +107,7 @@ class ResumeController extends Controller
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        $resume->update($attributes + ['title' => $attributes['name']]);
+        $resume->update($this->available('resumes', $attributes + ['title' => $attributes['name']]));
 
         return back()->with('status', 'Resume renamed.');
     }
@@ -141,8 +142,8 @@ class ResumeController extends Controller
         $this->authorizeUser($request, $resume);
 
         DB::transaction(function () use ($request, $resume): void {
-            $request->user()->resumes()->update(['is_primary' => false, 'is_default' => false]);
-            $resume->update(['is_primary' => true, 'is_default' => true]);
+            $request->user()->resumes()->update($this->available('resumes', ['is_primary' => false, 'is_default' => false]));
+            $resume->update($this->available('resumes', ['is_primary' => true, 'is_default' => true]));
         });
 
         return back()->with('status', 'Primary resume updated.');
@@ -178,7 +179,7 @@ class ResumeController extends Controller
             ]);
 
             $resume->versions()->update(['is_current' => false]);
-            $resume->versions()->create([
+            $resume->versions()->create($this->available('resume_versions', [
                 'user_id' => $resume->user_id,
                 'version_number' => (int) $resume->versions()->max('version_number') + 1,
                 'label' => 'Parsed import',
@@ -187,7 +188,7 @@ class ResumeController extends Controller
                 'content' => $content,
                 'is_current' => true,
                 'is_active' => true,
-            ]);
+            ]));
 
             return true;
         } catch (\Throwable $exception) {
@@ -210,5 +211,10 @@ class ResumeController extends Controller
         }
 
         return null;
+    }
+
+    private function available(string $table, array $attributes): array
+    {
+        return array_intersect_key($attributes, array_flip(Schema::getColumnListing($table)));
     }
 }

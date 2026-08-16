@@ -7,6 +7,7 @@ use App\Services\ResumeParser;
 use App\Services\ResumeTextExtractor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class ResumeParseController extends Controller
 {
@@ -27,7 +28,7 @@ class ResumeParseController extends Controller
             ]);
 
             $resume->versions()->update(['is_current' => false]);
-            $resume->versions()->create([
+            $version = [
                 'user_id' => $resume->user_id,
                 'version_number' => (int) $resume->versions()->max('version_number') + 1,
                 'label' => 'Re-parsed resume',
@@ -36,7 +37,9 @@ class ResumeParseController extends Controller
                 'content' => $extracted['text'] !== '' ? $parser->parse($extracted['text']) : ['message' => $extracted['message'], 'raw_text' => ''],
                 'is_current' => true,
                 'is_active' => true,
-            ]);
+            ];
+
+            $resume->versions()->create(array_intersect_key($version, array_flip(Schema::getColumnListing('resume_versions'))));
         } catch (\Throwable $exception) {
             $resume->update(['parse_status' => 'failed']);
             report($exception);
