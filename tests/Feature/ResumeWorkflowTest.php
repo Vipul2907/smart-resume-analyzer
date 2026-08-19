@@ -34,7 +34,9 @@ class ResumeWorkflowTest extends TestCase
         $this->assertSame('parsed', $resume->parse_status);
         $this->assertStringContainsString('Laravel developer', $resume->extracted_text);
         $this->assertDatabaseHas('resume_versions', ['resume_id' => $resume->id, 'is_current' => true]);
-        Storage::disk('local')->assertExists($resume->file_path);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('local');
+        $disk->assertExists($resume->file_path);
     }
 
     public function test_users_cannot_access_each_others_resumes(): void
@@ -84,7 +86,9 @@ class ResumeWorkflowTest extends TestCase
 
         $this->assertDatabaseHas('resumes', ['id' => $first->id, 'name' => 'Updated', 'is_primary' => true]);
         $this->assertSoftDeleted('resumes', ['id' => $second->id]);
-        Storage::disk('local')->assertMissing($second->file_path);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('local');
+        $disk->assertMissing($second->file_path);
     }
 
     public function test_ai_analysis_requires_consent_and_saves_groq_result(): void

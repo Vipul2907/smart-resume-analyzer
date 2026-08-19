@@ -61,7 +61,7 @@ class AiAnalysisController extends Controller
 
             report($exception);
 
-            return back()->with('error', 'AI analysis could not finish: '.$exception->getMessage());
+            return back()->with('error', 'AI analysis could not finish right now. Please check your Groq setup and try again shortly.');
         }
     }
 }
