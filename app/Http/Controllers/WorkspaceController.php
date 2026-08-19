@@ -6,11 +6,14 @@ use App\Models\CareerGoal;
 use App\Models\CareerProfile;
 use App\Models\InterviewSession;
 use App\Models\JobApplication;
+use App\Models\JobAttachment;
+use App\Models\JobContact;
 use App\Models\PortfolioProject;
 use App\Models\Skill;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -22,7 +25,20 @@ class WorkspaceController extends Controller
         $data = ['screen' => $screen];
 
         if ($screen === 'jobs') {
-            $data['jobs'] = $user->jobApplications()->latest()->get();
+            $filter = $request->string('status')->toString();
+            $query = $user->jobApplications()->with(['contacts', 'attachments'])->latest();
+            if (in_array($filter, $this->jobStatuses(), true)) {
+                $query->where('status', $filter);
+            }
+            if ($request->filled('search')) {
+                $term = '%'.$request->string('search')->toString().'%';
+                $query->where(fn ($builder) => $builder->where('company', 'like', $term)->orWhere('role', 'like', $term));
+            }
+            $data['jobs'] = $query->get();
+            $data['jobCounts'] = $user->jobApplications()->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+            $data['activeFilter'] = $filter;
+
+            return view('workspace.jobs', $data);
         }
 
         if ($screen === 'interviews') {
@@ -75,6 +91,8 @@ class WorkspaceController extends Controller
             'job_url' => ['nullable', 'url', 'max:2048'],
             'applied_at' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:5000'],
+            'follow_up_at' => ['nullable', 'date'],
+            'priority' => ['nullable', 'integer', 'min:0', 'max:3'],
         ]);
 
         $this->create(JobApplication::class, 'job_applications', $data + [
@@ -89,10 +107,72 @@ class WorkspaceController extends Controller
     public function updateJob(Request $request, JobApplication $job): RedirectResponse
     {
         $this->owns($request, $job);
-        $data = $request->validate(['status' => ['required', 'in:saved,applied,interviewing,offer,rejected,withdrawn']]);
-        $job->update($data);
+        $data = $request->validate([
+            'company' => ['required', 'string', 'max:255'], 'role' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'in:saved,applied,interviewing,offer,rejected,withdrawn'],
+            'location' => ['nullable', 'string', 'max:255'], 'work_mode' => ['nullable', 'string', 'max:50'],
+            'job_url' => ['nullable', 'url', 'max:2048'], 'applied_at' => ['nullable', 'date'],
+            'follow_up_at' => ['nullable', 'date'], 'priority' => ['nullable', 'integer', 'min:0', 'max:3'],
+            'notes' => ['nullable', 'string', 'max:5000'],
+        ]);
+        $this->updateAvailable($job, 'job_applications', $data + ['work_type' => $data['work_mode'] ?? null, 'application_date' => $data['applied_at'] ?? null]);
 
         return back()->with('status', 'Application status updated.');
+    }
+
+    public function storeJobContact(Request $request, JobApplication $job): RedirectResponse
+    {
+        $this->owns($request, $job);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'], 'role' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'], 'linkedin_url' => ['nullable', 'url', 'max:2048'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ]);
+        $job->contacts()->create($data);
+
+        return back()->with('status', 'Recruiter contact saved.');
+    }
+
+    public function destroyJobContact(Request $request, JobApplication $job, JobContact $contact): RedirectResponse
+    {
+        $this->owns($request, $job);
+        abort_unless($contact->job_application_id === $job->id, 404);
+        $contact->delete();
+
+        return back()->with('status', 'Recruiter contact removed.');
+    }
+
+    public function storeJobAttachment(Request $request, JobApplication $job): RedirectResponse
+    {
+        $this->owns($request, $job);
+        $request->validate(['attachment' => ['required', 'file', 'max:10240', 'mimes:pdf,doc,docx,txt,png,jpg,jpeg']]);
+        $file = $request->file('attachment');
+        $path = $file->store('job-attachments/'.$request->user()->id.'/'.$job->id, 'local');
+        $job->attachments()->create([
+            'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+            'original_filename' => $file->getClientOriginalName(), 'file_path' => $path, 'file_disk' => 'local',
+            'mime_type' => $file->getMimeType() ?: 'application/octet-stream', 'file_size' => $file->getSize(),
+        ]);
+
+        return back()->with('status', 'Private attachment uploaded.');
+    }
+
+    public function downloadJobAttachment(Request $request, JobApplication $job, JobAttachment $attachment)
+    {
+        $this->owns($request, $job);
+        abort_unless($attachment->job_application_id === $job->id && Storage::disk($attachment->file_disk)->exists($attachment->file_path), 404);
+
+        return Storage::disk($attachment->file_disk)->download($attachment->file_path, $attachment->original_filename);
+    }
+
+    public function destroyJobAttachment(Request $request, JobApplication $job, JobAttachment $attachment): RedirectResponse
+    {
+        $this->owns($request, $job);
+        abort_unless($attachment->job_application_id === $job->id, 404);
+        Storage::disk($attachment->file_disk)->delete($attachment->file_path);
+        $attachment->delete();
+
+        return back()->with('status', 'Attachment removed.');
     }
 
     public function destroyJob(Request $request, JobApplication $job): RedirectResponse
@@ -246,5 +326,10 @@ class WorkspaceController extends Controller
     private function owns(Request $request, object $model): void
     {
         abort_unless($model->user_id === $request->user()->id, 404);
+    }
+
+    private function jobStatuses(): array
+    {
+        return ['saved', 'applied', 'interviewing', 'offer', 'rejected', 'withdrawn'];
     }
 }
