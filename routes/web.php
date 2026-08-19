@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiAnalysisController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ResumeController;
+use App\Http\Controllers\ResumeBuilderController;
 use App\Http\Controllers\ResumeParseController;
 use App\Http\Controllers\ResumeVersionController;
 use App\Http\Controllers\WorkspaceController;
@@ -46,6 +47,14 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 
     Route::get('/resumes', [ResumeController::class, 'index'])->name('resumes');
+    Route::get('/resumes/create', [ResumeBuilderController::class, 'create'])->name('resumes.builder.create');
+    Route::post('/resumes/builder', [ResumeBuilderController::class, 'store'])->name('resumes.builder.store');
+    Route::get('/resumes/{resume}/builder', [ResumeBuilderController::class, 'edit'])->name('resumes.builder.edit');
+    Route::patch('/resumes/{resume}/builder', [ResumeBuilderController::class, 'update'])->name('resumes.builder.update');
+    Route::post('/resumes/{resume}/duplicate', [ResumeBuilderController::class, 'duplicate'])->name('resumes.duplicate');
+    Route::post('/resumes/{resume}/versions', [ResumeBuilderController::class, 'newVersion'])->name('resumes.versions.store');
+    Route::get('/resumes/{resume}/preview', [ResumeBuilderController::class, 'preview'])->name('resumes.preview');
+    Route::get('/resumes/{resume}/export/docx', [ResumeBuilderController::class, 'exportDocx'])->name('resumes.export.docx');
     Route::post('/resumes', [ResumeController::class, 'store'])->middleware('throttle:10,1')->name('resumes.store');
     Route::get('/resumes/{resume}', [ResumeController::class, 'show'])->name('resumes.show');
     Route::patch('/resumes/{resume}', [ResumeController::class, 'update'])->name('resumes.update');
@@ -62,6 +71,11 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::post('/jobs', [WorkspaceController::class, 'storeJob'])->name('jobs.store');
     Route::patch('/jobs/{job}', [WorkspaceController::class, 'updateJob'])->name('jobs.update');
     Route::delete('/jobs/{job}', [WorkspaceController::class, 'destroyJob'])->name('jobs.destroy');
+    Route::post('/jobs/{job}/contacts', [WorkspaceController::class, 'storeJobContact'])->name('jobs.contacts.store');
+    Route::delete('/jobs/{job}/contacts/{contact}', [WorkspaceController::class, 'destroyJobContact'])->name('jobs.contacts.destroy');
+    Route::post('/jobs/{job}/attachments', [WorkspaceController::class, 'storeJobAttachment'])->name('jobs.attachments.store');
+    Route::get('/jobs/{job}/attachments/{attachment}', [WorkspaceController::class, 'downloadJobAttachment'])->name('jobs.attachments.download');
+    Route::delete('/jobs/{job}/attachments/{attachment}', [WorkspaceController::class, 'destroyJobAttachment'])->name('jobs.attachments.destroy');
 
     Route::get('/interviews', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'interviews'))->name('interviews');
     Route::post('/interviews', [WorkspaceController::class, 'storeInterview'])->name('interviews.store');
