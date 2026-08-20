@@ -9,6 +9,15 @@ class CareerGoal extends Model
 {
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'target_date' => 'date',
+            'milestones' => 'array',
+            'progress' => 'integer',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

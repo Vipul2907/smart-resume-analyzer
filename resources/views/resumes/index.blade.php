@@ -26,6 +26,7 @@
           </div>
           <div class="flex flex-wrap gap-2">
             <a href="{{ route('resumes.show', $resume) }}" class="btn btn-secondary">Details</a>
+            <a href="{{ route('resumes.builder.edit', $resume) }}" class="btn btn-secondary">Edit builder</a>
             <a href="{{ route('resumes.download', $resume) }}" class="btn btn-secondary">Download</a>
             <a href="/analyze" class="btn btn-primary">Analyze</a>
           </div>
@@ -41,7 +42,7 @@
         <p class="eyebrow">No resumes yet</p>
         <h2 class="mt-3 text-xl font-semibold">Upload your first resume.</h2>
         <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">SmartCV keeps files private, extracts readable text, and creates a structured version you can correct.</p>
-        <a href="#upload-resume" class="btn btn-primary mt-5">Upload resume</a>
+        <div class="mt-5 flex flex-wrap justify-center gap-2"><a href="{{ route('resumes.builder.create') }}" class="btn btn-primary">Create from scratch</a><a href="#upload-resume" class="btn btn-secondary">Upload resume</a></div>
       </article>
     @endforelse
 
@@ -130,5 +131,6 @@
       <button class="btn btn-primary w-full">Upload and parse</button>
     </form>
     <p class="mt-3 text-center text-[10px] text-zinc-600">Only your account can access uploaded files.</p>
+    <a href="{{ route('resumes.builder.create') }}" class="btn btn-secondary mt-3 w-full">Create from scratch</a>
   </aside>
 </section>

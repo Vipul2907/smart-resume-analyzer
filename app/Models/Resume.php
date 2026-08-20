@@ -23,12 +23,16 @@ class Resume extends Model
         'parse_status',
         'is_primary',
         'last_analyzed_at',
+        'title',
+        'is_default',
     ];
 
     protected function casts(): array
     {
         return [
+            'file_size' => 'integer',
             'is_primary' => 'boolean',
+            'is_default' => 'boolean',
             'last_analyzed_at' => 'datetime',
         ];
     }

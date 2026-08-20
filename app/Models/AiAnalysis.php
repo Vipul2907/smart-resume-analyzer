@@ -31,6 +31,9 @@ class AiAnalysis extends Model
         return [
             'input_snapshot' => 'array',
             'result' => 'array',
+            'score' => 'integer',
+            'input_tokens' => 'integer',
+            'output_tokens' => 'integer',
             'requested_at' => 'datetime',
             'completed_at' => 'datetime',
         ];

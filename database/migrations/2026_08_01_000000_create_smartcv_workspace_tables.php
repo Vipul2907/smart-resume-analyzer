@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('career_profiles')) {
         Schema::create('career_profiles', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
@@ -25,7 +26,9 @@ return new class extends Migration
             $table->unsignedTinyInteger('profile_completeness')->default(0);
             $table->timestamps();
         });
+        }
 
+        if (! Schema::hasTable('resumes')) {
         Schema::create('resumes', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -45,7 +48,9 @@ return new class extends Migration
             $table->index(['user_id', 'is_primary']);
             $table->index(['user_id', 'parse_status']);
         });
+        }
 
+        if (! Schema::hasTable('resume_versions')) {
         Schema::create('resume_versions', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('resume_id')->constrained()->cascadeOnDelete();
@@ -59,7 +64,9 @@ return new class extends Migration
             $table->unique(['resume_id', 'version_number']);
             $table->index(['resume_id', 'is_current']);
         });
+        }
 
+        if (! Schema::hasTable('job_applications')) {
         Schema::create('job_applications', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -84,7 +91,9 @@ return new class extends Migration
             $table->index(['user_id', 'status']);
             $table->index(['user_id', 'follow_up_at']);
         });
+        }
 
+        if (! Schema::hasTable('interview_sessions')) {
         Schema::create('interview_sessions', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -106,7 +115,9 @@ return new class extends Migration
             $table->index(['user_id', 'status']);
             $table->index(['user_id', 'scheduled_at']);
         });
+        }
 
+        if (! Schema::hasTable('skills')) {
         Schema::create('skills', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -122,7 +133,9 @@ return new class extends Migration
             $table->unique(['user_id', 'name']);
             $table->index(['user_id', 'is_priority']);
         });
+        }
 
+        if (! Schema::hasTable('career_goals')) {
         Schema::create('career_goals', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -138,7 +151,9 @@ return new class extends Migration
 
             $table->index(['user_id', 'status']);
         });
+        }
 
+        if (! Schema::hasTable('portfolio_projects')) {
         Schema::create('portfolio_projects', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -160,7 +175,9 @@ return new class extends Migration
 
             $table->index(['user_id', 'is_featured']);
         });
+        }
 
+        if (! Schema::hasTable('ai_analyses')) {
         Schema::create('ai_analyses', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -184,7 +201,9 @@ return new class extends Migration
             $table->index(['user_id', 'analysis_type', 'status']);
             $table->index(['resume_id', 'created_at']);
         });
+        }
 
+        if (! Schema::hasTable('notifications')) {
         Schema::create('notifications', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('type');
@@ -193,6 +212,7 @@ return new class extends Migration
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void

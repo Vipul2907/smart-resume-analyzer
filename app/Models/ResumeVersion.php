@@ -14,13 +14,18 @@ class ResumeVersion extends Model
         'change_summary',
         'content',
         'is_current',
+        'user_id',
+        'name',
+        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
+            'version_number' => 'integer',
             'content' => 'array',
             'is_current' => 'boolean',
+            'is_active' => 'boolean',
         ];
     }
 

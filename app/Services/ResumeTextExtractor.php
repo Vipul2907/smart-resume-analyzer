@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Resume;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
+use Smalot\PdfParser\Parser as PdfParser;
 use ZipArchive;
 
 class ResumeTextExtractor
@@ -20,7 +21,7 @@ class ResumeTextExtractor
         $text = match ($extension) {
             'txt' => $this->normalizeText($contents),
             'docx' => $this->extractDocx($resume),
-            'pdf' => $this->extractPdfText($contents),
+            'pdf' => $this->extractPdf($resume, $contents),
             default => '',
         };
 
@@ -109,6 +110,22 @@ class ResumeTextExtractor
         }
 
         return $this->normalizeText(implode(' ', $pieces));
+    }
+
+    private function extractPdf(Resume $resume, string $contents): string
+    {
+        try {
+            $parser = new PdfParser();
+            $text = $parser->parseFile(Storage::disk($resume->file_disk)->path($resume->file_path))->getText();
+
+            if ($normalized = $this->normalizeText($text)) {
+                return $normalized;
+            }
+        } catch (\Throwable) {
+            // The fallback below is useful for a few simple PDFs that have malformed metadata.
+        }
+
+        return $this->extractPdfText($contents);
     }
 
     private function normalizeText(string $text): string
