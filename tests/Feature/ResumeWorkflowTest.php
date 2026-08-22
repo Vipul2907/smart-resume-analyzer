@@ -134,6 +134,48 @@ class ResumeWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_ai_analysis_allows_a_non_primary_resume(): void
+    {
+        config(['services.groq.key' => 'test-key']);
+        Http::fake([
+            'api.groq.com/*' => Http::response([
+                'choices' => [[
+                    'message' => ['content' => json_encode([
+                        'score' => 78,
+                        'strengths' => ['Clear supporting experience'],
+                        'weaknesses' => ['Add measurable outcomes'],
+                        'missing_sections' => ['Certifications'],
+                        'next_actions' => ['Tailor the summary'],
+                    ])],
+                ]],
+                'usage' => ['prompt_tokens' => 20, 'completion_tokens' => 30],
+            ]),
+        ]);
+
+        $user = $this->onboardedUser();
+        $resume = $user->resumes()->create([
+            'name' => 'Secondary Resume',
+            'original_filename' => 'secondary.txt',
+            'file_path' => 'resumes/'.$user->id.'/secondary.txt',
+            'mime_type' => 'text/plain',
+            'file_size' => 100,
+            'extracted_text' => 'A parsed secondary resume.',
+            'parse_status' => 'parsed',
+            'is_primary' => false,
+        ]);
+
+        $this->actingAs($user)->post(route('ai-analyses.store', $resume), [
+            'analysis_type' => 'resume_review',
+            'accepted_ai_privacy' => '1',
+        ])->assertSessionHas('status');
+
+        $this->assertDatabaseHas('ai_analyses', [
+            'resume_id' => $resume->id,
+            'status' => 'completed',
+            'score' => 78,
+        ]);
+    }
+
     private function onboardedUser(): User
     {
         return User::factory()->create([
