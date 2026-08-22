@@ -9,6 +9,16 @@ class InterviewSession extends Model
 {
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'questions' => 'array',
+            'responses' => 'array',
+            'feedback' => 'array',
+            'completed_at' => 'datetime',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
