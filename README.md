@@ -2858,14 +2858,6 @@ The project demonstrates how modern web development, document processing, struct
 
 ---
 
-# 👨‍💻 Author
-
-**Vipul2907**
-
-Developed as a full-stack project focused on combining modern web application development with AI-assisted resume analysis and career management.
-
----
-
 # 📄 License
 
 This project should be used according to the license specified by the repository.
