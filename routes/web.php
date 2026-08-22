@@ -79,11 +79,13 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
 
     Route::get('/interviews', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'interviews'))->name('interviews');
     Route::post('/interviews', [WorkspaceController::class, 'storeInterview'])->name('interviews.store');
+    Route::patch('/interviews/{interview}/responses', [WorkspaceController::class, 'saveInterviewResponses'])->name('interviews.responses.update');
     Route::patch('/interviews/{interview}/complete', [WorkspaceController::class, 'completeInterview'])->name('interviews.complete');
     Route::delete('/interviews/{interview}', [WorkspaceController::class, 'destroyInterview'])->name('interviews.destroy');
 
     Route::get('/skills', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'skills'))->name('skills');
     Route::post('/skills', [WorkspaceController::class, 'storeSkill'])->name('skills.store');
+    Route::get('/skills/{skill}/certificate', [WorkspaceController::class, 'downloadSkillCertificate'])->name('skills.certificate.download');
     Route::delete('/skills/{skill}', [WorkspaceController::class, 'destroySkill'])->name('skills.destroy');
 
     Route::get('/insights', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'insights'))->name('insights');
@@ -101,19 +103,31 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::patch('/profile', [WorkspaceController::class, 'updateProfile'])->name('profile.update');
 
     foreach (array_diff($screens, ['dashboard', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings']) as $screen) {
-        Route::get("/{$screen}", function () use ($screen) {
+        Route::get("/{$screen}", function (Request $request) use ($screen) {
             if (! request()->user()->onboarding_completed_at && $screen !== 'onboarding') {
                 return redirect()->route('onboarding.show');
             }
 
-            $user = request()->user();
-            $primaryResume = $user->resumes()->with(['versions' => fn ($query) => $query->latest(), 'aiAnalyses' => fn ($query) => $query->latest()->limit(5)])->where('is_primary', true)->first()
-                ?: $user->resumes()->with(['versions' => fn ($query) => $query->latest(), 'aiAnalyses' => fn ($query) => $query->latest()->limit(5)])->latest()->first();
+            $user = $request->user();
+            $resumes = $user->resumes()
+                ->orderByDesc('is_primary')
+                ->latest()
+                ->get();
+            $requestedResume = $request->integer('resume');
+            $primaryResume = $requestedResume
+                ? $resumes->firstWhere('id', $requestedResume)
+                : $resumes->firstWhere('is_primary', true);
+            $primaryResume = $primaryResume ?: $resumes->first();
+
+            if ($primaryResume) {
+                $primaryResume->load(['versions' => fn ($query) => $query->latest(), 'aiAnalyses' => fn ($query) => $query->where('status', 'completed')->latest()->limit(5)]);
+            }
 
             return view('app', [
                 'screen' => $screen,
                 'primaryResume' => $primaryResume,
-                'latestAnalysis' => $primaryResume?->aiAnalyses()->latest()->first(),
+                'resumes' => $resumes,
+                'latestAnalysis' => $primaryResume?->aiAnalyses()->where('status', 'completed')->latest()->first(),
             ]);
         })->name($screen);
     }
