@@ -59,7 +59,14 @@ class WorkspaceController extends Controller
             $data['projects'] = $user->portfolioProjects()->latest()->get();
         }
 
-        if (in_array($screen, ['dashboard', 'analytics'], true)) {
+        if ($screen === 'dashboard') {
+            $data['recentJobs'] = $user->jobApplications()->latest()->limit(4)->get();
+            $data['upcomingFollowUps'] = $user->jobApplications()->whereNotNull('follow_up_at')->whereDate('follow_up_at', '>=', today())->orderBy('follow_up_at')->limit(4)->get();
+            $data['recentInterviews'] = $user->interviewSessions()->latest()->limit(3)->get();
+            $data['primaryResume'] = $user->resumes()->where('is_primary', true)->first() ?: $user->resumes()->latest()->first();
+        }
+
+        if ($screen === 'analytics') {
             $jobs = $user->jobApplications()->get();
             $interviews = $user->interviewSessions()->get();
             $data['metrics'] = [
@@ -196,13 +203,32 @@ class WorkspaceController extends Controller
             abort_unless($request->user()->jobApplications()->whereKey($data['job_application_id'])->exists(), 404);
         }
 
+        $questions = $this->interviewQuestions($data['session_type'], $data['target_role'] ?? 'your target role');
         $this->create(InterviewSession::class, 'interview_sessions', $data + [
             'user_id' => $request->user()->id,
-            'status' => 'planned',
+            'status' => 'in_progress',
             'type' => $data['session_type'],
+            'questions' => $questions,
+            'questions_count' => count($questions),
+            'completed_questions' => 0,
         ]);
 
-        return back()->with('status', 'Interview practice session created.');
+        return back()->with('status', 'Interview practice is ready. Answer the questions, save your progress, then mark it complete.');
+    }
+
+    public function saveInterviewResponses(Request $request, InterviewSession $interview): RedirectResponse
+    {
+        $this->owns($request, $interview);
+        $data = $request->validate(['answers' => ['nullable', 'array'], 'answers.*' => ['nullable', 'string', 'max:5000']]);
+        $answers = collect($data['answers'] ?? [])->map(fn ($answer) => trim((string) $answer))->all();
+        $this->updateAvailable($interview, 'interview_sessions', [
+            'responses' => $answers,
+            'completed_questions' => collect($answers)->filter()->count(),
+            'status' => 'in_progress',
+            'started_at' => $interview->started_at ?: now(),
+        ]);
+
+        return back()->with('status', 'Your interview answers have been saved.');
     }
 
     public function completeInterview(Request $request, InterviewSession $interview): RedirectResponse
@@ -230,8 +256,21 @@ class WorkspaceController extends Controller
             'name' => ['required', 'string', 'max:255'], 'category' => ['nullable', 'string', 'max:255'],
             'proficiency' => ['nullable', 'integer', 'min:0', 'max:100'], 'years_experience' => ['nullable', 'numeric', 'min:0', 'max:99'],
             'is_priority' => ['nullable', 'boolean'], 'evidence' => ['nullable', 'string', 'max:1000'],
+            'certificate' => ['nullable', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,webp'],
         ]);
-        $this->create(Skill::class, 'skills', $data + ['user_id' => $request->user()->id, 'is_learning' => false]);
+        $certificate = [];
+        if ($request->hasFile('certificate')) {
+            $file = $request->file('certificate');
+            $certificate = [
+                'certificate_original_filename' => $file->getClientOriginalName(),
+                'certificate_path' => $file->store('skill-certificates/'.$request->user()->id, 'local'),
+                'certificate_disk' => 'local',
+                'certificate_mime_type' => $file->getMimeType() ?: 'application/octet-stream',
+                'certificate_size' => $file->getSize(),
+            ];
+        }
+        unset($data['certificate']);
+        $this->create(Skill::class, 'skills', $data + $certificate + ['user_id' => $request->user()->id, 'is_learning' => false]);
 
         return back()->with('status', 'Skill saved.');
     }
@@ -239,9 +278,21 @@ class WorkspaceController extends Controller
     public function destroySkill(Request $request, Skill $skill): RedirectResponse
     {
         $this->owns($request, $skill);
+        if ($skill->certificate_path) {
+            Storage::disk($skill->certificate_disk ?: 'local')->delete($skill->certificate_path);
+        }
         $skill->delete();
 
         return back()->with('status', 'Skill removed.');
+    }
+
+    public function downloadSkillCertificate(Request $request, Skill $skill)
+    {
+        $this->owns($request, $skill);
+        $disk = $skill->certificate_disk ?: 'local';
+        abort_unless($skill->certificate_path && Storage::disk($disk)->exists($skill->certificate_path), 404);
+
+        return Storage::disk($disk)->download($skill->certificate_path, $skill->certificate_original_filename ?: 'certificate');
     }
 
     public function storeGoal(Request $request): RedirectResponse
@@ -331,5 +382,34 @@ class WorkspaceController extends Controller
     private function jobStatuses(): array
     {
         return ['saved', 'applied', 'interviewing', 'offer', 'rejected', 'withdrawn'];
+    }
+
+    private function interviewQuestions(string $type, string $role): array
+    {
+        $questions = match ($type) {
+            'technical' => [
+                "Which technical skill is most important for a {$role}, and how have you used it in real work?",
+                'Describe a difficult technical problem you solved. How did you investigate it and measure the result?',
+                'How do you make sure your work is reliable, maintainable, and understandable for your team?',
+                'Tell me about a time you received a bug report or failure. What did you do first?',
+                'What would you learn first during your first 30 days in this role?',
+            ],
+            'behavioral' => [
+                'Tell me about a time you handled a difficult situation with a teammate. What was the outcome?',
+                'Describe a project where you made a mistake. What did you learn and change afterwards?',
+                'Give an example of a time you took ownership without being asked.',
+                'How do you prioritise when several important tasks arrive at the same time?',
+                "Why are you interested in a {$role} role now?",
+            ],
+            default => [
+                "Tell me about yourself and the path that led you toward {$role}.",
+                'What achievement are you most proud of, and how did you measure its impact?',
+                'What kind of team and manager help you do your best work?',
+                'What is one skill you are actively improving, and what is your learning plan?',
+                'What questions would you ask us before accepting this role?',
+            ],
+        };
+
+        return $questions;
     }
 }

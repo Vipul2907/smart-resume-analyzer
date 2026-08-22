@@ -28,7 +28,7 @@
             <a href="{{ route('resumes.show', $resume) }}" class="btn btn-secondary">Details</a>
             <a href="{{ route('resumes.builder.edit', $resume) }}" class="btn btn-secondary">Edit builder</a>
             <a href="{{ route('resumes.download', $resume) }}" class="btn btn-secondary">Download</a>
-            <a href="/analyze" class="btn btn-primary">Analyze</a>
+            <a href="{{ route('analyze', ['resume' => $resume->id]) }}" class="btn btn-primary">Analyze</a>
           </div>
         </div>
         <div class="mt-5 grid gap-2 border-t border-white/[.07] pt-4 text-center sm:grid-cols-3">
