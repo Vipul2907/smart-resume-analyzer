@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiAnalysisController;
+use App\Http\Controllers\CoverLetterController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ResumeBuilderController;
@@ -64,6 +65,17 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::post('/resumes/{resume}/parse', [ResumeParseController::class, 'store'])->middleware('throttle:10,1')->name('resumes.parse');
     Route::patch('/resume-versions/{resumeVersion}', [ResumeVersionController::class, 'update'])->name('resume-versions.update');
     Route::post('/resumes/{resume}/ai-analyses', [AiAnalysisController::class, 'store'])->middleware('throttle:3,1')->name('ai-analyses.store');
+
+    Route::get('/cover-letters', [CoverLetterController::class, 'index'])->name('cover-letters.index');
+    Route::get('/cover-letters/create', [CoverLetterController::class, 'create'])->name('cover-letters.create');
+    Route::post('/cover-letters', [CoverLetterController::class, 'store'])->name('cover-letters.store');
+    Route::get('/cover-letters/{coverLetter}/edit', [CoverLetterController::class, 'edit'])->name('cover-letters.edit');
+    Route::patch('/cover-letters/{coverLetter}', [CoverLetterController::class, 'update'])->name('cover-letters.update');
+    Route::post('/cover-letters/{coverLetter}/duplicate', [CoverLetterController::class, 'duplicate'])->name('cover-letters.duplicate');
+    Route::delete('/cover-letters/{coverLetter}', [CoverLetterController::class, 'destroy'])->name('cover-letters.destroy');
+    Route::get('/cover-letters/{coverLetter}/preview', [CoverLetterController::class, 'preview'])->name('cover-letters.preview');
+    Route::get('/cover-letters/{coverLetter}/download/txt', [CoverLetterController::class, 'downloadText'])->name('cover-letters.download.txt');
+    Route::get('/cover-letters/{coverLetter}/download/docx', [CoverLetterController::class, 'downloadDocx'])->name('cover-letters.download.docx');
 
     Route::get('/dashboard', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'dashboard'))->name('dashboard');
 
