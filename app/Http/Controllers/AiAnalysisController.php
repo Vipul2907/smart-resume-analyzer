@@ -22,16 +22,6 @@ class AiAnalysisController extends Controller
             'accepted_ai_privacy' => ['accepted'],
         ]);
 
-        $monthlyLimit = (int) config('services.groq.free_monthly_limit', 10);
-        $monthlyUsage = $request->user()->aiAnalyses()
-            ->where('provider', 'groq')
-            ->where('created_at', '>=', now()->startOfMonth())
-            ->count();
-
-        if ($monthlyUsage >= $monthlyLimit) {
-            return back()->with('error', 'You have reached the free AI analysis limit for this month.');
-        }
-
         $analysis = $request->user()->aiAnalyses()->create([
             'resume_id' => $resume->id,
             'analysis_type' => $attributes['analysis_type'],
@@ -55,7 +45,7 @@ class AiAnalysisController extends Controller
         } catch (\Throwable $exception) {
             $analysis->update([
                 'status' => 'failed',
-                'error_message' => $exception->getMessage(),
+                'error_message' => 'The AI provider could not complete this request. Please try again shortly.',
                 'completed_at' => now(),
             ]);
 
