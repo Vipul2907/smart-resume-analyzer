@@ -92,4 +92,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(AiAnalysis::class);
     }
+
+    public function coverLetters(): HasMany
+    {
+        return $this->hasMany(CoverLetter::class);
+    }
 }

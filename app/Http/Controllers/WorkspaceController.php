@@ -169,7 +169,10 @@ class WorkspaceController extends Controller
         $this->owns($request, $job);
         abort_unless($attachment->job_application_id === $job->id && Storage::disk($attachment->file_disk)->exists($attachment->file_path), 404);
 
-        return Storage::disk($attachment->file_disk)->download($attachment->file_path, $attachment->original_filename);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk($attachment->file_disk);
+
+        return $disk->download($attachment->file_path, $attachment->original_filename);
     }
 
     public function destroyJobAttachment(Request $request, JobApplication $job, JobAttachment $attachment): RedirectResponse
@@ -289,10 +292,13 @@ class WorkspaceController extends Controller
     public function downloadSkillCertificate(Request $request, Skill $skill)
     {
         $this->owns($request, $skill);
-        $disk = $skill->certificate_disk ?: 'local';
-        abort_unless($skill->certificate_path && Storage::disk($disk)->exists($skill->certificate_path), 404);
+        $diskName = $skill->certificate_disk ?: 'local';
+        abort_unless($skill->certificate_path && Storage::disk($diskName)->exists($skill->certificate_path), 404);
 
-        return Storage::disk($disk)->download($skill->certificate_path, $skill->certificate_original_filename ?: 'certificate');
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk($diskName);
+
+        return $disk->download($skill->certificate_path, $skill->certificate_original_filename ?: 'certificate');
     }
 
     public function storeGoal(Request $request): RedirectResponse
