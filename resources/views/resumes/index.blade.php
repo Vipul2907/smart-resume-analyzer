@@ -28,6 +28,7 @@
             <a href="{{ route('resumes.show', $resume) }}" class="btn btn-secondary">Details</a>
             <a href="{{ route('resumes.builder.edit', $resume) }}" class="btn btn-secondary">Edit builder</a>
             <a href="{{ route('resumes.download', $resume) }}" class="btn btn-secondary">Download</a>
+            <a href="{{ route('cover-letters.create') }}" class="btn btn-secondary">Cover letter</a>
             <a href="{{ route('analyze', ['resume' => $resume->id]) }}" class="btn btn-primary">Analyze</a>
           </div>
         </div>
@@ -132,5 +133,6 @@
     </form>
     <p class="mt-3 text-center text-[10px] text-zinc-600">Only your account can access uploaded files.</p>
     <a href="{{ route('resumes.builder.create') }}" class="btn btn-secondary mt-3 w-full">Create from scratch</a>
+    <a href="{{ route('cover-letters.index') }}" class="btn btn-secondary mt-3 w-full">Manage cover letters</a>
   </aside>
 </section>
