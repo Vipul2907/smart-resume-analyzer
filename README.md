@@ -1,5 +1,4 @@
-# smart-resume-analyzer
-# 🧠 Smart Resume Analyzer
+# SmartCV — Smart Resume Analyzer
 
 > An AI-powered career and resume management platform built with Laravel that helps users create, manage, parse, analyze, improve, and track their resumes while organizing their job-search journey in one centralized workspace.
 
@@ -27,6 +26,7 @@ The project is built using **Laravel 12**, **PHP 8.2+**, **Vite**, **Tailwind CS
 * [Groq AI Integration](#-groq-ai-integration)
 * [AI Analysis Output](#-ai-analysis-output)
 * [Resume Versioning](#-resume-versioning)
+* [Cover Letter Builder](#-cover-letter-builder)
 * [Job Application Tracking](#-job-application-tracking)
 * [Interview Preparation](#-interview-preparation)
 * [Skills Management](#-skills-management)
@@ -80,10 +80,21 @@ The application allows a user to maintain multiple resumes, upload resume docume
 
 The system goes beyond resume analysis by providing a broader career workspace.
 
+## Current product status
+
+SmartCV is a working Laravel career workspace, not a static frontend. Users can sign up, verify their email, complete onboarding, save private career data, and return to it later. The application currently includes resume upload and parsing, a structured resume builder, Groq-powered resume analysis, job tracking, interview practice, skill certificates, goals, portfolio projects, analytics, and a complete cover-letter workflow.
+
+### Cover Letter Builder
+
+Each user can create unlimited private cover letters and connect each one to the exact job application and resume used for that opportunity. The builder provides modern, classic, and warm templates; editable recipient, company, role, subject, opening, body, closing, and signature fields; draft and ready-to-send statuses; duplication for another role; browser preview and PDF printing; TXT download; and DOCX export.
+
+The platform does not add an artificial monthly SmartCV analysis limit. A valid Groq account may still apply its own provider-side availability or rate limits.
+
 Users can manage:
 
 * Resumes
 * Resume versions
+* Cover letters linked to resumes and job applications
 * AI analyses
 * Job applications
 * Job contacts
@@ -1714,7 +1725,7 @@ The project specifically requires PHP `^8.2`, Laravel `^12.0`, and the PHP ZIP e
 # 📥 Clone the Repository
 
 ```bash
-git clone https://github.com/Vipul2907/smart-resume-analyzer.git
+git clone https://github.com/your-account/smart-resume-analyzer.git
 cd smart-resume-analyzer
 ```
 
@@ -2255,7 +2266,7 @@ If you would like to contribute:
 ### 1. Fork the repository
 
 ```bash
-git clone https://github.com/Vipul2907/smart-resume-analyzer.git
+git clone https://github.com/your-account/smart-resume-analyzer.git
 ```
 
 ### 2. Create a feature branch
@@ -2854,7 +2865,7 @@ The project demonstrates how modern web development, document processing, struct
 
 **Repository**
 
-[Smart Resume Analyzer — GitHub Repository](https://github.com/Vipul2907/smart-resume-analyzer?utm_source=chatgpt.com)
+[SmartCV — GitHub Repository](https://github.com/your-account/smart-resume-analyzer)
 
 ---
 
