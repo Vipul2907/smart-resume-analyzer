@@ -38,6 +38,10 @@ button { cursor: pointer; }
 .fixed.w-64 { background: linear-gradient(180deg, rgba(10,18,39,.98), rgba(7,11,24,.98)) !important; border-color: rgba(34,211,238,.11) !important; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(34,211,238,.45) transparent; }
 .fixed.w-64::-webkit-scrollbar { width: 6px; }
 .fixed.w-64::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(34,211,238,.38); }
+/* The workspace sidebar scrolls independently without changing the content width. */
+.workspace-sidebar { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(34,211,238,.45) transparent; }
+.workspace-sidebar::-webkit-scrollbar { width: 6px; }
+.workspace-sidebar::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(34,211,238,.38); }
 header.sticky { background: rgba(7,11,24,.84) !important; border-color: rgba(34,211,238,.1) !important; }
 .grid-bg { background-image: linear-gradient(rgba(103,232,249,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.035) 1px, transparent 1px); }
 .progress-ring { stroke-linecap:round; transform:rotate(-90deg); transform-origin:50% 50%; }
