@@ -41,7 +41,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-$screens = ['dashboard', 'analyze', 'ats', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings', 'help', 'privacy', 'terms'];
+$screens = ['dashboard', 'analyze', 'ats', 'match', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings', 'help', 'privacy', 'terms'];
 
 Route::middleware(['auth', 'verified'])->group(function () use ($screens): void {
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
@@ -65,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::post('/resumes/{resume}/parse', [ResumeParseController::class, 'store'])->middleware('throttle:10,1')->name('resumes.parse');
     Route::patch('/resume-versions/{resumeVersion}', [ResumeVersionController::class, 'update'])->name('resume-versions.update');
     Route::post('/resumes/{resume}/ai-analyses', [AiAnalysisController::class, 'store'])->middleware('throttle:3,1')->name('ai-analyses.store');
+    Route::post('/resumes/{resume}/job-match', [AiAnalysisController::class, 'match'])->middleware('throttle:3,1')->name('ai-matches.store');
 
     Route::get('/cover-letters', [CoverLetterController::class, 'index'])->name('cover-letters.index');
     Route::get('/cover-letters/create', [CoverLetterController::class, 'create'])->name('cover-letters.create');

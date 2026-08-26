@@ -5,10 +5,10 @@
 </head>
 @php
   $nav = [
-    ['dashboard','Overview','⌘'], ['resumes','My resumes','▤'], ['cover-letters','Cover letters','✉'], ['jobs','Job tracker','◎'], ['interviews','Interview lab','◌'], ['skills','Skill studio','◇'], ['insights','Career insights','↗'], ['portfolio','Portfolio','◈'], ['analytics','Analytics','⌁']
+    ['dashboard','Overview','⌘'], ['resumes','My resumes','▤'], ['match','Job match','↔'], ['cover-letters','Cover letters','✉'], ['jobs','Job tracker','◎'], ['interviews','Interview lab','◌'], ['skills','Skill studio','◇'], ['insights','Career insights','↗'], ['portfolio','Portfolio','◈'], ['analytics','Analytics','⌁']
   ];
   $utilities = [['profile','Profile','◉'],['settings','Settings','⚙'],['help','Help center','?']];
-  $titles = ['dashboard'=>['Good afternoon, Noah.','Here is your career momentum at a glance.'],'resumes'=>['Your resumes','Keep every version polished, targeted, and ready to send.'],'analyze'=>['Resume intelligence','See what is working, what is missing, and where to focus next.'],'ats'=>['ATS optimization','Improve how your resume performs before a recruiter ever sees it.'],'jobs'=>['Job tracker','A calm, complete view of every opportunity.'],'interviews'=>['Interview lab','Practice with purpose. Show up ready.'],'skills'=>['Skill studio','Build the capabilities that create career momentum.'],'insights'=>['Career insights','Your career data, made genuinely useful.'],'portfolio'=>['Portfolio studio','Turn your body of work into a professional story.'],'analytics'=>['Career analytics','The signals behind your progress.'],'profile'=>['Your profile','The professional context that makes every recommendation better.'],'settings'=>['Settings','Control how your SmartCV workspace works for you.'],'help'=>['How can we help?','Answers, guides, and support when you need it.'],'privacy'=>['Privacy center','Clear controls and a simple commitment to your data.'],'terms'=>['Terms of service','The agreements that keep SmartCV fair and reliable.']];
+  $titles = ['dashboard'=>['Good afternoon, Noah.','Here is your career momentum at a glance.'],'resumes'=>['Your resumes','Keep every version polished, targeted, and ready to send.'],'analyze'=>['Resume intelligence','See what is working, what is missing, and where to focus next.'],'ats'=>['ATS optimization','Improve how your resume performs before a recruiter ever sees it.'],'match'=>['Job description match','See how your selected resume fits a real role and what to improve.'],'jobs'=>['Job tracker','A calm, complete view of every opportunity.'],'interviews'=>['Interview lab','Practice with purpose. Show up ready.'],'skills'=>['Skill studio','Build the capabilities that create career momentum.'],'insights'=>['Career insights','Your career data, made genuinely useful.'],'portfolio'=>['Portfolio studio','Turn your body of work into a professional story.'],'analytics'=>['Career analytics','The signals behind your progress.'],'profile'=>['Your profile','The professional context that makes every recommendation better.'],'settings'=>['Settings','Control how your SmartCV workspace works for you.'],'help'=>['How can we help?','Answers, guides, and support when you need it.'],'privacy'=>['Privacy center','Clear controls and a simple commitment to your data.'],'terms'=>['Terms of service','The agreements that keep SmartCV fair and reliable.']];
   [$title,$subtitle] = $titles[$screen];
 @endphp
 <body class="min-h-screen bg-ink text-zinc-100">
@@ -32,6 +32,8 @@
 @include('resumes.index')
 @elseif($screen === 'analyze' || $screen === 'ats')
 @include('analyze.foundation')
+@elseif($screen === 'match')
+@include('analyze.match')
 @elseif(in_array($screen, ['jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings'], true))
 <section class="card p-6"><h2 class="font-semibold">Workspace page</h2><p class="mt-2 text-sm text-zinc-400">This page is available through its dedicated, live SmartCV route.</p></section>
 @elseif($screen === 'help')
