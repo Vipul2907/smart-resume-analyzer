@@ -8,18 +8,12 @@
 </head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
 @php
-  $nav = ['dashboard' => 'Overview', 'resumes' => 'My resumes', 'cover-letters' => 'Cover letters', 'jobs' => 'Job tracker', 'interviews' => 'Interview lab', 'skills' => 'Skill studio', 'insights' => 'Career insights', 'portfolio' => 'Portfolio', 'analytics' => 'Analytics'];
   $titles = ['dashboard' => ['Your career workspace', 'A live summary based on your private SmartCV data.'], 'jobs' => ['Job tracker', 'Save every opportunity and keep your next move clear.'], 'interviews' => ['Interview lab', 'Plan focused practice sessions and record your real progress.'], 'skills' => ['Skill studio', 'Build a truthful picture of the skills you are developing.'], 'insights' => ['Career insights', 'Turn your goals and profile into a focused career plan.'], 'portfolio' => ['Portfolio', 'Keep a private, recruiter-ready record of your best work.'], 'analytics' => ['Career analytics', 'Metrics calculated from your saved SmartCV data.'], 'profile' => ['Your profile', 'Keep your professional details current and private.'], 'settings' => ['Settings', 'Manage the information shown in your SmartCV workspace.']];
   [$title, $subtitle] = $titles[$screen];
 @endphp
-<div class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
-  <aside class="hidden border-r border-white/[.07] bg-[#090e20] p-5 lg:block">
-    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-3 text-lg font-bold"><span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400">S</span> SMART<span class="text-violet-300">CV</span></a>
-    <p class="mt-8 px-3 text-[10px] font-bold uppercase tracking-[.18em] text-zinc-600">Workspace</p>
-    <nav class="mt-3 space-y-1">@foreach($nav as $route => $label)<a href="/{{ $route }}" class="nav-link {{ $screen === $route ? 'active' : '' }}">{{ $label }}</a>@endforeach</nav>
-    <div class="mt-8 border-t border-white/[.07] pt-5"><p class="px-3 text-[10px] font-bold uppercase tracking-[.18em] text-zinc-600">Account</p><a href="{{ route('profile') }}" class="nav-link mt-3 {{ $screen === 'profile' ? 'active' : '' }}">Profile</a><a href="{{ route('settings') }}" class="nav-link {{ $screen === 'settings' ? 'active' : '' }}">Settings</a><form method="POST" action="{{ route('logout') }}">@csrf<button class="nav-link mt-4 w-full text-left">Sign out</button></form></div>
-  </aside>
-  <div>
+<div class="min-h-screen">
+  <x-workspace-sidebar :active-screen="$screen" />
+  <div class="min-h-screen lg:pl-64">
     <header class="sticky top-0 z-20 flex items-center justify-between border-b border-white/[.07] bg-[#090e20]/95 px-5 py-4 backdrop-blur lg:px-9"><a href="{{ route('dashboard') }}" class="font-bold lg:hidden">SMART<span class="text-violet-300">CV</span></a><div class="hidden text-sm text-zinc-500 sm:block">Your private career workspace</div><a href="{{ route('profile') }}" class="flex items-center gap-2 text-sm font-medium"><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-cyan-300 text-slate-950">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>{{ auth()->user()->name }}</a></header>
     <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
       <p class="eyebrow">Career workspace</p><h1 class="mt-2 text-3xl font-semibold tracking-tight">{{ $title }}</h1><p class="mt-2 text-sm text-zinc-400">{{ $subtitle }}</p>

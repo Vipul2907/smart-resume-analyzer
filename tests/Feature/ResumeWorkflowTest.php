@@ -176,6 +176,50 @@ class ResumeWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_user_can_match_any_parsed_resume_to_a_job_description(): void
+    {
+        config(['services.groq.key' => 'test-key']);
+        Http::fake([
+            'api.groq.com/*' => Http::response([
+                'choices' => [[
+                    'message' => ['content' => json_encode([
+                        'score' => 81,
+                        'summary' => 'Your experience is a strong foundation for this role.',
+                        'matching_skills' => ['Laravel', 'SQL'],
+                        'missing_skills' => ['Docker'],
+                        'keyword_suggestions' => ['REST APIs'],
+                        'resume_improvements' => ['Add measurable delivery outcomes'],
+                        'interview_questions' => ['How have you designed a reliable API?'],
+                        'next_actions' => ['Tailor your summary'],
+                        'role_recommendation' => 'Apply after adding one Docker example.',
+                    ])],
+                ]],
+                'usage' => ['prompt_tokens' => 70, 'completion_tokens' => 60],
+            ]),
+        ]);
+
+        $user = $this->onboardedUser();
+        $resume = $user->resumes()->create([
+            'name' => 'Targeted Resume', 'original_filename' => 'targeted.txt',
+            'file_path' => 'resumes/'.$user->id.'/targeted.txt', 'mime_type' => 'text/plain',
+            'file_size' => 100, 'extracted_text' => 'Laravel developer with SQL and API experience.',
+            'parse_status' => 'parsed', 'is_primary' => false,
+        ]);
+
+        $this->actingAs($user)->post(route('ai-matches.store', $resume), [
+            'target_role' => 'Backend Engineer',
+            'job_description' => str_repeat('Laravel, SQL, REST APIs, Docker, testing, and production support. ', 2),
+            'accepted_ai_privacy' => '1',
+        ])->assertRedirect(route('match', ['resume' => $resume->id]));
+
+        $this->assertDatabaseHas('ai_analyses', [
+            'resume_id' => $resume->id,
+            'analysis_type' => 'job_match',
+            'status' => 'completed',
+            'score' => 81,
+        ]);
+    }
+
     private function onboardedUser(): User
     {
         return User::factory()->create([
