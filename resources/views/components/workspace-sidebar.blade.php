@@ -10,6 +10,7 @@
         ['interviews', 'Interview lab', '◌'],
         ['skills', 'Skill studio', '◇'],
         ['insights', 'Career insights', '↗'],
+        ['learning-paths', 'Learning paths', '◫'],
         ['portfolio', 'Portfolio', '◇'],
         ['analytics', 'Analytics', '⌁'],
     ];
