@@ -16,6 +16,7 @@ class InterviewSession extends Model
             'responses' => 'array',
             'feedback' => 'array',
             'completed_at' => 'datetime',
+            'reminder_at' => 'datetime',
         ];
     }
 
