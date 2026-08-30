@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiAnalysisController;
 use App\Http\Controllers\CoverLetterController;
+use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ResumeBuilderController;
@@ -105,6 +106,11 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::post('/goals', [WorkspaceController::class, 'storeGoal'])->name('goals.store');
     Route::patch('/goals/{goal}', [WorkspaceController::class, 'updateGoal'])->name('goals.update');
     Route::delete('/goals/{goal}', [WorkspaceController::class, 'destroyGoal'])->name('goals.destroy');
+
+    Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
+    Route::post('/learning-paths', [LearningPathController::class, 'store'])->name('learning-paths.store');
+    Route::patch('/learning-path-items/{item}', [LearningPathController::class, 'updateItem'])->name('learning-path-items.update');
+    Route::delete('/learning-paths/{learningPath}', [LearningPathController::class, 'destroy'])->name('learning-paths.destroy');
 
     Route::get('/portfolio', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'portfolio'))->name('portfolio');
     Route::post('/portfolio', [WorkspaceController::class, 'storeProject'])->name('portfolio.store');
