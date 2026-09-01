@@ -10,6 +10,8 @@ use App\Models\JobAttachment;
 use App\Models\JobContact;
 use App\Models\PortfolioProject;
 use App\Models\Skill;
+use App\Models\SkillMilestone;
+use App\Services\GroqAiService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -44,10 +46,19 @@ class WorkspaceController extends Controller
         if ($screen === 'interviews') {
             $data['interviews'] = $user->interviewSessions()->latest()->get();
             $data['jobs'] = $user->jobApplications()->latest()->get(['id', 'company', 'role']);
+
+            return view('workspace.interviews', $data);
         }
 
         if ($screen === 'skills') {
-            $data['skills'] = $user->skills()->latest()->get();
+            $data['skills'] = $user->skills()->with('milestones')->latest()->get();
+            $data['recommendedSkills'] = $user->aiAnalyses()
+                ->where('analysis_type', 'job_match')->where('status', 'completed')->latest()->limit(5)->get()
+                ->flatMap(fn ($analysis) => is_array($analysis->result) ? ($analysis->result['missing_skills'] ?? []) : [])
+                ->filter(fn ($skill) => is_string($skill) && trim($skill) !== '')
+                ->map(fn (string $skill) => trim($skill))->unique()->values();
+
+            return view('workspace.skills', $data);
         }
 
         if ($screen === 'insights') {
@@ -198,9 +209,11 @@ class WorkspaceController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'target_role' => ['nullable', 'string', 'max:255'],
-            'session_type' => ['required', 'in:general,technical,behavioral'],
+            'session_type' => ['required', 'in:general,technical,behavioral,hr,leadership,case_study'],
             'duration_minutes' => ['nullable', 'integer', 'min:5', 'max:180'],
             'job_application_id' => ['nullable', 'integer'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'reminder_at' => ['nullable', 'date'],
         ]);
         if ($data['job_application_id'] ?? null) {
             abort_unless($request->user()->jobApplications()->whereKey($data['job_application_id'])->exists(), 404);
@@ -234,20 +247,78 @@ class WorkspaceController extends Controller
         return back()->with('status', 'Your interview answers have been saved.');
     }
 
-    public function completeInterview(Request $request, InterviewSession $interview): RedirectResponse
+    public function completeInterview(Request $request, InterviewSession $interview, GroqAiService $groq): RedirectResponse
     {
         $this->owns($request, $interview);
-        $data = $request->validate(['score' => ['nullable', 'integer', 'min:0', 'max:100']]);
+        $answers = collect($interview->responses ?? [])->map(fn ($answer) => trim((string) $answer))->filter();
+        if ($answers->isEmpty()) {
+            return back()->withErrors(['answers' => 'Save at least one written answer before calculating your readiness score.']);
+        }
+        if ($answers->contains(fn (string $answer) => ! $this->isMeaningfulInterviewAnswer($answer))) {
+            return back()->withErrors(['answers' => 'Your answers need real sentences with specific details. Random letters or very short text cannot be scored.']);
+        }
+
+        try {
+            $feedback = $groq->evaluateInterviewResponses($interview);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return back()->withErrors(['answers' => 'SmartCV could not analyse your answers right now. Check your Groq setup and try again.']);
+        }
         $this->updateAvailable($interview, 'interview_sessions', [
-            'status' => 'completed', 'completed_at' => now(), 'score' => $data['score'], 'overall_score' => $data['score'],
+            'status' => 'completed', 'completed_at' => now(), 'score' => $feedback['score'], 'overall_score' => $feedback['score'], 'feedback' => $feedback,
         ]);
 
-        return back()->with('status', 'Interview session marked complete.');
+        return back()->with('status', 'Interview session completed. Your readiness score was calculated from your saved answers.');
+    }
+
+    public function storeInterviewRecording(Request $request, InterviewSession $interview): RedirectResponse
+    {
+        $this->owns($request, $interview);
+        $request->validate(['recording' => ['required', 'file', 'max:102400', 'mimes:mp3,m4a,wav,webm,mp4,mov']]);
+        $file = $request->file('recording');
+        if ($interview->recording_path) {
+            Storage::disk($interview->recording_disk ?: 'local')->delete($interview->recording_path);
+        }
+        $this->updateAvailable($interview, 'interview_sessions', [
+            'recording_path' => $file->store('interview-recordings/'.$request->user()->id.'/'.$interview->id, 'local'),
+            'recording_disk' => 'local',
+            'recording_original_filename' => $file->getClientOriginalName(),
+            'recording_mime_type' => $file->getMimeType() ?: 'application/octet-stream',
+            'recording_size' => $file->getSize(),
+        ]);
+
+        return back()->with('status', 'Practice recording saved privately.');
+    }
+
+    public function downloadInterviewRecording(Request $request, InterviewSession $interview)
+    {
+        $this->owns($request, $interview);
+        $diskName = $interview->recording_disk ?: 'local';
+        abort_unless($interview->recording_path && Storage::disk($diskName)->exists($interview->recording_path), 404);
+
+        return Storage::disk($diskName)->download($interview->recording_path, $interview->recording_original_filename ?: 'interview-recording');
+    }
+
+    public function playInterviewRecording(Request $request, InterviewSession $interview)
+    {
+        $this->owns($request, $interview);
+        $diskName = $interview->recording_disk ?: 'local';
+        abort_unless($interview->recording_path && Storage::disk($diskName)->exists($interview->recording_path), 404);
+
+        return Storage::disk($diskName)->response(
+            $interview->recording_path,
+            $interview->recording_original_filename,
+            ['Content-Type' => $interview->recording_mime_type ?: 'application/octet-stream', 'Content-Disposition' => 'inline']
+        );
     }
 
     public function destroyInterview(Request $request, InterviewSession $interview): RedirectResponse
     {
         $this->owns($request, $interview);
+        if ($interview->recording_path) {
+            Storage::disk($interview->recording_disk ?: 'local')->delete($interview->recording_path);
+        }
         $interview->delete();
 
         return back()->with('status', 'Interview session removed.');
@@ -287,6 +358,48 @@ class WorkspaceController extends Controller
         $skill->delete();
 
         return back()->with('status', 'Skill removed.');
+    }
+
+    public function updateSkill(Request $request, Skill $skill): RedirectResponse
+    {
+        $this->owns($request, $skill);
+        $data = $request->validate([
+            'proficiency' => ['required', 'integer', 'min:0', 'max:100'],
+            'target_proficiency' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'is_priority' => ['nullable', 'boolean'],
+            'evidence' => ['nullable', 'string', 'max:1000'],
+        ]);
+        $this->updateAvailable($skill, 'skills', $data + ['is_priority' => (bool) ($data['is_priority'] ?? false)]);
+
+        return back()->with('status', 'Skill progress updated.');
+    }
+
+    public function storeSkillMilestone(Request $request, Skill $skill): RedirectResponse
+    {
+        $this->owns($request, $skill);
+        $data = $request->validate(['title' => ['required', 'string', 'max:255'], 'target_date' => ['nullable', 'date']]);
+        $skill->milestones()->create($data);
+
+        return back()->with('status', 'Learning milestone saved.');
+    }
+
+    public function updateSkillMilestone(Request $request, Skill $skill, SkillMilestone $milestone): RedirectResponse
+    {
+        $this->owns($request, $skill);
+        abort_unless($milestone->skill_id === $skill->id, 404);
+        $data = $request->validate(['status' => ['required', 'in:planned,in_progress,completed']]);
+        $milestone->update($data + ['completed_at' => $data['status'] === 'completed' ? now() : null]);
+
+        return back()->with('status', 'Learning milestone updated.');
+    }
+
+    public function destroySkillMilestone(Request $request, Skill $skill, SkillMilestone $milestone): RedirectResponse
+    {
+        $this->owns($request, $skill);
+        abort_unless($milestone->skill_id === $skill->id, 404);
+        $milestone->delete();
+
+        return back()->with('status', 'Learning milestone removed.');
     }
 
     public function downloadSkillCertificate(Request $request, Skill $skill)
@@ -407,6 +520,27 @@ class WorkspaceController extends Controller
                 'How do you prioritise when several important tasks arrive at the same time?',
                 "Why are you interested in a {$role} role now?",
             ],
+            'hr' => [
+                "Why are you interested in this {$role} opportunity?",
+                'What kind of work environment helps you do your best work?',
+                'What are you looking for in your next manager and team?',
+                'How do you handle feedback that you do not initially agree with?',
+                'What would make this role a successful next step for you?',
+            ],
+            'leadership' => [
+                'Tell me about a time you influenced a decision without formal authority.',
+                'How do you align people when priorities conflict?',
+                'Describe how you helped another person grow or succeed.',
+                'How do you communicate a difficult decision to stakeholders?',
+                "What leadership habit would you bring to a {$role} team?",
+            ],
+            'case_study' => [
+                "How would you break down an unfamiliar business problem in a {$role} case study?",
+                'What facts would you collect before recommending a solution?',
+                'How would you decide between two viable options?',
+                'How would you explain your recommendation to a non-technical stakeholder?',
+                'How would you measure whether your recommendation worked?',
+            ],
             default => [
                 "Tell me about yourself and the path that led you toward {$role}.",
                 'What achievement are you most proud of, and how did you measure its impact?',
@@ -417,5 +551,17 @@ class WorkspaceController extends Controller
         };
 
         return $questions;
+    }
+
+    private function isMeaningfulInterviewAnswer(string $answer): bool
+    {
+        $words = collect(preg_split('/\s+/', trim($answer)) ?: [])->filter();
+        $letters = preg_replace('/[^a-z]/i', '', $answer) ?: '';
+        $uniqueLetters = count(array_unique(str_split(strtolower($letters))));
+
+        return $words->count() >= 8
+            && $words->unique(fn (string $word) => strtolower($word))->count() >= 5
+            && mb_strlen($answer) >= 45
+            && $uniqueLetters >= 5;
     }
 }
