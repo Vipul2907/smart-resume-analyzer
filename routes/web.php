@@ -95,11 +95,18 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::post('/interviews', [WorkspaceController::class, 'storeInterview'])->name('interviews.store');
     Route::patch('/interviews/{interview}/responses', [WorkspaceController::class, 'saveInterviewResponses'])->name('interviews.responses.update');
     Route::patch('/interviews/{interview}/complete', [WorkspaceController::class, 'completeInterview'])->name('interviews.complete');
+    Route::post('/interviews/{interview}/recording', [WorkspaceController::class, 'storeInterviewRecording'])->name('interviews.recordings.store');
+    Route::get('/interviews/{interview}/recording', [WorkspaceController::class, 'downloadInterviewRecording'])->name('interviews.recordings.download');
+    Route::get('/interviews/{interview}/recording/play', [WorkspaceController::class, 'playInterviewRecording'])->name('interviews.recordings.play');
     Route::delete('/interviews/{interview}', [WorkspaceController::class, 'destroyInterview'])->name('interviews.destroy');
 
     Route::get('/skills', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'skills'))->name('skills');
     Route::post('/skills', [WorkspaceController::class, 'storeSkill'])->name('skills.store');
     Route::get('/skills/{skill}/certificate', [WorkspaceController::class, 'downloadSkillCertificate'])->name('skills.certificate.download');
+    Route::patch('/skills/{skill}', [WorkspaceController::class, 'updateSkill'])->name('skills.update');
+    Route::post('/skills/{skill}/milestones', [WorkspaceController::class, 'storeSkillMilestone'])->name('skills.milestones.store');
+    Route::patch('/skills/{skill}/milestones/{milestone}', [WorkspaceController::class, 'updateSkillMilestone'])->name('skills.milestones.update');
+    Route::delete('/skills/{skill}/milestones/{milestone}', [WorkspaceController::class, 'destroySkillMilestone'])->name('skills.milestones.destroy');
     Route::delete('/skills/{skill}', [WorkspaceController::class, 'destroySkill'])->name('skills.destroy');
 
     Route::get('/insights', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'insights'))->name('insights');

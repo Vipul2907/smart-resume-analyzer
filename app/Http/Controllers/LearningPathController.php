@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\LearningPath;
 use App\Models\LearningPathItem;
 use App\Models\User;
+use App\Services\GroqAiService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class LearningPathController extends Controller
@@ -23,38 +25,56 @@ class LearningPathController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, GroqAiService $groq): RedirectResponse
     {
         $data = $request->validate([
             'title' => ['nullable', 'string', 'max:255'],
             'target_role' => ['nullable', 'string', 'max:255'],
+            'goal' => ['required', 'string', 'min:20', 'max:2000'],
         ]);
 
         $user = $request->user();
         $recommendations = $this->recommendedSkills($user);
-        $targetRole = trim((string) ($data['target_role'] ?? '')) ?: $this->suggestedRole($user);
-        $title = trim((string) ($data['title'] ?? '')) ?: 'Career growth plan'.($targetRole ? ' for '.$targetRole : '');
+        $targetRole = trim((string) ($data['target_role'] ?? '')) ?: null;
+        $knownSkills = $user->skills()->pluck('name')->filter()->values()->all();
+        $jobGaps = $user->aiAnalyses()->where('analysis_type', 'job_match')->where('status', 'completed')->latest()->limit(5)->get()
+            ->flatMap(fn ($analysis) => is_array($analysis->result) ? ($analysis->result['missing_skills'] ?? []) : [])
+            ->filter(fn ($skill) => is_string($skill) && trim($skill) !== '')->values()->all();
 
-        $path = $user->learningPaths()->create([
+        try {
+            $plan = $groq->createLearningPlan($data['goal'], $targetRole, $knownSkills, $jobGaps);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return back()->withInput()->withErrors(['goal' => 'SmartCV could not create a personalised AI learning path right now. Check your Groq setup and try again.']);
+        }
+
+        $title = trim((string) ($data['title'] ?? '')) ?: $plan['title'];
+
+        $pathData = [
             'title' => $title,
             'target_role' => $targetRole,
-            'summary' => $recommendations->isEmpty()
-                ? 'Build momentum with practical career work you can prove in interviews.'
-                : 'A focused plan created from your saved job matches, priorities, and career goals.',
-            'source_snapshot' => ['skills' => $recommendations->pluck('skill')->all()],
-        ]);
+            'summary' => $plan['summary'],
+            'source_snapshot' => ['goal' => $data['goal'], 'skills' => $knownSkills, 'job_gaps' => $jobGaps, 'ai_generated' => true],
+            'name' => $title,
+            'step_number' => 1,
+            'progress_percentage' => 0,
+            'estimated_hours' => collect($plan['steps'])->sum('estimated_hours'),
+        ];
+        $pathColumns = array_flip(Schema::getColumnListing('learning_paths'));
+        $path = $user->learningPaths()->create(array_intersect_key($pathData, $pathColumns));
 
-        $recommendations->each(function (array $recommendation, int $index) use ($path): void {
+        collect($plan['steps'])->each(function (array $step, int $index) use ($path): void {
             $path->items()->create([
-                'skill_name' => $recommendation['skill'],
-                'title' => $recommendation['title'],
-                'description' => $recommendation['description'],
-                'estimated_hours' => $recommendation['hours'],
+                'skill_name' => $step['skill_name'],
+                'title' => $step['title'],
+                'description' => $step['description'],
+                'estimated_hours' => $step['estimated_hours'],
                 'position' => $index + 1,
             ]);
         });
 
-        return redirect()->route('learning-paths.index')->with('status', 'Your learning path is ready. Complete each step when you have evidence of progress.');
+        return redirect()->route('learning-paths.index')->with('status', 'Your personalised AI learning path is ready. Complete steps only when you have real evidence of progress.');
     }
 
     public function updateItem(Request $request, LearningPathItem $item): RedirectResponse
@@ -81,7 +101,9 @@ class LearningPathController extends Controller
     /** @return Collection<int, array{skill: string, title: string, description: string, hours: int}> */
     private function recommendedSkills(User $user): Collection
     {
-        $known = $user->skills()->get(['name', 'proficiency', 'target_proficiency', 'is_priority']);
+        $availableColumns = array_flip(Schema::getColumnListing('skills'));
+        $fields = array_values(array_intersect(['name', 'proficiency', 'target_proficiency', 'is_priority'], array_keys($availableColumns)));
+        $known = $user->skills()->get($fields);
         $knownNames = $known->pluck('name')->map(fn (string $name) => mb_strtolower(trim($name)))->filter();
 
         $missingFromMatches = $user->aiAnalyses()
