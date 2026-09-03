@@ -5,6 +5,7 @@ use App\Http\Controllers\AiAnalysisController;
 use App\Http\Controllers\CoverLetterController;
 use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PublicPortfolioController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ResumeBuilderController;
 use App\Http\Controllers\ResumeParseController;
@@ -15,6 +16,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'))->name('home');
+Route::get('/p/{slug}', [PublicPortfolioController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('portfolio.public');
+Route::get('/p/{slug}/projects/{project}/image', [PublicPortfolioController::class, 'image'])->where('slug', '[a-z0-9-]+')->name('portfolio.public.image');
+Route::get('/p/{slug}/resume', [PublicPortfolioController::class, 'downloadResume'])->where('slug', '[a-z0-9-]+')->name('portfolio.public.resume');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -125,7 +129,10 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
 
     Route::get('/portfolio', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'portfolio'))->name('portfolio');
     Route::post('/portfolio', [WorkspaceController::class, 'storeProject'])->name('portfolio.store');
+    Route::patch('/portfolio/{project}', [WorkspaceController::class, 'updateProject'])->name('portfolio.update');
+    Route::get('/portfolio/{project}/image', [WorkspaceController::class, 'showProjectImage'])->name('portfolio.image');
     Route::delete('/portfolio/{project}', [WorkspaceController::class, 'destroyProject'])->name('portfolio.destroy');
+    Route::patch('/portfolio-settings', [WorkspaceController::class, 'updatePortfolioSettings'])->name('portfolio.settings.update');
 
     Route::get('/analytics', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'analytics'))->name('analytics');
     Route::get('/profile', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'profile'))->name('profile');
