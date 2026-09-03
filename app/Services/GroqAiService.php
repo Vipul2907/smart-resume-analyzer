@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AiAnalysis;
 use App\Models\Resume;
 use App\Models\InterviewSession;
+use App\Models\CareerGoal;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -218,6 +219,36 @@ PROMPT
             'score' => max(0, min(100, (int) ($result['score'] ?? 0))),
             'strengths' => $this->strings($result['strengths'] ?? []),
             'improvements' => $this->strings($result['improvements'] ?? []),
+        ];
+    }
+
+    /**
+     * Create advice for one saved career goal. It deliberately uses the goal
+     * before any saved technical data, so a founder is not pushed into an
+     * unrelated engineering plan.
+     *
+     * @return array{summary: string, readiness_score: int, next_actions: array<int, string>, gaps: array<int, string>, weekly_plan: array<int, string>}
+     * @throws RequestException
+     */
+    public function createCareerAdvice(CareerGoal $goal, array $context): array
+    {
+        $result = $this->jsonCompletion(
+            'You are a practical and honest career coach. Return JSON only. Personalise every recommendation to the stated goal. Do not invent market data, achievements, or qualifications.',
+            'Career goal: '.$goal->title."\n".
+            'Target role: '.($goal->target_role ?: 'not specified')."\n".
+            'Target industry: '.($goal->target_industry ?: 'not specified')."\n".
+            'Why it matters: '.($goal->motivation ?: 'not specified')."\n".
+            'Target date: '.($goal->target_date?->toDateString() ?: 'not specified')."\n".
+            'Current saved context: '.$this->json($context)."\n\n".
+            'Return JSON exactly with summary (string), readiness_score (0-100 integer), next_actions (3 concise, practical actions), gaps (up to 4 truthful gaps), and weekly_plan (3 or 4 specific actions for the next seven days). For entrepreneurship goals, prioritise customer discovery, validation, sales, finance, and execution. Do not suggest unrelated developer skills unless the user goal makes them relevant.'
+        );
+
+        return [
+            'summary' => str($result['summary'] ?? 'A focused review of your saved career goal.')->limit(2000)->trim()->toString(),
+            'readiness_score' => max(0, min(100, (int) ($result['readiness_score'] ?? 0))),
+            'next_actions' => $this->strings($result['next_actions'] ?? []),
+            'gaps' => $this->strings($result['gaps'] ?? []),
+            'weekly_plan' => $this->strings($result['weekly_plan'] ?? []),
         ];
     }
 
