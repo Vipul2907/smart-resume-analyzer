@@ -14,6 +14,8 @@ class CareerGoal extends Model
         return [
             'target_date' => 'date',
             'milestones' => 'array',
+            'career_advice' => 'array',
+            'career_advice_generated_at' => 'datetime',
             'progress' => 'integer',
         ];
     }
