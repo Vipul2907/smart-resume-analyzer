@@ -12,6 +12,16 @@ class PortfolioProject extends Model
 
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'skills' => 'array',
+            'is_featured' => 'boolean',
+            'started_at' => 'date',
+            'completed_at' => 'date',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
