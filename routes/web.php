@@ -112,6 +112,10 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::get('/insights', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'insights'))->name('insights');
     Route::post('/goals', [WorkspaceController::class, 'storeGoal'])->name('goals.store');
     Route::patch('/goals/{goal}', [WorkspaceController::class, 'updateGoal'])->name('goals.update');
+    Route::post('/goals/{goal}/milestones', [WorkspaceController::class, 'storeGoalMilestone'])->name('goals.milestones.store');
+    Route::patch('/goals/{goal}/milestones/{milestone}', [WorkspaceController::class, 'updateGoalMilestone'])->name('goals.milestones.update');
+    Route::delete('/goals/{goal}/milestones/{milestone}', [WorkspaceController::class, 'destroyGoalMilestone'])->name('goals.milestones.destroy');
+    Route::post('/goals/{goal}/career-advice', [WorkspaceController::class, 'generateCareerAdvice'])->middleware('throttle:5,1')->name('goals.career-advice.store');
     Route::delete('/goals/{goal}', [WorkspaceController::class, 'destroyGoal'])->name('goals.destroy');
 
     Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
