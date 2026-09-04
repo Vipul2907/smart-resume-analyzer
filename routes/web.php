@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiAnalysisController;
 use App\Http\Controllers\CoverLetterController;
 use App\Http\Controllers\LearningPathController;
+use App\Http\Controllers\JobDiscoveryController;
+use App\Http\Controllers\LiveJobBoardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicPortfolioController;
 use App\Http\Controllers\ResumeController;
@@ -94,6 +96,14 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::post('/jobs/{job}/attachments', [WorkspaceController::class, 'storeJobAttachment'])->name('jobs.attachments.store');
     Route::get('/jobs/{job}/attachments/{attachment}', [WorkspaceController::class, 'downloadJobAttachment'])->name('jobs.attachments.download');
     Route::delete('/jobs/{job}/attachments/{attachment}', [WorkspaceController::class, 'destroyJobAttachment'])->name('jobs.attachments.destroy');
+
+    Route::get('/discover', [LiveJobBoardController::class, 'index'])->middleware('throttle:30,1')->name('discover');
+    Route::post('/discover/searches', [JobDiscoveryController::class, 'store'])->name('discover.searches.store');
+    Route::patch('/discover/searches/{search}', [JobDiscoveryController::class, 'update'])->name('discover.searches.update');
+    Route::delete('/discover/searches/{search}', [JobDiscoveryController::class, 'destroy'])->name('discover.searches.destroy');
+    Route::get('/discover/searches/{search}/open', [JobDiscoveryController::class, 'open'])->name('discover.searches.open');
+    Route::post('/discover/add-to-tracker', [JobDiscoveryController::class, 'addToTracker'])->name('discover.tracker.store');
+    Route::redirect('/live-jobs', '/discover')->name('live-jobs.index');
 
     Route::get('/interviews', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'interviews'))->name('interviews');
     Route::post('/interviews', [WorkspaceController::class, 'storeInterview'])->name('interviews.store');
