@@ -4,6 +4,11 @@
   $jobs = auth()->user()->jobApplications()->latest()->get(['id', 'company', 'role']);
   $latestMatch = $selectedResume?->aiAnalyses()->where('analysis_type', 'job_match')->where('status', 'completed')->latest()->first();
   $result = $latestMatch?->result ?: [];
+  $displayText = function (mixed $value) use (&$displayText): string {
+      if (is_string($value) || is_numeric($value)) return trim((string) $value);
+      if (is_array($value)) return collect($value)->map(fn ($nested) => $displayText($nested))->filter()->implode(' ');
+      return '';
+  };
 @endphp
 
 @if(! $selectedResume)
@@ -45,13 +50,14 @@
       <article class="card p-5 sm:p-6">
         <div class="flex items-center justify-between gap-4"><div><h2 class="font-semibold">Latest match result</h2><p class="mt-1 text-sm text-zinc-500">{{ $latestMatch?->completed_at?->diffForHumans() ?? 'Run your first comparison to see results.' }}</p></div>@if($latestMatch)<span class="rounded-xl bg-cyan-400/10 px-4 py-2 text-2xl font-semibold text-cyan-100">{{ $latestMatch->score ?? '--' }}<span class="text-sm text-cyan-100/60">/100</span></span>@endif</div>
         @if($latestMatch)
-          @if(!empty($result['summary']))<div class="mt-5 rounded-xl border border-cyan-400/15 bg-cyan-400/[.05] p-4 text-sm leading-6 text-zinc-300">{{ $result['summary'] }}</div>@endif
+          @if($displayText($result['summary'] ?? null) !== '')<div class="mt-5 rounded-xl border border-cyan-400/15 bg-cyan-400/[.05] p-4 text-sm leading-6 text-zinc-300">{{ $displayText($result['summary']) }}</div>@endif
           <div class="mt-5 grid gap-4 md:grid-cols-2">
             @foreach(['matching_skills' => 'Matching skills', 'missing_skills' => 'Skill gaps', 'keyword_suggestions' => 'ATS keywords to use naturally', 'resume_improvements' => 'Resume improvements', 'interview_questions' => 'Role-focused interview questions', 'next_actions' => 'Your next actions'] as $key => $label)
-              <div class="rounded-xl border border-white/[.08] p-4"><h3 class="text-sm font-semibold">{{ $label }}</h3><ul class="mt-3 space-y-2 text-sm leading-6 text-zinc-400">@forelse((array) ($result[$key] ?? []) as $item)<li>{{ $item }}</li>@empty<li class="text-zinc-600">No suggestions returned for this section.</li>@endforelse</ul></div>
+              @php($items = collect((array) ($result[$key] ?? []))->map($displayText)->filter())
+              <div class="rounded-xl border border-white/[.08] p-4"><h3 class="text-sm font-semibold">{{ $label }}</h3><ul class="mt-3 space-y-2 text-sm leading-6 text-zinc-400">@forelse($items as $item)<li>{{ $item }}</li>@empty<li class="text-zinc-600">No suggestions returned for this section.</li>@endforelse</ul></div>
             @endforeach
           </div>
-          @if(!empty($result['role_recommendation']))<div class="mt-4 rounded-xl border border-violet-400/20 bg-violet-400/[.07] p-4"><p class="text-xs font-bold uppercase tracking-[.14em] text-violet-200">Role recommendation</p><p class="mt-2 text-sm leading-6 text-zinc-300">{{ $result['role_recommendation'] }}</p></div>@endif
+          @if($displayText($result['role_recommendation'] ?? null) !== '')<div class="mt-4 rounded-xl border border-violet-400/20 bg-violet-400/[.07] p-4"><p class="text-xs font-bold uppercase tracking-[.14em] text-violet-200">Role recommendation</p><p class="mt-2 text-sm leading-6 text-zinc-300">{{ $displayText($result['role_recommendation']) }}</p></div>@endif
         @else
           <div class="mt-5 rounded-xl border border-dashed border-white/[.12] p-6 text-sm leading-6 text-zinc-500">The result will show your strongest evidence for the role, the gaps to address, and what to improve before applying.</div>
         @endif
