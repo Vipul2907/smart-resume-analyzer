@@ -7,6 +7,7 @@
         ['match', 'Job match', '↔'],
         ['cover-letters', 'Cover letters', '✉'],
         ['jobs', 'Job tracker', '◎'],
+        ['discover', 'Job discovery', '⌕'],
         ['interviews', 'Interview lab', '◌'],
         ['skills', 'Skill studio', '◇'],
         ['insights', 'Career insights', '↗'],
