@@ -5062,19 +5062,766 @@ Designed for:
     Portfolio Management
 
 ---
+🧠 Smart Resume Analyzer
 
-# 🏁 End
+«An AI-powered career and resume management platform built with Laravel that helps users create, manage, parse, analyze, improve, and track their resumes while organizing their job-search journey in one centralized workspace.»
 
-Smart Resume Analyzer is built around one central workflow:
+Smart Resume Analyzer is a full-stack web application designed to make resume management and career preparation more structured, intelligent, and actionable.
 
-    Understand your career profile.
-                ↓
-    Improve your professional presentation.
-                ↓
-    Organize your job search.
-                ↓
-    Prepare for interviews.
-                ↓
-    Track your progress.
-                ↓
-    Keep improving.
+Instead of treating a resume as a static document, the application turns it into a central career profile that can be analyzed with AI, versioned, improved, connected with job applications, used for interview preparation, and supported with career goals, skills, portfolio projects, and analytics.
+
+The project is built using Laravel 12, PHP 8.2+, Vite, Tailwind CSS, and a combination of custom resume-processing services and the Groq API for AI-powered resume analysis.
+
+---
+
+📌 Table of Contents
+
+- "Overview" (#-overview)
+- "Why Smart Resume Analyzer?" (#-why-smart-resume-analyzer)
+- "Problem Statement" (#-problem-statement)
+- "Project Goals" (#-project-goals)
+- "Key Features" (#-key-features)
+- "Application Workflow" (#-application-workflow)
+- "Resume Management" (#-resume-management)
+- "Resume Builder" (#-resume-builder)
+- "Resume Parsing" (#-resume-parsing)
+- "Document Text Extraction" (#-document-text-extraction)
+- "AI Resume Analysis" (#-ai-resume-analysis)
+- "Groq AI Integration" (#-groq-ai-integration)
+- "AI Analysis Output" (#-ai-analysis-output)
+- "Resume Versioning" (#-resume-versioning)
+- "Job Application Tracking" (#-job-application-tracking)
+- "Interview Preparation" (#-interview-preparation)
+- "Skills Management" (#-skills-management)
+- "Career Goals" (#-career-goals)
+- "Portfolio Management" (#-portfolio-management)
+- "Dashboard" (#-dashboard)
+- "Analytics" (#-analytics)
+- "Authentication" (#-authentication)
+- "Onboarding" (#-onboarding)
+- "Application Architecture" (#-application-architecture)
+- "Technology Stack" (#-technology-stack)
+- "Backend Architecture" (#-backend-architecture)
+- "Frontend Architecture" (#-frontend-architecture)
+- "Database Architecture" (#-database-architecture)
+- "Project Structure" (#-project-structure)
+- "Important Directories" (#-important-directories)
+- "Controllers" (#-controllers)
+- "Services" (#-services)
+- "Models" (#-models)
+- "Routes" (#-routes)
+- "Resume Processing Pipeline" (#-resume-processing-pipeline)
+- "AI Processing Pipeline" (#-ai-processing-pipeline)
+- "Security Considerations" (#-security-considerations)
+- "Rate Limiting" (#-rate-limiting)
+- "Environment Configuration" (#-environment-configuration)
+- "Installation" (#-installation)
+- "Local Development" (#-local-development)
+- "Database Setup" (#-database-setup)
+- "Frontend Setup" (#-frontend-setup)
+- "Running the Application" (#-running-the-application)
+- "Running Tests" (#-running-tests)
+- "Production Build" (#-production-build)
+- "Troubleshooting" (#-troubleshooting)
+- "Supported Resume Formats" (#-supported-resume-formats)
+- "Current Limitations" (#-current-limitations)
+- "Future Improvements" (#-future-improvements)
+- "Development Practices" (#-development-practices)
+- "Contributing" (#-contributing)
+- "Privacy" (#-privacy)
+- "License" (#-license)
+- "Acknowledgements" (#-acknowledgements)
+- "Author" (#-author)
+
+---
+
+🚀 Overview
+
+Smart Resume Analyzer is a career-focused web application that combines traditional resume management with document parsing and AI-assisted analysis.
+
+The application allows a user to maintain multiple resumes, upload resume documents, extract their textual content, parse common resume sections, send the extracted information to an AI service for analysis, and store the resulting analysis for later review.
+
+The system goes beyond resume analysis by providing a broader career workspace.
+
+Users can manage:
+
+- Resumes
+- Resume versions
+- AI analyses
+- Job applications
+- Job contacts
+- Job attachments
+- Interview sessions
+- Interview responses
+- Skills
+- Skill certificates
+- Career goals
+- Portfolio projects
+- Career profiles
+- Personal settings
+- Analytics
+
+This approach makes the project more than a simple resume parser.
+
+It acts as a personal career management workspace where resume optimization, job tracking, interview preparation, skill development, and portfolio management can exist together.
+
+---
+
+🎯 Why Smart Resume Analyzer?
+
+Creating a resume is only one part of the job-search process.
+
+A candidate may need to:
+
+1. Create a professional resume.
+2. Maintain different versions for different roles.
+3. Understand what information is present in the resume.
+4. Identify missing sections.
+5. Evaluate the overall quality of the resume.
+6. Improve weak areas.
+7. Track job applications.
+8. Prepare for interviews.
+9. Track skills and certifications.
+10. Maintain portfolio projects.
+11. Set career goals.
+12. Review progress through analytics.
+
+Many tools focus on only one of these activities.
+
+Smart Resume Analyzer attempts to bring these activities into a unified application.
+
+The central idea is simple:
+
+«Your resume should be a living career document, not a static file.»
+
+The application therefore treats the resume as structured career data that can be parsed, analyzed, versioned, improved, and connected to other parts of a user's career workflow.
+
+---
+
+🧩 Problem Statement
+
+Traditional resume management often involves disconnected tools.
+
+A candidate may use one application to write a resume, another website to check it, a spreadsheet to track job applications, a separate document to prepare interview questions, and another tool to track skills or portfolio projects.
+
+This creates several problems:
+
+- Resume versions become difficult to manage.
+- Previous changes can be lost.
+- Job applications are disconnected from the resume used.
+- Resume feedback is not stored in one place.
+- Interview preparation is disconnected from career information.
+- Skill development is difficult to track.
+- Portfolio information may become outdated.
+- Candidates lack a centralized view of their job-search progress.
+
+Smart Resume Analyzer addresses these problems by providing a centralized career workspace.
+
+---
+
+🎯 Project Goals
+
+The main goals of the project are:
+
+1. Resume Management
+
+Provide users with a structured way to create, upload, view, update, download, and delete resumes.
+
+2. Resume Parsing
+
+Extract useful information from uploaded resume documents.
+
+3. AI Analysis
+
+Use AI to evaluate resume content and provide structured feedback.
+
+4. Resume Improvement
+
+Identify strengths, weaknesses, missing sections, and actionable improvements.
+
+5. Resume Versioning
+
+Allow users to maintain multiple iterations of their resumes.
+
+6. Career Organization
+
+Provide tools for job applications, interviews, skills, goals, and portfolio projects.
+
+7. Personal Workspace
+
+Give users a centralized dashboard for their career-related information.
+
+8. Developer-Friendly Architecture
+
+Keep document processing, AI integration, controllers, models, and application logic separated into maintainable components.
+
+---
+
+✨ Key Features
+
+📄 Resume Management
+
+Users can manage multiple resumes inside their workspace.
+
+The application provides functionality for:
+
+- Creating resumes
+- Uploading resumes
+- Viewing resumes
+- Updating resume information
+- Deleting resumes
+- Downloading resumes
+- Selecting a primary resume
+- Duplicating resumes
+- Creating new versions
+- Previewing resumes
+- Exporting resume documents
+
+The routing layer explicitly provides endpoints for resume CRUD operations, primary-resume selection, download functionality, parsing, versioning, preview, and DOCX export.
+
+---
+
+📝 Resume Builder
+
+Smart Resume Analyzer includes a resume-builder workflow.
+
+The builder allows users to create and maintain resume content within the application rather than relying exclusively on externally created files.
+
+The application provides dedicated controller functionality for:
+
+- Creating a resume
+- Storing builder data
+- Editing an existing resume
+- Updating resume content
+- Duplicating a resume
+- Creating a new resume version
+- Previewing a resume
+- Exporting the resume to DOCX
+
+This makes the application useful for both:
+
+- Users who already have a resume file
+- Users who want to build a resume inside the application
+
+The resume builder functionality is represented by "ResumeBuilderController" and corresponding routes in the application.
+
+---
+
+🔍 Resume Parsing
+
+One of the core components of Smart Resume Analyzer is its resume parsing system.
+
+The parser converts extracted resume text into structured information.
+
+The parser identifies common resume sections such as:
+
+- Summary
+- Profile
+- Objective
+- Work Experience
+- Employment
+- Professional Experience
+- Education
+- Academic Background
+- Skills
+- Technical Skills
+- Core Skills
+- Projects
+- Portfolio
+- Certifications
+- Certificates
+- Licenses
+
+The parser normalizes section headings and maps different naming conventions into a consistent internal representation.
+
+For example, these headings can represent the same conceptual section:
+
+Experience
+Work Experience
+Employment
+Professional Experience
+
+Instead of treating them as unrelated sections, the parser maps them to the internal "experience" category.
+
+This makes the parsing process more tolerant of different resume writing styles.
+
+---
+
+📑 Document Text Extraction
+
+The application includes a dedicated "ResumeTextExtractor" service.
+
+This service is responsible for reading uploaded files and extracting readable text before the parser processes that text.
+
+The current implementation supports extraction paths for:
+
+- ".txt"
+- ".docx"
+- ".pdf"
+
+The service uses:
+
+- Laravel Storage
+- "Smalot\PdfParser"
+- PHP "ZipArchive"
+
+for document processing.
+
+---
+
+TXT Extraction
+
+Text files are processed directly and normalized before being passed to the parser.
+
+This provides a simple path for plain-text resumes.
+
+---
+
+DOCX Extraction
+
+DOCX files are ZIP-based Office documents.
+
+The application checks for the PHP ZIP extension and reads relevant XML files from the DOCX archive.
+
+The extractor looks at:
+
+word/document.xml
+word/footnotes.xml
+word/endnotes.xml
+
+The extracted XML content is then processed to obtain readable text.
+
+---
+
+PDF Extraction
+
+PDF resumes are processed using the "Smalot\PdfParser" package.
+
+The application retrieves the uploaded file through Laravel's configured storage disk and passes the PDF content through the parser.
+
+This allows text-based PDF resumes to be converted into text that can subsequently be analyzed.
+
+---
+
+🖼️ Image-Only PDF Handling
+
+Not every PDF contains selectable text.
+
+Some resumes are scanned documents or PDFs containing only images.
+
+The application detects this situation and can return an "image_only" parsing status.
+
+The current implementation communicates that OCR would be required for such documents because there is no directly readable text available.
+
+This is an important distinction because text extraction and OCR are different processing problems.
+
+A normal PDF parser can extract embedded text, but it cannot automatically understand text that exists only inside an image.
+
+---
+
+🧠 AI Resume Analysis
+
+After a resume has been parsed and readable text is available, the application can send the extracted content to an AI analysis service.
+
+The AI integration is implemented through:
+
+app/Services/GroqAiService.php
+
+The service communicates with Groq's chat-completion API.
+
+The application first validates that:
+
+1. A Groq API key exists.
+2. The resume has already been parsed.
+3. Extracted resume text is available.
+
+If these conditions are not met, the service returns an appropriate application-level error.
+
+---
+
+🤖 Groq AI Integration
+
+The project uses a dedicated service class instead of putting AI API calls directly inside a controller.
+
+This is a good architectural decision because it separates:
+
+- HTTP request handling
+- Resume management
+- AI communication
+- AI response processing
+
+The "GroqAiService" reads configuration values for:
+
+- API key
+- Model
+- Base URL
+- Timeout
+
+It then makes an authenticated HTTP request to the configured chat-completion endpoint.
+
+The request is configured to request JSON output.
+
+The service uses a low temperature setting to encourage more consistent structured responses.
+
+The AI response is decoded into a PHP array and stored in the corresponding AI analysis record.
+
+---
+
+📊 AI Analysis Output
+
+The AI prompt asks the model to return a structured JSON object containing:
+
+{
+  "score": 0,
+  "strengths": [],
+  "weaknesses": [],
+  "missing_sections": [],
+  "next_actions": []
+}
+
+The actual project expects these conceptual categories:
+
+Score
+
+A numerical evaluation from 0 to 100.
+
+Strengths
+
+Positive aspects detected in the resume.
+
+Weaknesses
+
+Areas that could be improved.
+
+Missing Sections
+
+Important resume sections that may not be present.
+
+Next Actions
+
+Recommended improvements that the user can take.
+
+This structured output makes the AI response easier to store, render, and consume programmatically than a large block of unstructured generated text.
+
+---
+
+🔄 AI Analysis Workflow
+
+The analysis flow can be summarized as:
+
+Resume Upload
+     ↓
+File Storage
+     ↓
+Text Extraction
+     ↓
+Resume Parsing
+     ↓
+Extracted Resume Text
+     ↓
+AI Analysis Request
+     ↓
+Groq API
+     ↓
+Structured JSON Response
+     ↓
+AI Analysis Database Record
+     ↓
+Dashboard / Resume Workspace
+
+This separation makes the system easier to maintain because document extraction and AI analysis are independent stages.
+
+---
+
+🧾 AI Analysis Storage
+
+AI analysis results are not simply displayed and discarded.
+
+The application has an "AiAnalysis" model and stores analysis-related information in the database.
+
+The Groq service records values including:
+
+- Provider
+- Model
+- Result
+- Score
+- Input token count
+- Output token count
+- Completion timestamp
+- Analysis status
+
+The related resume also records when it was most recently analyzed.
+
+This provides the foundation for historical analysis and future analytics.
+
+---
+
+📚 Resume Versioning
+
+Resume editing is inherently iterative.
+
+A candidate may create:
+
+Resume v1
+   ↓
+Resume v2
+   ↓
+Resume v3
+   ↓
+Job-specific Resume
+
+Smart Resume Analyzer includes resume version support to accommodate this workflow.
+
+The application exposes routes for:
+
+- Creating versions
+- Updating versions
+- Viewing resume previews
+- Duplicating resumes
+
+This means users can experiment with resume changes without necessarily destroying their previous version.
+
+---
+
+🎯 Primary Resume
+
+Users can maintain multiple resumes while identifying one as their primary resume.
+
+The application uses the primary resume as the default resume in relevant workspace screens.
+
+The routing logic loads resumes ordered by primary status and then by recency, allowing the workspace to determine the most relevant resume for the user.
+
+This is useful for candidates who maintain separate resumes for:
+
+- Software development
+- Data roles
+- Internships
+- Full-time positions
+- Different industries
+- Different job descriptions
+
+---
+
+💼 Job Application Tracking
+
+Smart Resume Analyzer includes a job-tracking workspace.
+
+Users can manage job applications directly from the application.
+
+The system provides functionality for:
+
+- Creating job records
+- Updating job records
+- Deleting job records
+- Adding job contacts
+- Removing job contacts
+- Uploading job attachments
+- Downloading job attachments
+- Deleting job attachments
+
+This allows users to maintain more than just a resume.
+
+They can organize the broader job-search process in the same workspace.
+
+---
+
+👥 Job Contacts
+
+Job applications can be associated with contacts.
+
+A contact may represent a person involved in the recruitment process, such as:
+
+- Recruiter
+- Hiring manager
+- Referral
+- HR representative
+- Professional connection
+
+The application provides routes for adding and deleting job contacts.
+
+This creates a more complete job-search tracking system.
+
+---
+
+📎 Job Attachments
+
+The job tracker supports attachments associated with job records.
+
+Attachments can be:
+
+- Uploaded
+- Downloaded
+- Deleted
+
+This can be useful for storing supporting documents related to a particular application.
+
+Examples could include:
+
+- Job descriptions
+- Supporting documents
+- Application-related files
+- Notes
+- Reference material
+
+---
+
+🎤 Interview Preparation
+
+Interview preparation is another major part of the career workspace.
+
+The application provides an interview section where users can:
+
+- Create interview sessions
+- Save interview responses
+- Complete interview sessions
+- Delete interview sessions
+
+This allows users to track interview preparation and practice as part of their career workflow.
+
+---
+
+🧪 Interview Practice Workflow
+
+A typical workflow can look like:
+
+Create Interview Session
+        ↓
+Practice Questions
+        ↓
+Write / Save Responses
+        ↓
+Review Responses
+        ↓
+Complete Interview Session
+        ↓
+Track Progress
+
+The interview functionality is connected to the broader workspace rather than existing as an isolated feature.
+
+---
+
+🛠️ Skills Management
+
+The application also provides a dedicated skills section.
+
+Users can:
+
+- Add skills
+- Remove skills
+- Download skill certificates
+
+This provides a structured way to maintain information about professional capabilities.
+
+Skills can complement resume analysis by helping users identify what they already know and what they may want to improve.
+
+---
+
+🏆 Skill Certificates
+
+Skills can be associated with certificate-related evidence.
+
+The application includes functionality for downloading skill certificates.
+
+This can help users maintain evidence of professional development alongside their career profile.
+
+---
+
+🎯 Career Goals
+
+The platform includes career-goal functionality.
+
+Users can:
+
+- Create goals
+- Update goals
+- Delete goals
+
+Career goals provide a way to turn resume improvement and job searching into a more structured development process.
+
+Potential goals can include:
+
+- Improve resume quality
+- Learn a new technology
+- Complete a certification
+- Apply for a target number of positions
+- Prepare for interviews
+- Build portfolio projects
+
+---
+
+💻 Portfolio Management
+
+The application includes a portfolio section.
+
+Users can:
+
+- Add projects
+- Remove projects
+
+Portfolio projects can complement the information contained in the resume.
+
+This is especially useful for technical candidates whose projects demonstrate practical experience.
+
+---
+
+📊 Dashboard
+
+The dashboard acts as a central workspace.
+
+The application has a dedicated dashboard route and loads workspace-related information based on the authenticated user.
+
+The system also loads the user's primary resume and recent completed AI analyses for workspace screens.
+
+A centralized dashboard makes it easier for users to see their career information without navigating through completely separate applications.
+
+---
+
+📈 Analytics
+
+The project includes a dedicated analytics screen.
+
+Analytics can serve as a foundation for tracking:
+
+- Resume activity
+- AI analysis history
+- Job-search activity
+- Interview progress
+- Skills
+- Career goals
+- Portfolio development
+
+Because AI analysis results and timestamps are stored, the architecture also provides useful data for future analytical features.
+
+---
+
+👤 Profile Management
+
+Users have a dedicated profile screen.
+
+The workspace routes include functionality for updating profile information.
+
+This allows the career workspace to maintain user information separately from individual resumes.
+
+---
+
+⚙️ Settings
+
+The application includes a settings area for user-specific configuration.
+
+The project provides dedicated settings routing and workspace handling.
+
+This gives the application a natural location for future user preferences and configuration options.
+
+---
+
+🔐 Authentication
+
+Smart Resume Analyzer includes a complete authentication workflow.
+
+The authentication controller handles functionality including:
+
+- Login
+- Registration
+- Logout
+- Password reset
+- Password reset requests
