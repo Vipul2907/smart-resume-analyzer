@@ -12,6 +12,8 @@
         ['skills', 'Skill studio', '◇'],
         ['insights', 'Career insights', '↗'],
         ['learning-paths', 'Learning paths', '◫'],
+        ['documents', 'Document vault', '▣'],
+        ['notifications', 'Reminders', '◉'],
         ['portfolio', 'Portfolio', '◇'],
         ['analytics', 'Analytics', '⌁'],
     ];
