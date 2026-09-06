@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiAnalysisController;
 use App\Http\Controllers\AccountSettingsController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CoverLetterController;
 use App\Http\Controllers\DocumentVaultController;
 use App\Http\Controllers\HelpCenterController;
@@ -161,6 +162,12 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
 
     Route::get('/help', [HelpCenterController::class, 'index'])->name('help');
     Route::post('/help/requests', [HelpCenterController::class, 'store'])->middleware('throttle:5,1')->name('help.requests.store');
+
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::patch('/admin/users/{user}', [AdminController::class, 'updateUser'])->name('admin.users.update');
+    Route::patch('/admin/support-requests/{supportRequest}', [AdminController::class, 'updateTicket'])->name('admin.tickets.update');
+    Route::post('/admin/announcements', [AdminController::class, 'storeAnnouncement'])->name('admin.announcements.store');
+    Route::delete('/admin/announcements/{announcement}', [AdminController::class, 'destroyAnnouncement'])->name('admin.announcements.destroy');
 
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/analytics/print', [AnalyticsController::class, 'printable'])->name('analytics.print');
