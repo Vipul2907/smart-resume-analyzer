@@ -42,6 +42,9 @@
         <p class="px-2 text-[10px] font-bold uppercase tracking-[.18em] text-zinc-600">Account</p>
         <a href="{{ route('profile') }}" class="nav-link mt-3 flex items-center gap-3 {{ $activeScreen === 'profile' ? 'active' : '' }}"><span class="w-4 text-center text-zinc-400">○</span>Profile</a>
         <a href="{{ route('settings') }}" class="nav-link flex items-center gap-3 {{ $activeScreen === 'settings' ? 'active' : '' }}"><span class="w-4 text-center text-zinc-400">⚙</span>Settings</a>
+        @if(auth()->user()?->is_admin)
+            <a href="{{ route('admin.index') }}" class="nav-link flex items-center gap-3 {{ $activeScreen === 'admin' ? 'active' : '' }}"><span class="w-4 text-center text-zinc-400">◆</span>Admin area</a>
+        @endif
         <a href="{{ route('help') }}" class="nav-link flex items-center gap-3"><span class="w-4 text-center text-zinc-400">?</span>Help center</a>
         <form method="POST" action="{{ route('logout') }}" class="mt-3">
             @csrf
