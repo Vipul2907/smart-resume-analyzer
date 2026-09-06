@@ -6,6 +6,7 @@ use App\Http\Controllers\AccountSettingsController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\CoverLetterController;
 use App\Http\Controllers\DocumentVaultController;
+use App\Http\Controllers\HelpCenterController;
 use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\JobDiscoveryController;
 use App\Http\Controllers\LiveJobBoardController;
@@ -158,6 +159,9 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::delete('/portfolio/{project}', [WorkspaceController::class, 'destroyProject'])->name('portfolio.destroy');
     Route::patch('/portfolio-settings', [WorkspaceController::class, 'updatePortfolioSettings'])->name('portfolio.settings.update');
 
+    Route::get('/help', [HelpCenterController::class, 'index'])->name('help');
+    Route::post('/help/requests', [HelpCenterController::class, 'store'])->middleware('throttle:5,1')->name('help.requests.store');
+
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/analytics/print', [AnalyticsController::class, 'printable'])->name('analytics.print');
     Route::get('/analytics/export/applications', [AnalyticsController::class, 'exportApplications'])->name('analytics.applications.export');
@@ -170,7 +174,7 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::delete('/settings/account', [AccountSettingsController::class, 'destroy'])->name('settings.destroy');
     Route::patch('/profile', [WorkspaceController::class, 'updateProfile'])->name('profile.update');
 
-    foreach (array_diff($screens, ['dashboard', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings']) as $screen) {
+    foreach (array_diff($screens, ['dashboard', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings', 'help']) as $screen) {
         Route::get("/{$screen}", function (Request $request) use ($screen) {
             if (! request()->user()->onboarding_completed_at && $screen !== 'onboarding') {
                 return redirect()->route('onboarding.show');
