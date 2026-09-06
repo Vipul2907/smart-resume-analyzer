@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiAnalysisController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\CoverLetterController;
 use App\Http\Controllers\DocumentVaultController;
 use App\Http\Controllers\LearningPathController;
@@ -156,7 +157,11 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::delete('/portfolio/{project}', [WorkspaceController::class, 'destroyProject'])->name('portfolio.destroy');
     Route::patch('/portfolio-settings', [WorkspaceController::class, 'updatePortfolioSettings'])->name('portfolio.settings.update');
 
-    Route::get('/analytics', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'analytics'))->name('analytics');
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+    Route::get('/analytics/print', [AnalyticsController::class, 'printable'])->name('analytics.print');
+    Route::get('/analytics/export/applications', [AnalyticsController::class, 'exportApplications'])->name('analytics.applications.export');
+    Route::get('/analytics/export/data', [AnalyticsController::class, 'exportPersonalData'])->name('analytics.data.export');
+    Route::get('/analytics/recruiter-report', [AnalyticsController::class, 'recruiterReport'])->name('analytics.recruiter-report');
     Route::get('/profile', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'profile'))->name('profile');
     Route::get('/settings', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'settings'))->name('settings');
     Route::patch('/profile', [WorkspaceController::class, 'updateProfile'])->name('profile.update');
