@@ -56,8 +56,8 @@
               </div><span class="text-xs text-zinc-600">Live data</span>
             </div>
             @php($maxApplications = max(1, $months->max('applications')))
-            <div class="mt-8 flex h-48 items-end justify-between gap-3">@foreach($months as $month)<div class="flex h-full flex-1 flex-col justify-end"><span class="mb-2 text-center text-xs text-zinc-400">{{ $month['applications'] }}</span>
-                <div class="min-h-1 rounded-t-lg bg-gradient-to-t from-cyan-400 to-violet-500" style="height: {{ max(4, (int) round(($month['applications'] / $maxApplications) * 100)) }}%"></div><span class="mt-3 text-center text-xs text-zinc-500">{{ $month['label'] }}</span>
+            <div class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">@foreach($months as $month)<div class="rounded-xl border border-white/[.08] p-3"><div class="flex items-center justify-between text-xs"><span class="text-zinc-400">{{ $month['label'] }}</span><span class="font-semibold text-zinc-200">{{ $month['applications'] }}</span></div>
+                <progress class="mt-3 h-2 w-full overflow-hidden rounded-full accent-cyan-400" max="{{ $maxApplications }}" value="{{ $month['applications'] }}">{{ $month['applications'] }}</progress>
               </div>@endforeach</div>
             @if($metrics['applications'] === 0)<p class="mt-6 rounded-xl border border-dashed border-white/[.1] p-4 text-sm text-zinc-400">Start by saving an opening from <a class="text-cyan-300 underline" href="{{ route('discover') }}">Job discovery</a> or add an opportunity in the tracker. Your activity chart will grow from real entries.</p>@endif
           </article>
@@ -66,9 +66,7 @@
             <p class="mt-1 text-sm text-zinc-500">Where your saved opportunities are today.</p>
             <div class="mt-6 space-y-4">@php($maxStatus = max(1, $statuses->max('count')))<div class="space-y-4">@foreach($statuses as $status)<div>
                   <div class="flex justify-between text-sm"><span class="text-zinc-300">{{ $status['label'] }}</span><span class="text-zinc-500">{{ $status['count'] }}</span></div>
-                  <div class="mt-2 h-2 overflow-hidden rounded-full bg-white/[.06]">
-                    <div class="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-400" style="width: {{ (int) round(($status['count'] / $maxStatus) * 100) }}%"></div>
-                  </div>
+                  <progress class="mt-2 h-2 w-full overflow-hidden rounded-full accent-violet-400" max="{{ $maxStatus }}" value="{{ $status['count'] }}">{{ $status['count'] }}</progress>
                 </div>@endforeach</div>
             </div>
           </article>
@@ -82,9 +80,7 @@
             </div>
             <div class="mt-6 space-y-5">@forelse($topSkills as $skill)<div>
                 <div class="flex items-center justify-between gap-3 text-sm"><span class="font-medium">{{ $skill['name'] }}</span><span class="text-zinc-400">{{ $skill['proficiency'] }}%{{ $skill['target'] ? ' / '.$skill['target'].'% target' : '' }}</span></div>
-                <div class="mt-2 h-2 overflow-hidden rounded-full bg-white/[.06]">
-                  <div class="h-full rounded-full bg-cyan-400" style="width: {{ min(100, $skill['proficiency']) }}%"></div>
-                </div>
+                <progress class="mt-2 h-2 w-full overflow-hidden rounded-full accent-cyan-400" max="100" value="{{ min(100, $skill['proficiency']) }}">{{ $skill['proficiency'] }}</progress>
               </div>@empty<p class="rounded-xl border border-dashed border-white/[.1] p-4 text-sm text-zinc-400">No skills measured yet. Visit <a class="text-cyan-300 underline" href="{{ route('skills') }}">Skill studio</a> and save a skill with a proficiency level.</p>@endforelse</div>
           </article>
           <article class="card p-5 sm:p-6">
@@ -99,9 +95,7 @@
                     <p class="mt-1 text-xs capitalize text-zinc-500">{{ $goal->status }}{{ $goal->target_date ? ' · target '.$goal->target_date->format('M j, Y') : '' }}</p>
                   </div><span class="text-sm font-semibold text-cyan-200">{{ $goal->progress ?? 0 }}%</span>
                 </div>
-                <div class="mt-3 h-2 overflow-hidden rounded-full bg-white/[.06]">
-                  <div class="h-full rounded-full bg-violet-500" style="width: {{ min(100, (int) ($goal->progress ?? 0)) }}%"></div>
-                </div>
+                <progress class="mt-3 h-2 w-full overflow-hidden rounded-full accent-violet-400" max="100" value="{{ min(100, (int) ($goal->progress ?? 0)) }}">{{ $goal->progress ?? 0 }}</progress>
               </div>@empty<p class="rounded-xl border border-dashed border-white/[.1] p-4 text-sm text-zinc-400">Create a goal in <a class="text-cyan-300 underline" href="{{ route('insights') }}">Career insights</a> to track its progress here.</p>@endforelse</div>
           </article>
         </section>
