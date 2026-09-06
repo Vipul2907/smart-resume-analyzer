@@ -42,6 +42,13 @@ class NotificationCenterController extends Controller
     private function syncReminders(Request $request): int
     {
         $user = $request->user();
+
+        // A missing preference means this is an existing account created before
+        // Step 14, so keep the original enabled behaviour until the user chooses.
+        if ($user->preferences?->in_app_reminders === false) {
+            return 0;
+        }
+
         $today = today();
         $until = today()->addDays(7);
         $candidates = collect();

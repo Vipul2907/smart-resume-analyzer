@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiAnalysisController;
+use App\Http\Controllers\AccountSettingsController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\CoverLetterController;
 use App\Http\Controllers\DocumentVaultController;
@@ -163,7 +164,10 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::get('/analytics/export/data', [AnalyticsController::class, 'exportPersonalData'])->name('analytics.data.export');
     Route::get('/analytics/recruiter-report', [AnalyticsController::class, 'recruiterReport'])->name('analytics.recruiter-report');
     Route::get('/profile', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'profile'))->name('profile');
-    Route::get('/settings', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'settings'))->name('settings');
+    Route::get('/settings', [AccountSettingsController::class, 'index'])->name('settings');
+    Route::patch('/settings/preferences', [AccountSettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
+    Route::patch('/settings/password', [AccountSettingsController::class, 'updatePassword'])->name('settings.password.update');
+    Route::delete('/settings/account', [AccountSettingsController::class, 'destroy'])->name('settings.destroy');
     Route::patch('/profile', [WorkspaceController::class, 'updateProfile'])->name('profile.update');
 
     foreach (array_diff($screens, ['dashboard', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings']) as $screen) {

@@ -17,6 +17,10 @@ class AiAnalysisController extends Controller
 
         abort_unless($resume->user_id === $request->user()->id, 404);
 
+        if ($request->user()->preferences?->ai_processing_enabled === false) {
+            return back()->with('error', 'AI analysis is disabled in Settings. Turn it on when you are ready to use Groq again.');
+        }
+
         $attributes = $request->validate([
             'analysis_type' => ['required', 'in:resume_review,ats_foundation'],
             'accepted_ai_privacy' => ['accepted'],
@@ -62,6 +66,9 @@ class AiAnalysisController extends Controller
         }
 
         abort_unless($resume->user_id === $request->user()->id, 404);
+        if ($request->user()->preferences?->ai_processing_enabled === false) {
+            return back()->with('error', 'AI analysis is disabled in Settings. Turn it on when you are ready to use Groq again.');
+        }
         $attributes = $request->validate([
             'job_description' => ['required', 'string', 'min:80', 'max:12000'],
             'target_role' => ['nullable', 'string', 'max:255'],
