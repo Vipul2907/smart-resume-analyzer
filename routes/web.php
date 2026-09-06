@@ -3,9 +3,11 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiAnalysisController;
 use App\Http\Controllers\CoverLetterController;
+use App\Http\Controllers\DocumentVaultController;
 use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\JobDiscoveryController;
 use App\Http\Controllers\LiveJobBoardController;
+use App\Http\Controllers\NotificationCenterController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicPortfolioController;
 use App\Http\Controllers\ResumeController;
@@ -86,6 +88,16 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::get('/cover-letters/{coverLetter}/download/docx', [CoverLetterController::class, 'downloadDocx'])->name('cover-letters.download.docx');
 
     Route::get('/dashboard', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'dashboard'))->name('dashboard');
+
+    Route::get('/documents', [DocumentVaultController::class, 'index'])->name('documents.index');
+    Route::post('/documents', [DocumentVaultController::class, 'store'])->middleware('throttle:10,1')->name('documents.store');
+    Route::get('/documents/{document}/download', [DocumentVaultController::class, 'download'])->name('documents.download');
+    Route::delete('/documents/{document}', [DocumentVaultController::class, 'destroy'])->name('documents.destroy');
+
+    Route::get('/notifications', [NotificationCenterController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/refresh', [NotificationCenterController::class, 'refresh'])->name('notifications.refresh');
+    Route::patch('/notifications/read-all', [NotificationCenterController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::patch('/notifications/{notification}/read', [NotificationCenterController::class, 'markRead'])->name('notifications.read');
 
     Route::get('/jobs', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'jobs'))->name('jobs');
     Route::post('/jobs', [WorkspaceController::class, 'storeJob'])->name('jobs.store');
