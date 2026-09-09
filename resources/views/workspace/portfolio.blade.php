@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Portfolio Studio · SmartCV</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
 <div class="min-h-screen"><x-workspace-sidebar active-screen="portfolio" />

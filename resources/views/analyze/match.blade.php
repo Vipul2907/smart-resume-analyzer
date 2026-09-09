@@ -19,7 +19,7 @@
     <a href="{{ route('resumes') }}" class="btn btn-primary mt-5">Upload or create a resume</a>
   </section>
 @else
-  <section class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+  <section class="match-shell grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
     <div class="space-y-5">
       <article class="card p-5 sm:p-6">
         <p class="eyebrow">Advanced AI · Step 4</p>

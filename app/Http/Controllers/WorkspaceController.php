@@ -89,6 +89,18 @@ class WorkspaceController extends Controller
             $data['upcomingFollowUps'] = $user->jobApplications()->whereNotNull('follow_up_at')->whereDate('follow_up_at', '>=', today())->orderBy('follow_up_at')->limit(4)->get();
             $data['recentInterviews'] = $user->interviewSessions()->latest()->limit(3)->get();
             $data['primaryResume'] = $user->resumes()->where('is_primary', true)->first() ?: $user->resumes()->latest()->first();
+            $data['dashboardStats'] = [
+                'applications' => $user->jobApplications()->count(),
+                'activeApplications' => $user->jobApplications()->whereIn('status', ['applied', 'interviewing', 'offer'])->count(),
+                'completedInterviews' => $user->interviewSessions()->where('status', 'completed')->count(),
+                'skills' => $user->skills()->count(),
+            ];
+            $data['prioritySkills'] = $user->skills()->orderByDesc('is_priority')->orderByDesc('proficiency')->limit(4)->get();
+            $data['activeGoal'] = $user->careerGoals()->where('progress', '<', 100)->latest()->first();
+            $data['recentAnalyses'] = $user->aiAnalyses()->where('status', 'completed')->latest()->limit(3)->get();
+            $data['resumeReadiness'] = ! $data['primaryResume'] ? 0 : ($data['primaryResume']->last_analyzed_at ? 100 : ($data['primaryResume']->parse_status === 'parsed' ? 65 : 30));
+
+            return view('workspace.dashboard', $data);
         }
 
         if ($screen === 'analytics') {

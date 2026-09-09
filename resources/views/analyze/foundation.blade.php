@@ -6,7 +6,7 @@
   $analysisType = $screen === 'ats' ? 'ats_foundation' : 'resume_review';
 @endphp
 
-<section class="grid gap-4 xl:grid-cols-[1fr_.58fr]">
+<section class="analysis-shell grid gap-5 xl:grid-cols-[1fr_.58fr]">
   <div class="space-y-4">
     @if(! $primaryResume)
       <article class="card border-dashed p-8 text-center">

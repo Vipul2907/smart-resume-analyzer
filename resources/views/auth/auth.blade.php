@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ $mode === 'login' ? 'Welcome back' : ($mode === 'register' ? 'Create your free account' : 'Account recovery') }} · SmartCV</title>

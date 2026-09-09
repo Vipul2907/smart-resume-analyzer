@@ -8,10 +8,10 @@
   $content = $currentVersion?->content ?: [];
 @endphp
 
-<section class="grid gap-4 xl:grid-cols-[1fr_.48fr]">
+<section class="resume-hub grid gap-5 xl:grid-cols-[1fr_.48fr]">
   <div class="space-y-4">
     @forelse($resumes as $resume)
-      <article class="card p-5">
+      <article class="card resume-card p-5">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-center gap-3">
             <div class="grid h-11 w-10 place-items-center rounded border border-cyan-300/20 bg-cyan-400/10 text-xs font-bold text-cyan-200">{{ $resume->extensionLabel() }}</div>

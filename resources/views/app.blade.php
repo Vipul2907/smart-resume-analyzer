@@ -1,48 +1,54 @@
 <!doctype html>
-<html lang="en" class="dark"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ ucfirst($screen) }} · SmartCV</title>@vite(['resources/css/app.css','resources/js/app.js'])
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ ucfirst($screen) }} · SmartCV</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 @php
-  $nav = [
-    ['dashboard','Overview','⌘'], ['resumes','My resumes','▤'], ['match','Job match','↔'], ['cover-letters','Cover letters','✉'], ['jobs','Job tracker','◎'], ['discover','Job discovery','⌕'], ['interviews','Interview lab','◌'], ['skills','Skill studio','◇'], ['insights','Career insights','↗'], ['learning-paths','Learning paths','◫'], ['documents','Document vault','▣'], ['notifications','Reminders','◉'], ['portfolio','Portfolio','◈'], ['analytics','Analytics','⌁']
-  ];
-  $utilities = [['profile','Profile','◉'],['settings','Settings','⚙'],['help','Help center','?']];
-  $titles = ['dashboard'=>['Good afternoon, Noah.','Here is your career momentum at a glance.'],'resumes'=>['Your resumes','Keep every version polished, targeted, and ready to send.'],'analyze'=>['Resume intelligence','See what is working, what is missing, and where to focus next.'],'ats'=>['ATS optimization','Improve how your resume performs before a recruiter ever sees it.'],'match'=>['Job description match','See how your selected resume fits a real role and what to improve.'],'jobs'=>['Job tracker','A calm, complete view of every opportunity.'],'interviews'=>['Interview lab','Practice with purpose. Show up ready.'],'skills'=>['Skill studio','Build the capabilities that create career momentum.'],'insights'=>['Career insights','Your career data, made genuinely useful.'],'portfolio'=>['Portfolio studio','Turn your body of work into a professional story.'],'analytics'=>['Career analytics','The signals behind your progress.'],'profile'=>['Your profile','The professional context that makes every recommendation better.'],'settings'=>['Settings','Control how your SmartCV workspace works for you.'],'help'=>['How can we help?','Answers, guides, and support when you need it.'],'privacy'=>['Privacy center','Clear controls and a simple commitment to your data.'],'terms'=>['Terms of service','The agreements that keep SmartCV fair and reliable.']];
-  [$title,$subtitle] = $titles[$screen];
+    $titles = [
+        'resumes' => ['Your resumes', 'Keep every version polished, targeted, and ready to send.'],
+        'analyze' => ['Resume intelligence', 'Review what is working, what is missing, and where to focus next.'],
+        'ats' => ['ATS optimizer', 'Improve clarity, structure, and readiness before a recruiter sees your resume.'],
+        'match' => ['Job match', 'Compare one selected resume with a real opportunity and improve it truthfully.'],
+        'privacy' => ['Privacy center', 'Clear controls and a simple commitment to your data.'],
+        'terms' => ['Terms of service', 'The agreements that keep SmartCV fair and reliable.'],
+    ];
+    [$title, $subtitle] = $titles[$screen] ?? ['SmartCV', 'Your private career workspace.'];
+    $activeScreen = $screen === 'analyze' ? 'resumes' : $screen;
 @endphp
-<body class="min-h-screen bg-ink text-zinc-100">
-<div class="noise pointer-events-none fixed inset-0 opacity-[.025]"></div>
-<aside class="fixed inset-y-0 z-40 hidden w-64 border-r border-white/[.075] bg-[#0a0a0f] p-4 lg:block">
-  <a href="/dashboard" class="mb-8 flex items-center gap-2.5 px-2"><span class="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-violet-300 to-violet-700 text-white shadow-lg shadow-violet-900/30">✦</span><span class="text-sm font-bold tracking-tight">SMART<span class="text-violet-400">CV</span></span></a>
-  <p class="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.16em] text-zinc-600">Workspace</p>
-  <nav class="space-y-1">@foreach($nav as [$route,$label,$icon])<a href="/{{ $route }}" class="nav-link {{ $screen === $route || ($route === 'resumes' && in_array($screen,['analyze','ats'])) ? 'active' : '' }}"><span class="w-4 text-center text-base">{{ $icon }}</span>{{ $label }}@if($route === 'interviews')<span class="ml-auto rounded bg-violet-400/15 px-1.5 py-.5 text-[9px] text-violet-300">NEW</span>@endif</a>@endforeach</nav>
-  <div class="mt-7 border-t border-white/[.07] pt-6"><p class="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.16em] text-zinc-600">Account</p><nav class="space-y-1">@foreach($utilities as [$route,$label,$icon])<a href="/{{ $route }}" class="nav-link {{ $screen === $route ? 'active' : '' }}"><span class="w-4 text-center">{{ $icon }}</span>{{ $label }}</a>@endforeach</nav></div>  <form method="POST" action="{{ route('logout') }}" class="mt-5 border-t border-white/[.07] pt-4">@csrf<button class="nav-link w-full text-rose-300 hover:bg-rose-400/10 hover:text-rose-200"><span class="w-4 text-center">↪</span>Sign out</button></form>
-</aside>
-<div class="lg:pl-64"><header class="sticky top-0 z-30 flex h-17 items-center justify-between border-b border-white/[.075] bg-[#09090d]/80 px-4 backdrop-blur-xl sm:px-7"><div class="flex items-center gap-3"><button data-menu-toggle class="grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-zinc-300 lg:hidden">☰</button><div class="relative hidden md:block"><span class="absolute left-3 top-2.5 text-zinc-600">⌕</span><input class="w-72 rounded-lg border border-white/[.08] bg-white/[.035] py-2 pl-9 pr-3 text-xs outline-none placeholder:text-zinc-600 focus:border-violet-400/50" placeholder="Search your workspace"></div></div><div class="flex items-center gap-3"><button class="relative grid h-9 w-9 place-items-center rounded-lg text-zinc-400 hover:bg-white/[.06] hover:text-white"><span>♧</span><i class="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-violet-400"></i></button><button data-open-modal class="flex items-center gap-2 rounded-lg py-1.5 pl-1.5 pr-2 text-left hover:bg-white/[.05]"><span class="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-amber-200 to-violet-600 text-[10px] font-bold text-black">N</span><span class="hidden text-xs font-medium sm:block">Noah <span class="text-zinc-600">⌄</span></span></button></div></header>
-  <div data-mobile-menu class="fixed inset-x-3 top-19 z-50 hidden rounded-2xl border border-white/[.12] bg-[#11111a] p-3 shadow-2xl lg:hidden"><nav class="grid grid-cols-2 gap-1">@foreach(array_merge($nav,$utilities) as [$route,$label,$icon])<a href="/{{ $route }}" class="nav-link {{ $screen === $route ? 'active' : '' }}"><span>{{ $icon }}</span>{{ $label }}</a>@endforeach</nav></div>
-  <main class="mx-auto max-w-[1600px] px-4 py-7 sm:px-7 lg:px-9"><div class="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><p class="eyebrow">{{ in_array($screen,['privacy','terms']) ? 'SmartCV legal' : 'Career workspace' }}</p><h1 class="mt-2 text-2xl font-semibold tracking-[-.035em] sm:text-3xl">{{ $title }}</h1><p class="mt-1 text-sm text-zinc-500">{{ $subtitle }}</p></div>@if(in_array($screen,['dashboard','resumes','jobs','portfolio']))@if($screen === 'resumes')<a href="#upload-resume" class="btn btn-primary">Upload resume <span>+</span></a>@else<button data-open-modal class="btn btn-primary">{{ $screen === 'jobs' ? 'Add opportunity' : ($screen === 'portfolio' ? 'Publish portfolio' : 'Upload resume') }} <span>+</span></button>@endif @endif</div>
-@if(session('status'))<div class="mb-5 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-200">{{ session('status') }}</div>@endif
-@if(session('error'))<div class="mb-5 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-200">{{ session('error') }}</div>@endif
-@if($errors->any())<div class="mb-5 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-200"><ul class="space-y-1">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+<body class="min-h-screen bg-[#070b18] text-zinc-100">
+<div class="min-h-screen">
+    <x-workspace-sidebar :active-screen="$activeScreen" />
+    <div class="min-h-screen lg:pl-64">
+        <header class="sticky top-0 z-20 flex items-center justify-between border-b border-white/[.07] bg-[#090e20]/95 px-5 py-4 backdrop-blur lg:px-9">
+            <a href="{{ route('dashboard') }}" class="font-bold lg:hidden">SMART<span class="text-violet-500">CV</span></a>
+            <div class="hidden w-full max-w-sm sm:block"><label class="relative block"><span class="pointer-events-none absolute left-3 top-2.5 text-slate-400">⌕</span><input class="input py-2 pl-9 text-sm" placeholder="Search your workspace" aria-label="Search your workspace"></label></div>
+            <a href="{{ route('profile') }}" class="text-sm font-semibold">{{ auth()->user()->name }}</a>
+        </header>
 
-@if($screen === 'dashboard')
-<section class="card p-6"><h2 class="font-semibold">Workspace dashboard</h2><p class="mt-2 text-sm text-zinc-400">The dashboard is available through its live SmartCV route.</p></section>
-@elseif($screen === 'resumes')
-@include('resumes.index')
-@elseif($screen === 'analyze' || $screen === 'ats')
-@include('analyze.foundation')
-@elseif($screen === 'match')
-@include('analyze.match')
-@elseif(in_array($screen, ['jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings'], true))
-<section class="card p-6"><h2 class="font-semibold">Workspace page</h2><p class="mt-2 text-sm text-zinc-400">This page is available through its dedicated, live SmartCV route.</p></section>
-@elseif($screen === 'help')
-<section><div class="card bg-gradient-to-br from-violet-500/[.12] to-transparent p-7 text-center sm:p-10"><h2 class="text-2xl font-semibold">Find a helpful answer.</h2><p class="mt-2 text-sm text-zinc-400">Search guides, learn the platform, or get in touch with our support team.</p><div class="mx-auto mt-6 max-w-xl"><input class="input text-center" placeholder="Search the help center"></div></div><div class="mt-6 grid gap-4 md:grid-cols-3">@foreach([['Getting started','Set up your workspace and get your first insights.','→'],['Using your tools','Practical guides for resumes, interviews, and more.','→'],['Account & privacy','Privacy, data controls, and account settings.','→']] as [$heading,$body,$arrow])<article class="card card-hover p-5"><span class="text-xl text-violet-300">✦</span><h2 class="mt-4 font-semibold">{{ $heading }}</h2><p class="mt-2 text-sm leading-6 text-zinc-500">{{ $body }}</p><button data-toast class="mt-5 text-sm text-violet-300">Explore guides {{ $arrow }}</button></article>@endforeach</div><div class="card mt-4 p-6"><div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><h2 class="font-semibold">Still need a hand?</h2><p class="mt-1 text-sm text-zinc-500">Our team typically replies within one business day.</p></div><button data-open-modal class="btn btn-secondary">Contact support</button></div></div></section>
+        <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+            <div class="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                <div><p class="eyebrow">{{ in_array($screen, ['privacy', 'terms'], true) ? 'SmartCV legal' : 'Career workspace' }}</p><h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{{ $title }}</h1><p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{{ $subtitle }}</p></div>
+                @if($screen === 'resumes')<a href="#upload-resume" class="btn btn-primary">Upload resume</a>@endif
+            </div>
 
-@else
-<section class="mx-auto max-w-3xl"><article class="card p-6 sm:p-9"><p class="text-sm leading-7 text-zinc-400">{{ $screen === 'privacy' ? 'SmartCV is built around a simple promise: your professional story belongs to you. We collect only what is needed to provide your workspace, protect it with modern safeguards, and give you meaningful control.' : 'These terms explain how SmartCV provides a reliable, respectful career workspace. By using the product, you agree to use it responsibly and to keep your account information accurate.' }}</p><div class="mt-8 space-y-7">@foreach($screen === 'privacy' ? [['What we collect','Profile information, documents you choose to upload, workspace activity, and limited technical information needed to keep the service secure.'],['How we use it','To provide personal career recommendations, maintain your workspace, improve product reliability, and communicate important account information.'],['Your choices','You can download, update, or request deletion of your data. We do not sell personal information or use your resume to train public AI models.']] : [['Using SmartCV','Use the platform for lawful professional purposes. Keep your sign-in details private and do not attempt to interfere with the service.'],['Your content','You retain ownership of documents and career content you add. You give us permission to process it only as needed to provide the service.'],['Free access','SmartCV provides its core career tools free of charge.']] as [$heading,$body])<div><h2 class="text-base font-semibold">{{ $heading }}</h2><p class="mt-2 text-sm leading-6 text-zinc-500">{{ $body }}</p></div>@endforeach</div><div class="mt-8 border-t border-white/[.07] pt-5 text-xs text-zinc-600">Last updated: July 19, 2026 · Questions? <a href="/help" class="text-violet-300">Contact support</a></div></article></section>
-@endif
-  </main></div>
-<div data-toast-message class="fixed bottom-5 right-5 z-[60] flex translate-y-24 items-center gap-3 rounded-xl border border-emerald-400/20 bg-[#151520] px-4 py-3 text-sm text-zinc-200 opacity-0 shadow-2xl transition duration-300"><span class="grid h-6 w-6 place-items-center rounded-full bg-emerald-400/15 text-emerald-400">✓</span><span>Your workspace has been updated.</span></div>
-<div data-modal class="fixed inset-0 z-[70] hidden place-items-center bg-black/70 p-4 backdrop-blur-sm"><div class="card glow w-full max-w-md p-6"><div class="flex justify-between"><div><p class="eyebrow">New workspace item</p><h2 class="mt-2 text-xl font-semibold">What would you like to add?</h2></div><button data-close-modal class="text-zinc-600 hover:text-white">✕</button></div><div class="mt-6 grid gap-2"><button data-close-modal data-toast class="rounded-xl border border-white/[.09] p-4 text-left text-sm transition hover:border-violet-400/50"><span class="mr-3 text-violet-300">▤</span>Upload a resume</button><button data-close-modal data-toast class="rounded-xl border border-white/[.09] p-4 text-left text-sm transition hover:border-violet-400/50"><span class="mr-3 text-violet-300">◎</span>Add a job opportunity</button><button data-close-modal data-toast class="rounded-xl border border-white/[.09] p-4 text-left text-sm transition hover:border-violet-400/50"><span class="mr-3 text-violet-300">◈</span>Create a portfolio case study</button></div></div></div>
-</body></html>
+            @if(session('status'))<div class="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">{{ session('status') }}</div>@endif
+            @if(session('error'))<div class="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{{ session('error') }}</div>@endif
+            @if($errors->any())<div class="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><ul class="list-disc space-y-1 pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+
+            @if($screen === 'resumes')
+                @include('resumes.index')
+            @elseif(in_array($screen, ['analyze', 'ats'], true))
+                @include('analyze.foundation')
+            @elseif($screen === 'match')
+                @include('analyze.match')
+            @else
+                <section class="mx-auto max-w-3xl"><article class="card p-6 sm:p-9"><p class="text-sm leading-7 text-slate-600">{{ $screen === 'privacy' ? 'SmartCV is built around a simple promise: your professional story belongs to you. We collect only the information needed to provide your private career workspace, protect it carefully, and give you meaningful control.' : 'These terms explain how SmartCV provides a reliable and respectful career workspace. By using the product, you agree to use it responsibly and to keep your account information accurate.' }}</p><div class="mt-8 space-y-7">@foreach($screen === 'privacy' ? [['What we collect','Profile information, documents you choose to upload, workspace activity, and limited technical data required to keep the service secure.'],['How we use it','To provide your workspace, maintain your saved work, improve reliability, and communicate important account information.'],['Your choices','You can update, download, or request deletion of personal data from Settings.']] : [['Using SmartCV','Use the platform for lawful professional purposes and keep your sign-in details private.'],['Your content','You retain ownership of documents and career content you add. SmartCV processes it only to provide the service.'],['Free access','SmartCV provides its core career tools free of charge.']] as [$heading, $body])<div><h2 class="text-base font-semibold text-slate-900">{{ $heading }}</h2><p class="mt-2 text-sm leading-6 text-slate-600">{{ $body }}</p></div>@endforeach</div></article></section>
+            @endif
+        </main>
+    </div>
+</div>
+</body>
+</html>

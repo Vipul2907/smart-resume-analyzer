@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Job Discovery · SmartCV</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100"><div class="min-h-screen"><x-workspace-sidebar active-screen="discover" />
 <div class="min-h-screen lg:pl-64"><header class="sticky top-0 z-20 flex items-center justify-between border-b border-white/[.07] bg-[#090e20]/95 px-5 py-4 backdrop-blur lg:px-9"><a href="{{ route('dashboard') }}" class="font-bold lg:hidden">SMART<span class="text-violet-300">CV</span></a><span class="hidden text-sm text-zinc-500 sm:block">Private job discovery and saved searches</span><a href="{{ route('profile') }}" class="text-sm font-medium">{{ auth()->user()->name }}</a></header>

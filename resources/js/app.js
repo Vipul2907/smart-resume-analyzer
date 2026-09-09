@@ -1,6 +1,23 @@
 import './bootstrap';
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('header a[href$="/profile"]').forEach((profile) => {
+    if (profile.querySelector('span')) return;
+    const name = profile.textContent.trim();
+    if (!name) return;
+    profile.dataset.initial = name.charAt(0).toUpperCase();
+    profile.classList.add('profile-chip');
+  });
+  const workspaceDrawer = document.querySelector('[data-workspace-drawer]');
+  const workspaceDrawerToggle = document.querySelector('[data-workspace-drawer-toggle]');
+  const setDrawer = (isOpen) => {
+    if (!workspaceDrawer) return;
+    workspaceDrawer.classList.toggle('hidden', !isOpen);
+    workspaceDrawer.setAttribute('aria-hidden', String(!isOpen));
+    workspaceDrawerToggle?.setAttribute('aria-expanded', String(isOpen));
+  };
+  workspaceDrawerToggle?.addEventListener('click', () => setDrawer(true));
+  workspaceDrawer?.querySelectorAll('[data-workspace-drawer-close]').forEach((button) => button.addEventListener('click', () => setDrawer(false)));
   const menu = document.querySelector('[data-mobile-menu]');
   document.querySelector('[data-menu-toggle]')?.addEventListener('click', () => menu?.classList.toggle('hidden'));
   const modal = document.querySelector('[data-modal]');
