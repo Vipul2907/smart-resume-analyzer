@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\UserNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 
 class NotificationCenterController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, UserNotificationService $notifications)
     {
-        $this->syncReminders($request);
+        $this->syncReminders($request, $notifications);
         $notifications = $request->user()->notifications()->latest()->paginate(30);
 
         return view('notifications.index', compact('notifications'));
@@ -32,14 +32,14 @@ class NotificationCenterController extends Controller
         return back()->with('status', 'All notifications marked as read.');
     }
 
-    public function refresh(Request $request): RedirectResponse
+    public function refresh(Request $request, UserNotificationService $notifications): RedirectResponse
     {
-        $created = $this->syncReminders($request);
+        $created = $this->syncReminders($request, $notifications);
 
         return back()->with('status', $created ? $created.' new reminder'.($created === 1 ? ' was' : 's were').' added.' : 'Your reminders are already up to date.');
     }
 
-    private function syncReminders(Request $request): int
+    private function syncReminders(Request $request, UserNotificationService $notifications): int
     {
         $user = $request->user();
 
@@ -85,9 +85,7 @@ class NotificationCenterController extends Controller
         $created = 0;
         foreach ($candidates->unique('key') as $candidate) {
             if (! $known->has($candidate['key'])) {
-                $user->notifications()->create([
-                    'id' => (string) Str::uuid(), 'type' => 'career_reminder', 'data' => $candidate,
-                ]);
+                $notifications->create($user, 'career_reminder', $candidate);
                 $created++;
             }
         }

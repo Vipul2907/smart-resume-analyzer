@@ -220,6 +220,38 @@ class ResumeWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_invalid_ai_json_is_saved_as_a_failed_analysis_without_exposing_provider_details(): void
+    {
+        config(['services.groq.key' => 'test-key']);
+        Http::fake([
+            'api.groq.com/*' => Http::response([
+                'choices' => [['message' => ['content' => 'not valid JSON']]],
+            ]),
+        ]);
+
+        $user = $this->onboardedUser();
+        $resume = $user->resumes()->create([
+            'name' => 'Malformed response resume',
+            'original_filename' => 'malformed.txt',
+            'file_path' => 'resumes/'.$user->id.'/malformed.txt',
+            'mime_type' => 'text/plain',
+            'file_size' => 100,
+            'extracted_text' => 'Laravel developer with real project delivery experience.',
+            'parse_status' => 'parsed',
+        ]);
+
+        $this->actingAs($user)->post(route('ai-analyses.store', $resume), [
+            'analysis_type' => 'resume_review',
+            'accepted_ai_privacy' => '1',
+        ])->assertSessionHas('error', 'AI analysis could not finish right now. Please check your Groq setup and try again shortly.');
+
+        $this->assertDatabaseHas('ai_analyses', [
+            'resume_id' => $resume->id,
+            'status' => 'failed',
+            'error_message' => 'The AI provider could not complete this request. Please try again shortly.',
+        ]);
+    }
+
     private function onboardedUser(): User
     {
         return User::factory()->create([

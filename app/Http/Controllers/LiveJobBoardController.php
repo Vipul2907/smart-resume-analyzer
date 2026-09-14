@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class LiveJobBoardController extends Controller
 {
@@ -36,24 +37,34 @@ class LiveJobBoardController extends Controller
         $error = null;
 
         try {
-            $response = Http::acceptJson()
-                ->timeout(12)
-                ->retry(2, 250)
-                ->get(self::API_URL, ['page' => $page]);
+            $payload = Cache::remember('arbeitnow.jobs.page.'.$page, now()->addMinutes(10), function () use ($page): array {
+                $response = Http::acceptJson()
+                    ->connectTimeout(5)
+                    ->timeout(12)
+                    ->retry(2, 250)
+                    ->get(self::API_URL, ['page' => $page]);
 
-            if ($response->successful()) {
+                if (! $response->successful()) {
+                    throw new RuntimeException('The external job source returned an unavailable response.');
+                }
+
                 $payload = $response->json();
-                $meta = is_array($payload['meta'] ?? null) ? $payload['meta'] : [];
-                $jobs = collect($payload['data'] ?? [])
-                    ->filter(fn ($job) => is_array($job) && $this->isTechnologyOpening($job))
-                    ->map(fn (array $job) => $this->normaliseJob($job))
-                    ->filter(fn (array $job) => $query === '' || $this->matchesQuery($job, $query))
-                    ->values();
-            } else {
-                $error = 'The live job source is temporarily unavailable. Please try again in a moment.';
-            }
-        } catch (ConnectionException) {
-            $error = 'SmartCV could not reach the live job source. Check your internet connection and try again.';
+                if (! is_array($payload) || ! is_array($payload['data'] ?? null)) {
+                    throw new RuntimeException('The external job source returned an invalid response.');
+                }
+
+                return $payload;
+            });
+
+            $meta = is_array($payload['meta'] ?? null) ? $payload['meta'] : [];
+            $jobs = collect($payload['data'])
+                ->filter(fn ($job) => is_array($job) && $this->isTechnologyOpening($job))
+                ->map(fn (array $job) => $this->normaliseJob($job))
+                ->filter(fn (array $job) => $query === '' || $this->matchesQuery($job, $query))
+                ->values();
+        } catch (\Throwable $exception) {
+            report($exception);
+            $error = 'Live jobs are temporarily unavailable. Your resumes, saved searches, and Job Tracker are still available.';
         }
 
         return view('jobs.live-board', compact('error', 'jobs', 'meta', 'page', 'query', 'resumes', 'searches', 'selectedResume'));

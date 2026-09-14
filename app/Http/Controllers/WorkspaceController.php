@@ -129,7 +129,7 @@ class WorkspaceController extends Controller
         $data = $request->validate([
             'company' => ['required', 'string', 'max:255'],
             'role' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'in:saved,applied,interviewing,offer,rejected,withdrawn'],
+            'status' => ['required', 'in:saved,applied,interviewing,offer,rejected,withdrawn,closed'],
             'location' => ['nullable', 'string', 'max:255'],
             'work_mode' => ['nullable', 'string', 'max:50'],
             'job_url' => ['nullable', 'url', 'max:2048'],
@@ -153,7 +153,7 @@ class WorkspaceController extends Controller
         $this->owns($request, $job);
         $data = $request->validate([
             'company' => ['required', 'string', 'max:255'], 'role' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'in:saved,applied,interviewing,offer,rejected,withdrawn'],
+            'status' => ['required', 'in:saved,applied,interviewing,offer,rejected,withdrawn,closed'],
             'location' => ['nullable', 'string', 'max:255'], 'work_mode' => ['nullable', 'string', 'max:50'],
             'job_url' => ['nullable', 'url', 'max:2048'], 'applied_at' => ['nullable', 'date'],
             'follow_up_at' => ['nullable', 'date'], 'priority' => ['nullable', 'integer', 'min:0', 'max:3'],
@@ -162,6 +162,18 @@ class WorkspaceController extends Controller
         $this->updateAvailable($job, 'job_applications', $data + ['work_type' => $data['work_mode'] ?? null, 'application_date' => $data['applied_at'] ?? null]);
 
         return back()->with('status', 'Application status updated.');
+    }
+
+    public function updateJobStatus(Request $request, JobApplication $job): RedirectResponse
+    {
+        $this->owns($request, $job);
+        $data = $request->validate([
+            'status' => ['required', 'in:saved,applied,interviewing,offer,rejected,withdrawn,closed'],
+        ]);
+
+        $this->updateAvailable($job, 'job_applications', $data);
+
+        return back()->with('status', 'Application marked as '.str_replace('_', ' ', $data['status']).'.');
     }
 
     public function storeJobContact(Request $request, JobApplication $job): RedirectResponse
@@ -669,7 +681,7 @@ class WorkspaceController extends Controller
 
     private function jobStatuses(): array
     {
-        return ['saved', 'applied', 'interviewing', 'offer', 'rejected', 'withdrawn'];
+        return ['saved', 'applied', 'interviewing', 'offer', 'rejected', 'withdrawn', 'closed'];
     }
 
     private function interviewQuestions(string $type, string $role): array

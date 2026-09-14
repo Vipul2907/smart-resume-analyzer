@@ -28,6 +28,19 @@ class AuthenticationFlowTest extends TestCase
         $this->assertAuthenticated();
     }
 
+    public function test_registration_cannot_assign_administrator_access(): void
+    {
+        $this->post('/register', [
+            'name' => 'Untrusted request',
+            'email' => 'member@example.test',
+            'password' => 'career123',
+            'password_confirmation' => 'career123',
+            'is_admin' => '1',
+        ])->assertRedirect(route('verification.notice'));
+
+        $this->assertDatabaseHas('users', ['email' => 'member@example.test', 'is_admin' => false]);
+    }
+
     public function test_a_verified_user_can_complete_onboarding(): void
     {
         $user = User::factory()->create(['email_verified_at' => now()]);

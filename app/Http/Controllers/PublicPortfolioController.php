@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CareerProfile;
 use App\Models\PortfolioProject;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class PublicPortfolioController extends Controller
@@ -17,12 +18,26 @@ class PublicPortfolioController extends Controller
             ->with('user')
             ->firstOrFail();
 
-        $projects = $profile->user->portfolioProjects()
-            ->where('visibility', 'public')
-            ->orderByDesc('is_featured')
-            ->orderBy('display_order')
-            ->latest()
-            ->get();
+        $projects = $profile->user->portfolioProjects();
+
+        // Some existing SmartCV databases were created before the portfolio
+        // ordering fields existed. Keep public pages available while the
+        // compatibility migration adds those optional fields.
+        // Privacy comes before backward compatibility. A database that has not
+        // yet received the visibility migration must not expose every project.
+        if (! Schema::hasColumn('portfolio_projects', 'visibility')) {
+            $projects->whereRaw('1 = 0');
+        } else {
+            $projects->where('visibility', 'public');
+        }
+        if (Schema::hasColumn('portfolio_projects', 'is_featured')) {
+            $projects->orderByDesc('is_featured');
+        }
+        if (Schema::hasColumn('portfolio_projects', 'display_order')) {
+            $projects->orderBy('display_order');
+        }
+
+        $projects = $projects->latest()->get();
         $resume = $profile->show_resume
             ? ($profile->user->resumes()->where('is_primary', true)->first() ?: $profile->user->resumes()->latest()->first())
             : null;

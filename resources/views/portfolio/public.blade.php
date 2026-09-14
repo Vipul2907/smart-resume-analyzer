@@ -63,7 +63,7 @@
               @endif
               <div class="mt-5 flex gap-3 text-sm">
                 @if($project->project_url)<a class="text-cyan-200" href="{{ $project->project_url }}" target="_blank" rel="noreferrer">View project</a>@endif
-                @if($project->repository_url)<a class="text-cyan-200" href="{{ $project->repository_url }}" target="_blank" rel="noreferrer">View code</a>@endif
+                @if($project->repository_url ?: $project->github_url)<a class="text-cyan-200" href="{{ $project->repository_url ?: $project->github_url }}" target="_blank" rel="noreferrer">View GitHub repository</a>@endif
               </div>
             </div>
           </article>

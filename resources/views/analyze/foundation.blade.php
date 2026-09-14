@@ -27,7 +27,7 @@
         </div>
         <div class="mt-6 grid gap-4 sm:grid-cols-3">
           <div class="rounded-xl border border-cyan-300/20 bg-cyan-400/[.08] p-4">
-            <p class="text-xs text-cyan-100">{{ $screen === 'ats' ? 'ATS foundation' : 'Latest AI score' }}</p>
+            <p class="text-xs text-cyan-100">{{ $screen === 'ats' ? 'ATS readiness guidance' : 'Latest AI guidance score' }}</p>
             <p class="mt-2 text-4xl font-semibold">{{ $latestAnalysis?->score ?? '--' }}<span class="text-base text-zinc-500">/100</span></p>
             <p class="mt-3 text-xs text-zinc-500">{{ $latestAnalysis ? $latestAnalysis->status.' · '.$latestAnalysis->created_at->diffForHumans() : 'No AI run yet' }}</p>
           </div>

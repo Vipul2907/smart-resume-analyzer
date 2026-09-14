@@ -6,8 +6,10 @@
   <title>{{ $letter ? 'Edit cover letter' : 'Create cover letter' }} · SmartCV</title>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-[#070b18] text-zinc-100">
-  <header class="sticky top-0 z-20 border-b border-white/[.08] bg-[#090e20]/95 backdrop-blur"><div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8"><a href="{{ route('cover-letters.index') }}" class="text-sm font-semibold text-zinc-300">← Cover letters</a><div class="flex gap-2">@if($letter)<a href="{{ route('cover-letters.preview', $letter) }}" target="_blank" class="btn btn-secondary">Preview / PDF</a><a href="{{ route('cover-letters.download.docx', $letter) }}" class="btn btn-secondary">Export DOCX</a>@endif</div></div></header>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+  <x-workspace-sidebar active-screen="cover-letters" />
+  <div class="min-h-screen lg:pl-64">
+  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur"><div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8"><a href="{{ route('cover-letters.index') }}" class="text-sm font-semibold text-slate-700">← Cover letters</a><div class="flex gap-2">@if($letter)<a href="{{ route('cover-letters.preview', $letter) }}" target="_blank" class="btn btn-secondary">Preview / PDF</a><a href="{{ route('cover-letters.download.docx', $letter) }}" class="btn btn-secondary">Export DOCX</a>@endif</div></div></header>
   <main class="mx-auto max-w-7xl px-5 py-8 sm:px-8">
     <div class="mb-7"><p class="eyebrow">Cover letter builder</p><h1 class="mt-2 text-3xl font-semibold tracking-tight">{{ $letter ? $letter->title : 'Build a letter for a real opportunity' }}</h1><p class="mt-2 text-sm text-zinc-400">Use a clear story: why this role, proof of relevant work, and a confident next step.</p></div>
     @if(session('status'))<div class="mb-5 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-4 text-sm text-emerald-100">{{ session('status') }}</div>@endif
@@ -20,5 +22,6 @@
       <aside class="space-y-5"><section class="card sticky top-24 p-5"><p class="eyebrow">Letter controls</p><h2 class="mt-1 text-lg font-semibold">Tailor with intent</h2><label class="mt-5 block text-xs text-zinc-400">Template<select name="template" class="input mt-1">@foreach($templates as $value => $label)<option value="{{ $value }}" @selected(old('template', $letter?->template ?? 'modern') === $value)>{{ $label }}</option>@endforeach</select></label><label class="mt-4 block text-xs text-zinc-400">Status<select name="status" class="input mt-1"><option value="draft" @selected(old('status', $letter?->status ?? 'draft') === 'draft')>Draft</option><option value="ready" @selected(old('status', $letter?->status) === 'ready')>Ready to send</option></select></label><div class="mt-5 rounded-xl border border-cyan-400/20 bg-cyan-400/[.06] p-4 text-xs leading-5 text-zinc-300">Keep it truthful. A strong cover letter connects evidence from your actual experience to the role — it does not repeat your resume.</div><button class="btn btn-primary mt-5 w-full">{{ $letter ? 'Save cover letter' : 'Create cover letter' }}</button>@if($letter)<a href="{{ route('cover-letters.download.txt', $letter) }}" class="btn btn-secondary mt-2 w-full">Download TXT</a><form method="POST" action="{{ route('cover-letters.duplicate', $letter) }}" class="mt-2">@csrf<button class="btn btn-secondary w-full">Duplicate for another role</button></form>@endif</section></aside>
     </form>
   </main>
+  </div>
 </body>
 </html>

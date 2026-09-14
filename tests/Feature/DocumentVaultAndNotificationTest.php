@@ -51,6 +51,30 @@ class DocumentVaultAndNotificationTest extends TestCase
         $this->assertNotNull($notification->fresh()->read_at);
     }
 
+    public function test_a_user_cannot_download_or_delete_another_users_private_document(): void
+    {
+        Storage::fake('local');
+        $owner = $this->user();
+        $other = $this->user();
+        $path = 'private-documents/'.$owner->id.'/private-notes.txt';
+        Storage::disk('local')->put($path, 'Private interview notes.');
+
+        $document = $owner->privateDocuments()->create([
+            'name' => 'Private notes',
+            'original_filename' => 'private-notes.txt',
+            'file_path' => $path,
+            'file_disk' => 'local',
+            'mime_type' => 'text/plain',
+            'file_size' => 24,
+            'category' => 'text',
+        ]);
+
+        $this->actingAs($other)->get(route('documents.download', $document))->assertNotFound();
+        $this->actingAs($other)->delete(route('documents.destroy', $document))->assertNotFound();
+        Storage::disk('local')->assertExists($path);
+        $this->assertDatabaseHas('private_documents', ['id' => $document->id]);
+    }
+
     private function user(): User
     {
         return User::factory()->create(['email_verified_at' => now(), 'onboarding_completed_at' => now()]);

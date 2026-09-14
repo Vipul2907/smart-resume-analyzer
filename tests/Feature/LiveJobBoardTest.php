@@ -6,6 +6,7 @@ use App\Models\AiAnalysis;
 use App\Models\Resume;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -15,6 +16,7 @@ class LiveJobBoardTest extends TestCase
 
     public function test_it_displays_live_technology_jobs_and_uses_clean_text_for_matching(): void
     {
+        Cache::forget('arbeitnow.jobs.page.1');
         $user = User::factory()->create(['email_verified_at' => now(), 'onboarding_completed_at' => now()]);
         $resume = Resume::query()->create([
             'user_id' => $user->id,
@@ -54,6 +56,20 @@ class LiveJobBoardTest extends TestCase
             ->assertSee('Analyze my resume for this role')
             ->assertSee('Build secure Laravel applications')
             ->assertDontSee('<strong>Laravel</strong>', false);
+    }
+
+    public function test_an_unavailable_job_api_shows_a_safe_fallback_page(): void
+    {
+        Cache::forget('arbeitnow.jobs.page.1');
+        $user = User::factory()->create(['email_verified_at' => now(), 'onboarding_completed_at' => now()]);
+
+        Http::fake([
+            'https://www.arbeitnow.com/api/job-board-api*' => Http::response([], 503),
+        ]);
+
+        $this->actingAs($user)->get(route('discover'))
+            ->assertOk()
+            ->assertSee('Live jobs are temporarily unavailable');
     }
 
     public function test_job_match_page_displays_nested_ai_suggestions_without_crashing(): void

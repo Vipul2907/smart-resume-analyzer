@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\AdminAnnouncement;
 use App\Models\SupportRequest;
 use App\Models\User;
+use App\Services\UserNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AdminController extends Controller
@@ -18,7 +18,7 @@ class AdminController extends Controller
         $this->authorizeAdmin($request);
         $search = trim($request->string('q')->toString());
         $users = User::query()
-            ->when($search !== '', fn ($query) => $query->where(fn ($builder) => $builder->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
+            ->when($search !== '', fn($query) => $query->where(fn($builder) => $builder->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -43,7 +43,14 @@ class AdminController extends Controller
             return back()->with('error', 'You cannot remove your own admin access. Ask another administrator to do that.');
         }
 
-        $user->update(['is_admin' => (bool) $data['is_admin']]);
+        if ($user->is_admin && ! (bool) $data['is_admin'] && User::query()->where('is_admin', true)->count() <= 1) {
+            return back()->with('error', 'SmartCV must keep at least one administrator. Grant another user admin access first.');
+        }
+
+        // Administrator access must only be changed from this protected action.
+        // Keeping it out of User::$fillable prevents accidental privilege changes
+        // if a future form uses request data directly.
+        $user->forceFill(['is_admin' => (bool) $data['is_admin']])->save();
 
         return back()->with('status', $user->is_admin ? 'Administrator access granted.' : 'Administrator access removed.');
     }
@@ -60,7 +67,7 @@ class AdminController extends Controller
         return back()->with('status', 'Support request updated.');
     }
 
-    public function storeAnnouncement(Request $request): RedirectResponse
+    public function storeAnnouncement(Request $request, UserNotificationService $notifications): RedirectResponse
     {
         $this->authorizeAdmin($request);
         $data = $request->validate([
@@ -74,18 +81,14 @@ class AdminController extends Controller
         ]);
 
         if (Schema::hasTable('notifications')) {
-            User::query()->whereNotNull('email_verified_at')->select('id')->chunkById(100, function ($users) use ($announcement): void {
+            User::query()->whereNotNull('email_verified_at')->select('id')->chunkById(100, function ($users) use ($announcement, $notifications): void {
                 foreach ($users as $recipient) {
-                    $recipient->notifications()->create([
-                        'id' => (string) Str::uuid(),
-                        'type' => 'platform_announcement',
-                        'data' => [
-                            'key' => 'announcement-'.$announcement->id,
-                            'title' => $announcement->title,
-                            'body' => $announcement->body,
-                            'url' => route('help'),
-                            'kind' => 'announcement',
-                        ],
+                    $notifications->create($recipient, 'platform_announcement', [
+                        'key' => 'announcement-' . $announcement->id,
+                        'title' => $announcement->title,
+                        'body' => $announcement->body,
+                        'url' => route('help'),
+                        'kind' => 'announcement',
                     ]);
                 }
             });
@@ -132,6 +135,6 @@ class AdminController extends Controller
             ->groupBy('analysis_type', 'status')
             ->orderByDesc('total')
             ->get()
-            ->map(fn ($item) => ['type' => str_replace('_', ' ', (string) $item->analysis_type), 'status' => $item->status, 'total' => (int) $item->total]);
+            ->map(fn($item) => ['type' => str_replace('_', ' ', (string) $item->analysis_type), 'status' => $item->status, 'total' => (int) $item->total]);
     }
 }

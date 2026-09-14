@@ -24,7 +24,7 @@
       <article class="card p-5 sm:p-6">
         <p class="eyebrow">Advanced AI · Step 4</p>
         <h2 class="mt-2 text-xl font-semibold">Match your resume to a job description.</h2>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">Get a practical fit score, missing skills, ATS keywords, resume improvements, interview questions, and a focused next-step plan.</p>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">Get an explainable AI guidance score, missing skills, role keywords, resume improvements, interview questions, and a focused next-step plan. This is not an official employer ATS score.</p>
 
         <form method="GET" action="{{ route('match') }}" class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label class="block flex-1 text-xs text-zinc-400">Resume to compare
@@ -65,7 +65,7 @@
     </div>
 
     <aside class="space-y-5">
-      <article class="card p-5"><h2 class="font-semibold">What Step 4 gives you</h2><div class="mt-5 space-y-4 text-sm leading-6 text-zinc-400"><p><strong class="text-zinc-100">Job match:</strong> a clear resume-to-role fit score.</p><p><strong class="text-zinc-100">Skill gap:</strong> missing or weak requirements to learn or address.</p><p><strong class="text-zinc-100">Resume improvements:</strong> truthful ways to tailor your resume.</p><p><strong class="text-zinc-100">Interview prep:</strong> five questions based on this role.</p></div></article>
+      <article class="card p-5"><h2 class="font-semibold">What Step 4 gives you</h2><div class="mt-5 space-y-4 text-sm leading-6 text-zinc-400"><p><strong class="text-zinc-100">Job match:</strong> an explainable guidance score based on resume-to-role alignment, not an official employer ATS score.</p><p><strong class="text-zinc-100">Skill gap:</strong> missing or weak requirements to learn or address.</p><p><strong class="text-zinc-100">Resume improvements:</strong> truthful ways to tailor your resume.</p><p><strong class="text-zinc-100">Interview prep:</strong> five questions based on this role.</p></div></article>
       <article class="card p-5"><h2 class="font-semibold">Recent matches</h2><div class="mt-4 divide-y divide-white/[.07]">@forelse($selectedResume->aiAnalyses()->where('analysis_type', 'job_match')->where('status', 'completed')->latest()->limit(6)->get() as $match)<div class="py-3"><div class="flex justify-between gap-3 text-sm"><span class="font-medium">{{ data_get($match->input_snapshot, 'target_role') ?: 'Job match' }}</span><span class="text-cyan-200">{{ $match->score ?? '--' }}/100</span></div><p class="mt-1 text-xs text-zinc-500">{{ $match->created_at->diffForHumans() }}</p></div>@empty<p class="text-sm text-zinc-500">No completed matches for this resume yet.</p>@endforelse</div></article>
     </aside>
   </section>

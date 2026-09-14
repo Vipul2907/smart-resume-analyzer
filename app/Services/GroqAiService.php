@@ -47,18 +47,14 @@ class GroqAiService
 
         $payload = $response->json();
         $content = data_get($payload, 'choices.0.message.content', '{}');
-        $result = json_decode(is_string($content) ? $content : '{}', true);
-
-        if (! is_array($result)) {
-            $result = ['summary' => $content];
-        }
+        $result = $this->resumeReviewResult($this->decodedResult($content));
 
         $analysis->update([
             'status' => 'completed',
             'provider' => 'groq',
             'model' => $model,
             'result' => $result,
-            'score' => isset($result['score']) ? (int) $result['score'] : null,
+            'score' => $result['score'],
             'input_tokens' => data_get($payload, 'usage.prompt_tokens'),
             'output_tokens' => data_get($payload, 'usage.completion_tokens'),
             'completed_at' => now(),
@@ -118,18 +114,14 @@ PROMPT;
 
         $payload = $response->json();
         $content = data_get($payload, 'choices.0.message.content', '{}');
-        $result = json_decode(is_string($content) ? $content : '{}', true);
-
-        if (! is_array($result)) {
-            $result = ['summary' => (string) $content];
-        }
+        $result = $this->jobMatchResult($this->decodedResult($content));
 
         $analysis->update([
             'status' => 'completed',
             'provider' => 'groq',
             'model' => $model,
             'result' => $result,
-            'score' => isset($result['score']) ? max(0, min(100, (int) $result['score'])) : null,
+            'score' => $result['score'],
             'input_tokens' => data_get($payload, 'usage.prompt_tokens'),
             'output_tokens' => data_get($payload, 'usage.completion_tokens'),
             'completed_at' => now(),
@@ -273,12 +265,62 @@ PROMPT
             ->throw();
 
         $content = data_get($response->json(), 'choices.0.message.content', '{}');
+        return $this->decodedResult($content);
+    }
+
+    /** @return array<string, mixed> */
+    private function decodedResult(mixed $content): array
+    {
         $decoded = json_decode(is_string($content) ? $content : '{}', true);
         if (! is_array($decoded)) {
             throw new RuntimeException('The AI returned an invalid response. Please try again.');
         }
 
         return $decoded;
+    }
+
+    /** @param array<string, mixed> $result
+     *  @return array<string, mixed>
+     */
+    private function resumeReviewResult(array $result): array
+    {
+        return [
+            'score' => $this->score($result['score'] ?? null),
+            'strengths' => $this->strings($result['strengths'] ?? []),
+            'weaknesses' => $this->strings($result['weaknesses'] ?? []),
+            'missing_sections' => $this->strings($result['missing_sections'] ?? []),
+            'next_actions' => $this->strings($result['next_actions'] ?? []),
+            'score_note' => 'This is SmartCV AI guidance based on the uploaded resume. It is not an official ATS score or a guarantee of an employer outcome.',
+        ];
+    }
+
+    /** @param array<string, mixed> $result
+     *  @return array<string, mixed>
+     */
+    private function jobMatchResult(array $result): array
+    {
+        return [
+            'score' => $this->score($result['score'] ?? null),
+            'summary' => $this->string($result['summary'] ?? '', 2000),
+            'matching_skills' => $this->strings($result['matching_skills'] ?? []),
+            'missing_skills' => $this->strings($result['missing_skills'] ?? []),
+            'keyword_suggestions' => $this->strings($result['keyword_suggestions'] ?? []),
+            'resume_improvements' => $this->strings($result['resume_improvements'] ?? []),
+            'interview_questions' => $this->strings($result['interview_questions'] ?? []),
+            'next_actions' => $this->strings($result['next_actions'] ?? []),
+            'role_recommendation' => $this->string($result['role_recommendation'] ?? '', 1000),
+            'score_note' => 'This is a SmartCV AI guidance score based on the supplied resume and job description. It is not an official ATS score or a hiring prediction.',
+        ];
+    }
+
+    private function score(mixed $value): int
+    {
+        return max(0, min(100, (int) $value));
+    }
+
+    private function string(mixed $value, int $limit): string
+    {
+        return is_string($value) ? str($value)->limit($limit)->trim()->toString() : '';
     }
 
     /** @return array<int, string> */

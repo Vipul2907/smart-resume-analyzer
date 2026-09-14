@@ -106,6 +106,7 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::get('/jobs', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'jobs'))->name('jobs');
     Route::post('/jobs', [WorkspaceController::class, 'storeJob'])->name('jobs.store');
     Route::patch('/jobs/{job}', [WorkspaceController::class, 'updateJob'])->name('jobs.update');
+    Route::patch('/jobs/{job}/status', [WorkspaceController::class, 'updateJobStatus'])->name('jobs.status.update');
     Route::delete('/jobs/{job}', [WorkspaceController::class, 'destroyJob'])->name('jobs.destroy');
     Route::post('/jobs/{job}/contacts', [WorkspaceController::class, 'storeJobContact'])->name('jobs.contacts.store');
     Route::delete('/jobs/{job}/contacts/{contact}', [WorkspaceController::class, 'destroyJobContact'])->name('jobs.contacts.destroy');
