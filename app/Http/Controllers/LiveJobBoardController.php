@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use RuntimeException;
 
 class LiveJobBoardController extends Controller
 {
@@ -37,34 +36,24 @@ class LiveJobBoardController extends Controller
         $error = null;
 
         try {
-            $payload = Cache::remember('arbeitnow.jobs.page.'.$page, now()->addMinutes(10), function () use ($page): array {
-                $response = Http::acceptJson()
-                    ->connectTimeout(5)
-                    ->timeout(12)
-                    ->retry(2, 250)
-                    ->get(self::API_URL, ['page' => $page]);
+            $response = Http::acceptJson()
+                ->timeout(12)
+                ->retry(2, 250)
+                ->get(self::API_URL, ['page' => $page]);
 
-                if (! $response->successful()) {
-                    throw new RuntimeException('The external job source returned an unavailable response.');
-                }
-
+            if ($response->successful()) {
                 $payload = $response->json();
-                if (! is_array($payload) || ! is_array($payload['data'] ?? null)) {
-                    throw new RuntimeException('The external job source returned an invalid response.');
-                }
-
-                return $payload;
-            });
-
-            $meta = is_array($payload['meta'] ?? null) ? $payload['meta'] : [];
-            $jobs = collect($payload['data'])
-                ->filter(fn ($job) => is_array($job) && $this->isTechnologyOpening($job))
-                ->map(fn (array $job) => $this->normaliseJob($job))
-                ->filter(fn (array $job) => $query === '' || $this->matchesQuery($job, $query))
-                ->values();
-        } catch (\Throwable $exception) {
-            report($exception);
-            $error = 'Live jobs are temporarily unavailable. Your resumes, saved searches, and Job Tracker are still available.';
+                $meta = is_array($payload['meta'] ?? null) ? $payload['meta'] : [];
+                $jobs = collect($payload['data'] ?? [])
+                    ->filter(fn($job) => is_array($job) && $this->isTechnologyOpening($job))
+                    ->map(fn(array $job) => $this->normaliseJob($job))
+                    ->filter(fn(array $job) => $query === '' || $this->matchesQuery($job, $query))
+                    ->values();
+            } else {
+                $error = 'The live job source is temporarily unavailable. Please try again in a moment.';
+            }
+        } catch (ConnectionException) {
+            $error = 'SmartCV could not reach the live job source. Check your internet connection and try again.';
         }
 
         return view('jobs.live-board', compact('error', 'jobs', 'meta', 'page', 'query', 'resumes', 'searches', 'selectedResume'));
@@ -80,10 +69,35 @@ class LiveJobBoardController extends Controller
         ]));
 
         return Str::contains($searchable, [
-            'software', 'developer', 'engineer', 'frontend', 'front-end', 'backend', 'back-end',
-            'full stack', 'fullstack', 'devops', 'data ', 'machine learning', 'ai ', 'cyber',
-            'security', 'cloud', 'qa ', 'quality assurance', 'product manager', 'ux', 'ui ',
-            'wordpress', 'php', 'javascript', 'typescript', 'python', 'java', 'react', 'laravel',
+            'software',
+            'developer',
+            'engineer',
+            'frontend',
+            'front-end',
+            'backend',
+            'back-end',
+            'full stack',
+            'fullstack',
+            'devops',
+            'data ',
+            'machine learning',
+            'ai ',
+            'cyber',
+            'security',
+            'cloud',
+            'qa ',
+            'quality assurance',
+            'product manager',
+            'ux',
+            'ui ',
+            'wordpress',
+            'php',
+            'javascript',
+            'typescript',
+            'python',
+            'java',
+            'react',
+            'laravel',
         ]);
     }
 
@@ -98,7 +112,7 @@ class LiveJobBoardController extends Controller
             'title' => trim((string) ($job['title'] ?? 'Untitled opening')),
             'company' => trim((string) ($job['company_name'] ?? 'Unknown company')),
             'location' => trim((string) ($job['location'] ?? '')),
-            'tags' => collect($job['tags'] ?? [])->filter(fn ($tag) => is_string($tag))->map(fn (string $tag) => trim($tag))->filter()->take(8)->values()->all(),
+            'tags' => collect($job['tags'] ?? [])->filter(fn($tag) => is_string($tag))->map(fn(string $tag) => trim($tag))->filter()->take(8)->values()->all(),
             'description' => Str::limit($description, 11500, ''),
             'url' => (string) ($job['url'] ?? ''),
             'remote' => (bool) ($job['remote'] ?? false),
@@ -110,7 +124,11 @@ class LiveJobBoardController extends Controller
     private function matchesQuery(array $job, string $query): bool
     {
         return Str::contains(Str::lower(implode(' ', [
-            $job['title'], $job['company'], $job['location'], implode(' ', $job['tags']), $job['description'],
+            $job['title'],
+            $job['company'],
+            $job['location'],
+            implode(' ', $job['tags']),
+            $job['description'],
         ])), Str::lower($query));
     }
 

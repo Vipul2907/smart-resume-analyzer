@@ -46,6 +46,30 @@ class ResumeBuilderWorkflowTest extends TestCase
         $this->actingAs($other)->get(route('resumes.builder.edit', $resume))->assertNotFound();
     }
 
+    public function test_print_preview_uses_a4_page_rules_and_keeps_long_content_in_the_document(): void
+    {
+        $user = $this->user();
+        $resume = $user->resumes()->create([
+            'name' => 'Long A4 Resume', 'original_filename' => 'long.json', 'file_path' => 'resumes/a/long.json',
+            'mime_type' => 'application/json', 'file_size' => 2,
+        ]);
+        $resume->versions()->create([
+            'version_number' => 1, 'label' => 'Long draft', 'content' => [
+                'personal' => ['name' => 'Noah'],
+                'summary' => str_repeat('Detailed professional summary. ', 500),
+                'experience' => [['title' => 'Senior Engineer', 'highlights' => [str_repeat('Delivered a measurable project outcome. ', 250)]]],
+                'settings' => ['accent_color' => '#7c3aed', 'font_family' => 'Inter'],
+            ], 'is_current' => true,
+        ]);
+
+        $this->actingAs($user)->get(route('resumes.preview', $resume))
+            ->assertOk()
+            ->assertSee('@page { size: A4; margin: 18mm 16mm; }', false)
+            ->assertSee('min-height: 297mm', false)
+            ->assertSee('break-inside: avoid-page', false)
+            ->assertSee('Delivered a measurable project outcome.');
+    }
+
     private function payload(): array
     {
         return ['name' => 'Noah Career Resume', 'version_label' => 'Product role', 'template' => 'modern', 'accent_color' => '#7c3aed', 'font_family' => 'Inter', 'page_length' => 'one', 'personal' => ['name' => 'Noah', 'email' => 'noah@example.test', 'phone' => '', 'location' => '', 'website' => '', 'linkedin' => ''], 'summary' => 'Product-minded engineer.', 'experience' => [['title' => 'Engineer', 'company' => 'SmartCV', 'location' => '', 'start' => '2025', 'end' => 'Present', 'highlights_text' => "Built useful features\nImproved onboarding"]], 'education' => [], 'skills' => 'Laravel, MySQL', 'projects' => [], 'certifications' => [], 'awards' => [], 'languages' => [], 'interests' => '', 'custom_sections' => []];

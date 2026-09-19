@@ -107,6 +107,7 @@
                             @if($selectedResume && strlen($job['description']) >= 80 && !in_array($selectedResume->parse_status, ['empty', 'image_only'], true))
                                 <form method="POST" action="{{ route('ai-matches.store', $selectedResume) }}">
                                     @csrf
+                                    <input type="hidden" name="resume_id" value="{{ $selectedResume->id }}">
                                     <input type="hidden" name="target_role" value="{{ $job['title'] }}">
                                     <input type="hidden" name="job_description" value="{{ $job['description'] }}">
                                     <input type="hidden" name="accepted_ai_privacy" value="1">

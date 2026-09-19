@@ -194,10 +194,12 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
                 ->latest()
                 ->get();
             $requestedResume = $request->integer('resume');
-            $primaryResume = $requestedResume
-                ? $resumes->firstWhere('id', $requestedResume)
-                : $resumes->firstWhere('is_primary', true);
-            $primaryResume = $primaryResume ?: $resumes->first();
+            if ($requestedResume > 0) {
+                $primaryResume = $resumes->firstWhere('id', $requestedResume);
+                abort_unless($primaryResume, 404);
+            } else {
+                $primaryResume = $resumes->firstWhere('is_primary', true) ?: $resumes->first();
+            }
 
             if ($primaryResume) {
                 $primaryResume->load(['versions' => fn ($query) => $query->latest(), 'aiAnalyses' => fn ($query) => $query->where('status', 'completed')->latest()->limit(5)]);

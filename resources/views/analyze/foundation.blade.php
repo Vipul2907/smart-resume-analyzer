@@ -59,6 +59,7 @@
         </form>
         <form method="POST" action="{{ route('ai-analyses.store', $primaryResume) }}" class="mt-4 space-y-4" data-ai-form>
           @csrf
+          <input type="hidden" name="resume_id" value="{{ $primaryResume->id }}">
           <input type="hidden" name="analysis_type" value="{{ $analysisType }}">
           <label class="flex items-start gap-3 rounded-xl border border-white/[.08] p-4 text-sm leading-6 text-zinc-300">
             <input type="checkbox" name="accepted_ai_privacy" value="1" class="mt-1 accent-cyan-400" required>
@@ -74,6 +75,7 @@
           <span class="text-xs text-zinc-500">{{ $latestAnalysis?->completed_at?->diffForHumans() ?? 'Waiting for first run' }}</span>
         </div>
         @if($latestAnalysis?->status === 'completed')
+          <p class="mt-4 text-sm text-zinc-500">Analyzed resume: <span class="font-medium text-zinc-200">{{ $primaryResume->name }}</span></p>
           <div class="mt-5 grid gap-4 md:grid-cols-2">
             @foreach(['strengths' => 'Strengths', 'weaknesses' => 'Weaknesses', 'missing_sections' => 'Missing sections', 'next_actions' => 'Next actions'] as $key => $label)
               <div class="rounded-xl border border-white/[.08] p-4">

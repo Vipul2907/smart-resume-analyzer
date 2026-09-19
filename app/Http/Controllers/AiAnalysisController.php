@@ -15,7 +15,8 @@ class AiAnalysisController extends Controller
             return redirect()->route('onboarding.show');
         }
 
-        abort_unless($resume->user_id === $request->user()->id, 404);
+        $request->validate(['resume_id' => ['nullable', 'integer']]);
+        $resume = $this->selectedResume($request, $resume);
 
         if ($request->user()->preferences?->ai_processing_enabled === false) {
             return back()->with('error', 'AI analysis is disabled in Settings. Turn it on when you are ready to use Groq again.');
@@ -23,6 +24,7 @@ class AiAnalysisController extends Controller
 
         $attributes = $request->validate([
             'analysis_type' => ['required', 'in:resume_review,ats_foundation'],
+            'resume_id' => ['nullable', 'integer'],
             'accepted_ai_privacy' => ['accepted'],
         ]);
 
@@ -45,7 +47,7 @@ class AiAnalysisController extends Controller
         try {
             $groq->analyzeResume($resume, $analysis);
 
-            return back()->with('status', 'AI analysis completed.');
+            return redirect()->route('analyze', ['resume' => $resume->id])->with('status', 'AI analysis completed for '.$resume->name.'.');
         } catch (\Throwable $exception) {
             $analysis->update([
                 'status' => 'failed',
@@ -55,7 +57,7 @@ class AiAnalysisController extends Controller
 
             report($exception);
 
-            return back()->with('error', 'AI analysis could not finish right now. Please check your Groq setup and try again shortly.');
+            return redirect()->route('analyze', ['resume' => $resume->id])->withInput()->with('error', 'AI analysis could not finish right now. Please check your Groq setup and try again shortly.');
         }
     }
 
@@ -65,7 +67,8 @@ class AiAnalysisController extends Controller
             return redirect()->route('onboarding.show');
         }
 
-        abort_unless($resume->user_id === $request->user()->id, 404);
+        $request->validate(['resume_id' => ['nullable', 'integer']]);
+        $resume = $this->selectedResume($request, $resume);
         if ($request->user()->preferences?->ai_processing_enabled === false) {
             return back()->with('error', 'AI analysis is disabled in Settings. Turn it on when you are ready to use Groq again.');
         }
@@ -73,6 +76,7 @@ class AiAnalysisController extends Controller
             'job_description' => ['required', 'string', 'min:80', 'max:12000'],
             'target_role' => ['nullable', 'string', 'max:255'],
             'job_application_id' => ['nullable', 'integer'],
+            'resume_id' => ['nullable', 'integer'],
             'accepted_ai_privacy' => ['accepted'],
         ]);
         abort_unless(! ($attributes['job_application_id'] ?? null) || $request->user()->jobApplications()->whereKey($attributes['job_application_id'])->exists(), 404);
@@ -107,7 +111,24 @@ class AiAnalysisController extends Controller
             ]);
             report($exception);
 
-            return back()->with('error', 'Job match could not finish right now. Please check your Groq setup and try again shortly.');
+            return redirect()->route('match', ['resume' => $resume->id])->withInput()->with('error', 'Job match could not finish right now. Please check your Groq setup and try again shortly.');
         }
+    }
+
+    private function selectedResume(Request $request, Resume $routeResume): Resume
+    {
+        // Keep route-model binding protected too. A route ID from another account
+        // must never be used as a way to reach a different selected resume.
+        abort_unless($routeResume->user_id === $request->user()->id, 404);
+
+        $selectedId = $request->integer('resume_id');
+        if ($selectedId <= 0 || $selectedId === $routeResume->id) {
+            return $routeResume;
+        }
+
+        // The hidden field is deliberately resolved through the signed-in user's
+        // relation. This supports a selected non-primary resume without trusting
+        // a client-supplied ID from another account.
+        return $request->user()->resumes()->whereKey($selectedId)->firstOrFail();
     }
 }

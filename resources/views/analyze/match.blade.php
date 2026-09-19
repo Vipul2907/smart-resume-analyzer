@@ -37,6 +37,7 @@
       <article class="card p-5 sm:p-6">
         <div class="flex flex-wrap items-start justify-between gap-4"><div><h2 class="font-semibold">Job description</h2><p class="mt-1 text-sm text-zinc-500">Selected resume: {{ $selectedResume->name }} · {{ strlen((string) $selectedResume->extracted_text) }} readable characters</p></div><span class="rounded-full bg-cyan-400/10 px-3 py-1 text-xs text-cyan-100">Private AI request</span></div>
         <form method="POST" action="{{ route('ai-matches.store', $selectedResume) }}" class="mt-6 space-y-4">@csrf
+          <input type="hidden" name="resume_id" value="{{ $selectedResume->id }}">
           <div class="grid gap-4 sm:grid-cols-2">
             <label class="block text-xs text-zinc-400">Target role<input class="input mt-2" name="target_role" value="{{ old('target_role') }}" placeholder="Product Designer"></label>
             <label class="block text-xs text-zinc-400">Related saved job<select class="input mt-2" name="job_application_id"><option value="">Not linked to a saved job</option>@foreach($jobs as $job)<option value="{{ $job->id }}" @selected(old('job_application_id') == $job->id)>{{ $job->company }} — {{ $job->role }}</option>@endforeach</select></label>
@@ -48,7 +49,7 @@
       </article>
 
       <article class="card p-5 sm:p-6">
-        <div class="flex items-center justify-between gap-4"><div><h2 class="font-semibold">Latest match result</h2><p class="mt-1 text-sm text-zinc-500">{{ $latestMatch?->completed_at?->diffForHumans() ?? 'Run your first comparison to see results.' }}</p></div>@if($latestMatch)<span class="rounded-xl bg-cyan-400/10 px-4 py-2 text-2xl font-semibold text-cyan-100">{{ $latestMatch->score ?? '--' }}<span class="text-sm text-cyan-100/60">/100</span></span>@endif</div>
+        <div class="flex items-center justify-between gap-4"><div><h2 class="font-semibold">Latest match result</h2><p class="mt-1 text-sm text-zinc-500">Analyzed resume: {{ $selectedResume->name }} · {{ $latestMatch?->completed_at?->diffForHumans() ?? 'Run your first comparison to see results.' }}</p></div>@if($latestMatch)<span class="rounded-xl bg-cyan-400/10 px-4 py-2 text-2xl font-semibold text-cyan-100">{{ $latestMatch->score ?? '--' }}<span class="text-sm text-cyan-100/60">/100</span></span>@endif</div>
         @if($latestMatch)
           @if($displayText($result['summary'] ?? null) !== '')<div class="mt-5 rounded-xl border border-cyan-400/15 bg-cyan-400/[.05] p-4 text-sm leading-6 text-zinc-300">{{ $displayText($result['summary']) }}</div>@endif
           <div class="mt-5 grid gap-4 md:grid-cols-2">

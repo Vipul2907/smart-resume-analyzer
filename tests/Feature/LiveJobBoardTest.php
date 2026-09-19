@@ -58,6 +58,36 @@ class LiveJobBoardTest extends TestCase
             ->assertDontSee('<strong>Laravel</strong>', false);
     }
 
+    public function test_it_accepts_the_current_arbeitnow_response_shape_with_empty_job_types(): void
+    {
+        Cache::forget('arbeitnow.jobs.page.1');
+        $user = User::factory()->create(['email_verified_at' => now(), 'onboarding_completed_at' => now()]);
+
+        Http::fake([
+            'https://www.arbeitnow.com/api/job-board-api*' => Http::response([
+                'data' => [[
+                    'title' => 'IT Service Engineer',
+                    'company_name' => 'Example GmbH',
+                    'location' => 'Hamburg',
+                    'remote' => false,
+                    'description' => '<p>Support cloud infrastructure and software systems.</p>',
+                    'tags' => ['Helpdesk'],
+                    'job_types' => [],
+                    'url' => 'https://example.test/jobs/it-service-engineer',
+                    'created_at' => now()->timestamp,
+                ]],
+                'links' => ['next' => null],
+                'meta' => ['next_page' => null],
+            ]),
+        ]);
+
+        $this->actingAs($user)->get(route('discover'))
+            ->assertOk()
+            ->assertSee('IT Service Engineer')
+            ->assertSee('Example GmbH')
+            ->assertDontSee('Live jobs are temporarily unavailable');
+    }
+
     public function test_an_unavailable_job_api_shows_a_safe_fallback_page(): void
     {
         Cache::forget('arbeitnow.jobs.page.1');

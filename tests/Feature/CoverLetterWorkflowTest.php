@@ -47,6 +47,22 @@ class CoverLetterWorkflowTest extends TestCase
         $this->actingAs($other)->get(route('cover-letters.download.txt', $letter))->assertNotFound();
     }
 
+    public function test_cover_letter_preview_uses_a4_print_rules_and_retains_long_body_content(): void
+    {
+        $user = $this->user();
+        $letter = $user->coverLetters()->create([
+            'title' => 'Long letter', 'template' => 'classic', 'recipient_name' => 'Hiring Manager',
+            'company_name' => 'Acme', 'subject' => 'Application', 'body' => str_repeat('This paragraph explains a relevant project outcome in detail. ', 600),
+            'status' => 'ready',
+        ]);
+
+        $this->actingAs($user)->get(route('cover-letters.preview', $letter))
+            ->assertOk()
+            ->assertSee('@page { size: A4; margin: 22mm 20mm; }', false)
+            ->assertSee('min-height: 297mm', false)
+            ->assertSee('This paragraph explains a relevant project outcome in detail.');
+    }
+
     private function payload(JobApplication $job, Resume $resume, string $status = 'draft'): array
     {
         return [
