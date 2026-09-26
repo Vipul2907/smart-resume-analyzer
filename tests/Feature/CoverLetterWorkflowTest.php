@@ -58,8 +58,10 @@ class CoverLetterWorkflowTest extends TestCase
 
         $this->actingAs($user)->get(route('cover-letters.preview', $letter))
             ->assertOk()
-            ->assertSee('@page { size: A4; margin: 22mm 20mm; }', false)
-            ->assertSee('min-height: 297mm', false)
+            ->assertSee('@page { size: A4; margin: 0; }', false)
+            ->assertSee('height: 297mm', false)
+            ->assertSee('data-paginated-document', false)
+            ->assertSee('splitTextBlock', false)
             ->assertSee('This paragraph explains a relevant project outcome in detail.');
     }
 
