@@ -27,6 +27,8 @@ Route::get('/', fn () => view('welcome'))->name('home');
 Route::get('/p/{slug}', [PublicPortfolioController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('portfolio.public');
 Route::get('/p/{slug}/projects/{project}/image', [PublicPortfolioController::class, 'image'])->where('slug', '[a-z0-9-]+')->name('portfolio.public.image');
 Route::get('/p/{slug}/resume', [PublicPortfolioController::class, 'downloadResume'])->where('slug', '[a-z0-9-]+')->name('portfolio.public.resume');
+Route::view('/privacy', 'legal.privacy')->name('privacy');
+Route::view('/terms', 'legal.terms')->name('terms');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -54,7 +56,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-$screens = ['dashboard', 'analyze', 'ats', 'match', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings', 'help', 'privacy', 'terms'];
+$screens = ['dashboard', 'analyze', 'ats', 'match', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings', 'help'];
 
 Route::middleware(['auth', 'verified'])->group(function () use ($screens): void {
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');

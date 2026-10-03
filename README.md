@@ -242,12 +242,28 @@ php artisan test --compact
 
 ## Deployment checklist
 
-1. Create the production database and run `php artisan migrate --force`.
-2. Set `APP_ENV=production` and `APP_DEBUG=false`.
-3. Keep a unique `APP_KEY` and Groq key in hosting-provider secrets.
-4. Use HTTPS and a real mail configuration.
-5. Keep uploads on persistent private storage; do not expose the storage directory directly.
-6. Configure a production cache driver.
+Use a staging deployment first. Do not copy your local `.env` file to the server.
+
+1. Configure PHP 8.2+, Composer, Node.js, a production database, and PHP extensions needed for PDF/DOCX parsing.
+2. Set `APP_ENV=production`, `APP_DEBUG=false`, the real `APP_URL`, and a unique `APP_KEY`. Store database, mail, and Groq credentials in the host’s secret settings.
+3. Build frontend assets with `npm ci && npm run build`; point the web server document root at Laravel’s `public` directory.
+4. Use HTTPS and secure session cookies (`SESSION_SECURE_COOKIE=true`). Configure real mail and verify signup, email verification, and password reset delivery.
+5. Take a database backup before running `php artisan migrate --force`. Keep uploads on persistent private storage; never expose Laravel’s private storage directory through the web server.
+6. Configure production cache and session stores. If background jobs are enabled, run a supervised queue worker; a queue setting alone does not move synchronous controller work into the background.
+7. Give write permissions only to Laravel’s `storage` and `bootstrap/cache` directories. Keep `.env`, logs, backups, and uploads outside the public web root.
+8. Schedule database and file backups, then perform a restore rehearsal. Confirm a redeploy does not erase user uploads.
+9. Check the public Privacy and Terms pages against the actual hosting, mail, storage, and AI-provider setup. Add a working support contact before inviting public users.
+10. Run the automated tests and finish the staging smoke check before switching production traffic.
+
+### Staging smoke check
+
+- Create an account, verify its email, sign in, and reset its password.
+- Upload, parse, download, and delete a resume; confirm another account cannot access it.
+- Try each enabled AI action and check its consent notice and failure message.
+- Create a job application, private attachment, interview practice entry, and portfolio project.
+- Publish a portfolio, confirm only selected content is visible, then turn public sharing off.
+- Export personal data and delete a test account; confirm associated private files are removed.
+- Open Privacy and Terms while logged out and check they describe the services actually enabled.
 
 ## Suggested demo flow
 

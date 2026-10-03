@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -50,8 +51,10 @@ class LiveJobBoardController extends Controller
                     ->filter(fn(array $job) => $query === '' || $this->matchesQuery($job, $query))
                     ->values();
             } else {
-                $error = 'The live job source is temporarily unavailable. Please try again in a moment.';
+                $error = 'Live jobs are temporarily unavailable. Please try again in a moment.';
             }
+        } catch (RequestException) {
+            $error = 'Live jobs are temporarily unavailable. Please try again in a moment.';
         } catch (ConnectionException) {
             $error = 'SmartCV could not reach the live job source. Check your internet connection and try again.';
         }
