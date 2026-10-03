@@ -7,6 +7,7 @@
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
 <div class="min-h-screen">
   <x-workspace-sidebar active-screen="insights" />
   <div class="min-h-screen lg:pl-64">
@@ -16,7 +17,7 @@
       <a href="{{ route('profile') }}" class="flex items-center gap-2 text-sm font-medium"><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-cyan-300 text-slate-950">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>{{ auth()->user()->name }}</a>
     </header>
 
-    <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+    <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
       <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div><p class="eyebrow">Career workspace</p><h1 class="mt-2 text-3xl font-semibold tracking-tight">Career insights and goals</h1><p class="mt-2 max-w-2xl text-sm text-zinc-400">Set a direction, break it into honest milestones, and ask AI for advice based on your own saved progress.</p></div>
         <a href="{{ route('learning-paths.index') }}" class="btn btn-secondary">Open learning paths</a>

@@ -9,6 +9,7 @@
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-900">
+    @include('components.skip-link')
   <x-workspace-sidebar active-screen="cover-letters" />
   <div class="min-h-screen lg:pl-64">
     <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -16,7 +17,7 @@
         <div class="flex gap-2">@if($letter)<a href="{{ route('cover-letters.preview', $letter) }}" target="_blank" class="btn btn-secondary">Preview / PDF</a><a href="{{ route('cover-letters.download.docx', $letter) }}" class="btn btn-secondary">Export DOCX</a>@endif</div>
       </div>
     </header>
-    <main class="mx-auto max-w-7xl px-5 py-8 sm:px-8">
+    <main class="mx-auto max-w-7xl px-5 py-8 sm:px-8" id="main-content" tabindex="-1">
       <div class="mb-7">
         <p class="eyebrow">Cover letter builder</p>
         <h1 class="mt-2 text-3xl font-semibold tracking-tight">{{ $letter ? $letter->title : 'Build a letter for a real opportunity' }}</h1>

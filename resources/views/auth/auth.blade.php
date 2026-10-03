@@ -9,12 +9,13 @@
 </head>
 
 <body class="min-h-screen bg-ink text-zinc-100">
+    @include('components.skip-link')
   <div class="noise pointer-events-none fixed inset-0 opacity-[.025]">
 
   </div>
   <div class="fixed -left-36 -top-36 h-96 w-96 rounded-full bg-indigo-500/20 blur-[130px]"></div>
   <div class="fixed -bottom-48 -right-36 h-96 w-96 rounded-full bg-cyan-400/15 blur-[130px]"></div>
-  <main class="relative mx-auto grid min-h-screen max-w-6xl place-items-center px-5 py-10 lg:grid-cols-[1.1fr_.9fr] lg:gap-16">
+  <main class="relative mx-auto grid min-h-screen max-w-6xl place-items-center px-5 py-10 lg:grid-cols-[1.1fr_.9fr] lg:gap-16" id="main-content" tabindex="-1">
     <section class="hidden max-w-lg lg:block"><a href="/" class="inline-flex items-center gap-2.5"><span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-400 to-cyan-500 font-bold shadow-lg shadow-cyan-950/30">✦</span><span class="text-sm font-bold tracking-tight">SMART<span class="text-cyan-300">CV</span></span></a>
       <p class="eyebrow mt-12">Free forever</p>
       <h1 class="mt-4 text-5xl font-semibold leading-[1.02] tracking-[-.05em]">Build a career with<br><span class="bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">real momentum.</span></h1>

@@ -8,6 +8,7 @@
 </head>
 
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
   <div class="min-h-screen">
     <x-workspace-sidebar active-screen="settings" />
     <div class="min-h-screen lg:pl-64">
@@ -15,7 +16,7 @@
         </a>
         <p class="hidden text-sm text-zinc-500 sm:block">Account and privacy controls</p><a href="{{ route('profile') }}" class="flex items-center gap-2 text-sm font-medium"><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-cyan-300 text-slate-950">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>{{ auth()->user()->name }}</a>
       </header>
-      <main class="mx-auto max-w-5xl px-5 py-8 lg:px-9">
+      <main class="mx-auto max-w-5xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
         <p class="eyebrow">Account privacy and security</p>
         <h1 class="mt-2 text-3xl font-semibold tracking-tight">Control your SmartCV account.</h1>
         <p class="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">Your career data is private by default. Use these controls to manage reminders, AI consent, security, and your data.</p>
@@ -28,11 +29,11 @@
           <article class="card p-5 sm:p-6">
             <p class="eyebrow">Notifications</p>
             <h2 class="mt-2 text-lg font-semibold">Reminder preferences</h2>
-            <p class="mt-2 text-sm leading-6 text-zinc-500">Choose how SmartCV should remind you about follow-ups, interviews, and goals.</p>
+            <p class="mt-2 text-sm leading-6 text-zinc-500">In-app reminders are available now. Email reminders and weekly reviews are saved as preferences but are not sent or scheduled yet.</p>
             <form method="POST" action="{{ route('settings.preferences.update') }}" class="mt-5 space-y-4">@csrf @method('PATCH')
               <label class="flex gap-3 rounded-xl border border-white/[.08] p-4 text-sm"><input type="checkbox" name="in_app_reminders" value="1" @checked($preferences->in_app_reminders)><span><strong class="block">In-app reminders</strong><span class="mt-1 block text-xs leading-5 text-zinc-500">Show private follow-up, interview, and goal reminders inside SmartCV.</span></span></label>
-              <label class="flex gap-3 rounded-xl border border-white/[.08] p-4 text-sm"><input type="checkbox" name="email_reminders" value="1" @checked($preferences->email_reminders)><span><strong class="block">Email reminder preference</strong><span class="mt-1 block text-xs leading-5 text-zinc-500">Save your preference for career reminders. Security and verification emails remain enabled.</span></span></label>
-              <label class="flex gap-3 rounded-xl border border-white/[.08] p-4 text-sm"><input type="checkbox" name="weekly_career_review" value="1" @checked($preferences->weekly_career_review)><span><strong class="block">Weekly career review</strong><span class="mt-1 block text-xs leading-5 text-zinc-500">Save a weekly review preference for your career progress.</span></span></label>
+              <label class="flex gap-3 rounded-xl border border-white/[.08] p-4 text-sm"><input type="checkbox" name="email_reminders" value="1" @checked($preferences->email_reminders)><span><strong class="block">Email reminders (preference only)</strong><span class="mt-1 block text-xs leading-5 text-zinc-500">This preference is saved for future use; career reminder emails are not currently sent. Security and verification emails remain enabled.</span></span></label>
+              <label class="flex gap-3 rounded-xl border border-white/[.08] p-4 text-sm"><input type="checkbox" name="weekly_career_review" value="1" @checked($preferences->weekly_career_review)><span><strong class="block">Weekly career review (preference only)</strong><span class="mt-1 block text-xs leading-5 text-zinc-500">This preference is saved, but weekly reviews are not currently scheduled or emailed.</span></span></label>
               <input type="hidden" name="ai_processing_enabled" value="{{ $preferences->ai_processing_enabled ? 1 : 0 }}"><input type="hidden" name="retain_ai_history" value="{{ $preferences->retain_ai_history ? 1 : 0 }}"><button class="btn btn-primary w-full">Save reminder preferences</button>
             </form>
           </article>

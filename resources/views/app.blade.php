@@ -21,6 +21,7 @@ $activeScreen = $screen === 'analyze' ? 'resumes' : $screen;
 @endphp
 
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
     <div class="min-h-screen">
         <x-workspace-sidebar :active-screen="$activeScreen" />
         <div class="min-h-screen lg:pl-64">
@@ -30,7 +31,7 @@ $activeScreen = $screen === 'analyze' ? 'resumes' : $screen;
                 <a href="{{ route('profile') }}" class="text-sm font-semibold">{{ auth()->user()->name }}</a>
             </header>
 
-            <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+            <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
                 <div class="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                     <div>
                         <p class="eyebrow">{{ in_array($screen, ['privacy', 'terms'], true) ? 'SmartCV legal' : 'Career workspace' }}</p>

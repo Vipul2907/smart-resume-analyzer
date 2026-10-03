@@ -7,7 +7,8 @@
   @vite(['resources/css/app.css'])
 </head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
-  <main class="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+    @include('components.skip-link')
+  <main class="mx-auto max-w-6xl px-5 py-10 sm:px-8" id="main-content" tabindex="-1">
     <header class="flex items-center justify-between border-b border-white/[.08] pb-6">
       <a href="{{ route('home') }}" class="font-bold">SMART<span class="text-violet-300">CV</span></a>
       <span class="text-xs text-zinc-500">Professional portfolio</span>

@@ -9,12 +9,13 @@
 </head>
 
 <body class="min-h-screen text-slate-900">
+    @include('components.skip-link')
     <header class="border-b border-slate-200 bg-white/90">
         <nav class="mx-auto flex max-w-5xl items-center justify-between px-5 py-5" aria-label="Main navigation"><a href="{{ route('home') }}" class="text-lg font-bold">SMART<span class="text-violet-600">CV</span></a>
             <div class="flex items-center gap-4 text-sm"><a href="{{ route('terms') }}">Terms</a>@auth<a class="btn btn-primary" href="{{ route('dashboard') }}">My workspace</a>@else<a href="{{ route('login') }}">Sign in</a>@endauth</div>
         </nav>
     </header>
-    <main class="mx-auto max-w-3xl px-5 py-12 sm:py-16">
+    <main class="mx-auto max-w-3xl px-5 py-12 sm:py-16" id="main-content" tabindex="-1">
         <p class="eyebrow">SmartCV policies</p>
         <h1 class="mt-3 text-4xl font-semibold">Privacy</h1>
         <p class="mt-4 text-sm leading-6 text-slate-600">This page describes how SmartCV handles information in its career workspace. The service owner should keep it aligned with the services enabled in the deployment.</p>
@@ -25,7 +26,7 @@
             </section>
             <section>
                 <h2 class="text-lg font-semibold">Optional AI tools</h2>
-                <p class="mt-2 text-sm leading-6 text-slate-600">When you choose an AI feature and accept its notice, SmartCV sends the selected resume text and the job or career information needed for that request to the configured Groq service. SmartCV stores the resulting analysis in your account. Do not submit information you do not want processed by that provider. You can turn off future AI processing in Settings and manage saved analysis history there.</p>
+                <p class="mt-2 text-sm leading-6 text-slate-600">When you choose an AI feature and accept its notice, SmartCV sends the selected resume text and the job or career information needed for that request to the configured Groq service. When Keep AI analysis history is on, SmartCV saves the result in your account. When it is off, the result is shown once in your current session and then discarded. Do not submit information you do not want processed by that provider. You can also block future AI processing in Settings.</p>
             </section>
             <section>
                 <h2 class="text-lg font-semibold">Other services</h2>

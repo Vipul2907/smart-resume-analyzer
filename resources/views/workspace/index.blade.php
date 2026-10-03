@@ -7,6 +7,7 @@
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
 @php
   $titles = ['dashboard' => ['Your career workspace', 'A live summary based on your private SmartCV data.'], 'jobs' => ['Job tracker', 'Save every opportunity and keep your next move clear.'], 'interviews' => ['Interview lab', 'Plan focused practice sessions and record your real progress.'], 'skills' => ['Skill studio', 'Build a truthful picture of the skills you are developing.'], 'insights' => ['Career insights', 'Turn your goals and profile into a focused career plan.'], 'portfolio' => ['Portfolio', 'Keep a private, recruiter-ready record of your best work.'], 'analytics' => ['Career analytics', 'Metrics calculated from your saved SmartCV data.'], 'profile' => ['Your profile', 'Keep your professional details current and private.'], 'settings' => ['Settings', 'Manage the information shown in your SmartCV workspace.']];
   [$title, $subtitle] = $titles[$screen];
@@ -15,7 +16,7 @@
   <x-workspace-sidebar :active-screen="$screen" />
   <div class="min-h-screen lg:pl-64">
     <header class="sticky top-0 z-20 flex items-center justify-between border-b border-white/[.07] bg-[#090e20]/95 px-5 py-4 backdrop-blur lg:px-9"><a href="{{ route('dashboard') }}" class="font-bold lg:hidden">SMART<span class="text-violet-300">CV</span></a><div class="hidden text-sm text-zinc-500 sm:block">Your private career workspace</div><a href="{{ route('profile') }}" class="flex items-center gap-2 text-sm font-medium"><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-cyan-300 text-slate-950">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>{{ auth()->user()->name }}</a></header>
-    <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+    <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
       <p class="eyebrow">Career workspace</p><h1 class="mt-2 text-3xl font-semibold tracking-tight">{{ $title }}</h1><p class="mt-2 text-sm text-zinc-400">{{ $subtitle }}</p>
       @if(session('status'))<div class="mt-6 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-4 text-sm text-emerald-100">{{ session('status') }}</div>@endif
       @if($errors->any())<div class="mt-6 rounded-xl border border-rose-400/25 bg-rose-400/10 p-4 text-sm text-rose-100"><p class="font-semibold">Please check the form.</p><ul class="mt-2 list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif

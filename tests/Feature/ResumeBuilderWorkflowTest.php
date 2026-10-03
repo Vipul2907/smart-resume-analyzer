@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Resume;
 use App\Models\User;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -24,7 +25,7 @@ class ResumeBuilderWorkflowTest extends TestCase
         $this->assertSame('ready', $resume->parse_status);
         $this->assertSame('Noah Career Resume', $resume->name);
         $this->assertDatabaseHas('resume_versions', ['resume_id' => $resume->id, 'is_current' => true]);
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        /** @var FilesystemAdapter $disk */
         $disk = Storage::disk('local');
         $disk->assertExists($resume->file_path);
 

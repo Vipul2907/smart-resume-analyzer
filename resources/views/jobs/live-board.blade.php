@@ -7,6 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
 <div class="min-h-screen">
     <x-workspace-sidebar active-screen="discover" />
     <div class="min-h-screen lg:pl-64">
@@ -16,7 +17,7 @@
             <a href="{{ route('profile') }}" class="text-sm font-medium">{{ auth()->user()->name }}</a>
         </header>
 
-        <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+        <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
             <p class="eyebrow">Live opportunities</p>
             <div class="mt-2 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
                 <div>

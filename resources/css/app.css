@@ -20,6 +20,12 @@ button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 a { transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
 
+:focus-visible { outline: 3px solid #635bff; outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
 /* Core SmartCV design tokens */
 .noise { opacity: .16; }
 .grid-bg { background-image: linear-gradient(rgba(99,91,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(99,91,255,.045) 1px, transparent 1px); background-size: 36px 36px; }
@@ -112,3 +118,25 @@ a[href="/billing"], a[href="/pricing"], [data-trial-card] { display: none !impor
 
 @media (max-width: 1023px) { main { padding-bottom: 5.6rem; } }
 @media (min-width: 1024px) { .workspace-sidebar::after, aside.fixed::after { content: "FREE FOREVER\A Every career tool. No paywall."; white-space: pre-line; display: block; margin: 1.35rem .5rem .25rem; padding: .8rem .9rem; border: 1px solid #d9dcff; border-radius: .85rem; color: #4a438f; background: linear-gradient(135deg, #f2f1ff, #edfaff); font-size: .71rem; font-weight: 800; line-height: 1.65; letter-spacing: .02em; } }
+.skill-progress {
+    appearance: none;
+    height: 0.5rem;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: #f1f5f9;
+}
+
+.skill-progress::-webkit-progress-bar {
+    border-radius: 9999px;
+    background: #f1f5f9;
+}
+
+.skill-progress::-webkit-progress-value {
+    border-radius: 9999px;
+    background: linear-gradient(to right, #8b5cf6, #22d3ee);
+}
+
+.skill-progress::-moz-progress-bar {
+    border-radius: 9999px;
+    background: linear-gradient(to right, #8b5cf6, #22d3ee);
+}

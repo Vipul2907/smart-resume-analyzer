@@ -7,6 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
 @php
     $statuses = ['saved' => 'Saved', 'applied' => 'Applied', 'interviewing' => 'Interviewing', 'offer' => 'Offer', 'rejected' => 'Rejected', 'withdrawn' => 'Withdrawn', 'closed' => 'Closed'];
 @endphp
@@ -20,7 +21,7 @@
             <a href="{{ route('profile') }}" class="flex items-center gap-2 text-sm font-medium"><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-cyan-300 text-slate-950">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>{{ auth()->user()->name }}</a>
         </header>
 
-        <main class="mx-auto max-w-[1700px] px-5 py-8 lg:px-9">
+        <main class="mx-auto max-w-[1700px] px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
             <p class="eyebrow">Career workspace</p>
             <div class="mt-2 flex flex-wrap items-end justify-between gap-4"><div><h1 class="text-3xl font-semibold">Job tracker</h1><p class="mt-2 text-sm text-zinc-400">Track every real opportunity, follow-up, contact, and document.</p></div><a href="#new-job" class="btn btn-primary">Add opportunity</a></div>
 

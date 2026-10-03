@@ -1,24 +1,30 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AiAnalysisController;
 use App\Http\Controllers\AccountSettingsController;
-use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AiAnalysisController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CareerGoalController;
 use App\Http\Controllers\CoverLetterController;
 use App\Http\Controllers\DocumentVaultController;
 use App\Http\Controllers\HelpCenterController;
-use App\Http\Controllers\LearningPathController;
+use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\JobDiscoveryController;
+use App\Http\Controllers\JobTrackerController;
+use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\LiveJobBoardController;
 use App\Http\Controllers\NotificationCenterController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PublicPortfolioController;
-use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ResumeBuilderController;
+use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ResumeParseController;
 use App\Http\Controllers\ResumeVersionController;
+use App\Http\Controllers\SkillController;
 use App\Http\Controllers\WorkspaceController;
+use App\Models\AiAnalysis;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -106,15 +112,15 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::patch('/notifications/{notification}/read', [NotificationCenterController::class, 'markRead'])->name('notifications.read');
 
     Route::get('/jobs', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'jobs'))->name('jobs');
-    Route::post('/jobs', [WorkspaceController::class, 'storeJob'])->name('jobs.store');
-    Route::patch('/jobs/{job}', [WorkspaceController::class, 'updateJob'])->name('jobs.update');
-    Route::patch('/jobs/{job}/status', [WorkspaceController::class, 'updateJobStatus'])->name('jobs.status.update');
-    Route::delete('/jobs/{job}', [WorkspaceController::class, 'destroyJob'])->name('jobs.destroy');
-    Route::post('/jobs/{job}/contacts', [WorkspaceController::class, 'storeJobContact'])->name('jobs.contacts.store');
-    Route::delete('/jobs/{job}/contacts/{contact}', [WorkspaceController::class, 'destroyJobContact'])->name('jobs.contacts.destroy');
-    Route::post('/jobs/{job}/attachments', [WorkspaceController::class, 'storeJobAttachment'])->name('jobs.attachments.store');
-    Route::get('/jobs/{job}/attachments/{attachment}', [WorkspaceController::class, 'downloadJobAttachment'])->name('jobs.attachments.download');
-    Route::delete('/jobs/{job}/attachments/{attachment}', [WorkspaceController::class, 'destroyJobAttachment'])->name('jobs.attachments.destroy');
+    Route::post('/jobs', [JobTrackerController::class, 'storeJob'])->name('jobs.store');
+    Route::patch('/jobs/{job}', [JobTrackerController::class, 'updateJob'])->name('jobs.update');
+    Route::patch('/jobs/{job}/status', [JobTrackerController::class, 'updateJobStatus'])->name('jobs.status.update');
+    Route::delete('/jobs/{job}', [JobTrackerController::class, 'destroyJob'])->name('jobs.destroy');
+    Route::post('/jobs/{job}/contacts', [JobTrackerController::class, 'storeJobContact'])->name('jobs.contacts.store');
+    Route::delete('/jobs/{job}/contacts/{contact}', [JobTrackerController::class, 'destroyJobContact'])->name('jobs.contacts.destroy');
+    Route::post('/jobs/{job}/attachments', [JobTrackerController::class, 'storeJobAttachment'])->name('jobs.attachments.store');
+    Route::get('/jobs/{job}/attachments/{attachment}', [JobTrackerController::class, 'downloadJobAttachment'])->name('jobs.attachments.download');
+    Route::delete('/jobs/{job}/attachments/{attachment}', [JobTrackerController::class, 'destroyJobAttachment'])->name('jobs.attachments.destroy');
 
     Route::get('/discover', [LiveJobBoardController::class, 'index'])->middleware('throttle:30,1')->name('discover');
     Route::post('/discover/searches', [JobDiscoveryController::class, 'store'])->name('discover.searches.store');
@@ -125,31 +131,31 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::redirect('/live-jobs', '/discover')->name('live-jobs.index');
 
     Route::get('/interviews', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'interviews'))->name('interviews');
-    Route::post('/interviews', [WorkspaceController::class, 'storeInterview'])->name('interviews.store');
-    Route::patch('/interviews/{interview}/responses', [WorkspaceController::class, 'saveInterviewResponses'])->name('interviews.responses.update');
-    Route::patch('/interviews/{interview}/complete', [WorkspaceController::class, 'completeInterview'])->name('interviews.complete');
-    Route::post('/interviews/{interview}/recording', [WorkspaceController::class, 'storeInterviewRecording'])->name('interviews.recordings.store');
-    Route::get('/interviews/{interview}/recording', [WorkspaceController::class, 'downloadInterviewRecording'])->name('interviews.recordings.download');
-    Route::get('/interviews/{interview}/recording/play', [WorkspaceController::class, 'playInterviewRecording'])->name('interviews.recordings.play');
-    Route::delete('/interviews/{interview}', [WorkspaceController::class, 'destroyInterview'])->name('interviews.destroy');
+    Route::post('/interviews', [InterviewController::class, 'storeInterview'])->name('interviews.store');
+    Route::patch('/interviews/{interview}/responses', [InterviewController::class, 'saveInterviewResponses'])->name('interviews.responses.update');
+    Route::patch('/interviews/{interview}/complete', [InterviewController::class, 'completeInterview'])->name('interviews.complete');
+    Route::post('/interviews/{interview}/recording', [InterviewController::class, 'storeInterviewRecording'])->name('interviews.recordings.store');
+    Route::get('/interviews/{interview}/recording', [InterviewController::class, 'downloadInterviewRecording'])->name('interviews.recordings.download');
+    Route::get('/interviews/{interview}/recording/play', [InterviewController::class, 'playInterviewRecording'])->name('interviews.recordings.play');
+    Route::delete('/interviews/{interview}', [InterviewController::class, 'destroyInterview'])->name('interviews.destroy');
 
     Route::get('/skills', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'skills'))->name('skills');
-    Route::post('/skills', [WorkspaceController::class, 'storeSkill'])->name('skills.store');
-    Route::get('/skills/{skill}/certificate', [WorkspaceController::class, 'downloadSkillCertificate'])->name('skills.certificate.download');
-    Route::patch('/skills/{skill}', [WorkspaceController::class, 'updateSkill'])->name('skills.update');
-    Route::post('/skills/{skill}/milestones', [WorkspaceController::class, 'storeSkillMilestone'])->name('skills.milestones.store');
-    Route::patch('/skills/{skill}/milestones/{milestone}', [WorkspaceController::class, 'updateSkillMilestone'])->name('skills.milestones.update');
-    Route::delete('/skills/{skill}/milestones/{milestone}', [WorkspaceController::class, 'destroySkillMilestone'])->name('skills.milestones.destroy');
-    Route::delete('/skills/{skill}', [WorkspaceController::class, 'destroySkill'])->name('skills.destroy');
+    Route::post('/skills', [SkillController::class, 'storeSkill'])->name('skills.store');
+    Route::get('/skills/{skill}/certificate', [SkillController::class, 'downloadSkillCertificate'])->name('skills.certificate.download');
+    Route::patch('/skills/{skill}', [SkillController::class, 'updateSkill'])->name('skills.update');
+    Route::post('/skills/{skill}/milestones', [SkillController::class, 'storeSkillMilestone'])->name('skills.milestones.store');
+    Route::patch('/skills/{skill}/milestones/{milestone}', [SkillController::class, 'updateSkillMilestone'])->name('skills.milestones.update');
+    Route::delete('/skills/{skill}/milestones/{milestone}', [SkillController::class, 'destroySkillMilestone'])->name('skills.milestones.destroy');
+    Route::delete('/skills/{skill}', [SkillController::class, 'destroySkill'])->name('skills.destroy');
 
     Route::get('/insights', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'insights'))->name('insights');
-    Route::post('/goals', [WorkspaceController::class, 'storeGoal'])->name('goals.store');
-    Route::patch('/goals/{goal}', [WorkspaceController::class, 'updateGoal'])->name('goals.update');
-    Route::post('/goals/{goal}/milestones', [WorkspaceController::class, 'storeGoalMilestone'])->name('goals.milestones.store');
-    Route::patch('/goals/{goal}/milestones/{milestone}', [WorkspaceController::class, 'updateGoalMilestone'])->name('goals.milestones.update');
-    Route::delete('/goals/{goal}/milestones/{milestone}', [WorkspaceController::class, 'destroyGoalMilestone'])->name('goals.milestones.destroy');
-    Route::post('/goals/{goal}/career-advice', [WorkspaceController::class, 'generateCareerAdvice'])->middleware('throttle:5,1')->name('goals.career-advice.store');
-    Route::delete('/goals/{goal}', [WorkspaceController::class, 'destroyGoal'])->name('goals.destroy');
+    Route::post('/goals', [CareerGoalController::class, 'storeGoal'])->name('goals.store');
+    Route::patch('/goals/{goal}', [CareerGoalController::class, 'updateGoal'])->name('goals.update');
+    Route::post('/goals/{goal}/milestones', [CareerGoalController::class, 'storeGoalMilestone'])->name('goals.milestones.store');
+    Route::patch('/goals/{goal}/milestones/{milestone}', [CareerGoalController::class, 'updateGoalMilestone'])->name('goals.milestones.update');
+    Route::delete('/goals/{goal}/milestones/{milestone}', [CareerGoalController::class, 'destroyGoalMilestone'])->name('goals.milestones.destroy');
+    Route::post('/goals/{goal}/career-advice', [CareerGoalController::class, 'generateCareerAdvice'])->middleware('throttle:5,1')->name('goals.career-advice.store');
+    Route::delete('/goals/{goal}', [CareerGoalController::class, 'destroyGoal'])->name('goals.destroy');
 
     Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
     Route::post('/learning-paths', [LearningPathController::class, 'store'])->name('learning-paths.store');
@@ -157,11 +163,11 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::delete('/learning-paths/{learningPath}', [LearningPathController::class, 'destroy'])->name('learning-paths.destroy');
 
     Route::get('/portfolio', fn (Request $request, WorkspaceController $controller) => $controller->show($request, 'portfolio'))->name('portfolio');
-    Route::post('/portfolio', [WorkspaceController::class, 'storeProject'])->name('portfolio.store');
-    Route::patch('/portfolio/{project}', [WorkspaceController::class, 'updateProject'])->name('portfolio.update');
-    Route::get('/portfolio/{project}/image', [WorkspaceController::class, 'showProjectImage'])->name('portfolio.image');
-    Route::delete('/portfolio/{project}', [WorkspaceController::class, 'destroyProject'])->name('portfolio.destroy');
-    Route::patch('/portfolio-settings', [WorkspaceController::class, 'updatePortfolioSettings'])->name('portfolio.settings.update');
+    Route::post('/portfolio', [PortfolioController::class, 'storeProject'])->name('portfolio.store');
+    Route::patch('/portfolio/{project}', [PortfolioController::class, 'updateProject'])->name('portfolio.update');
+    Route::get('/portfolio/{project}/image', [PortfolioController::class, 'showProjectImage'])->name('portfolio.image');
+    Route::delete('/portfolio/{project}', [PortfolioController::class, 'destroyProject'])->name('portfolio.destroy');
+    Route::patch('/portfolio-settings', [PortfolioController::class, 'updatePortfolioSettings'])->name('portfolio.settings.update');
 
     Route::get('/help', [HelpCenterController::class, 'index'])->name('help');
     Route::post('/help/requests', [HelpCenterController::class, 'store'])->middleware('throttle:5,1')->name('help.requests.store');
@@ -207,11 +213,28 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
                 $primaryResume->load(['versions' => fn ($query) => $query->latest(), 'aiAnalyses' => fn ($query) => $query->where('status', 'completed')->latest()->limit(5)]);
             }
 
+            $latestAnalysis = $primaryResume?->aiAnalyses()->where('status', 'completed')->latest()->first();
+            $transientResult = $request->session()->get('transient_ai_result');
+            if (is_array($transientResult)
+                && $primaryResume
+                && (int) ($transientResult['resume_id'] ?? 0) === $primaryResume->id
+                && ($transientResult['analysis_type'] ?? '') !== 'job_match') {
+                $latestAnalysis = new AiAnalysis([
+                    'resume_id' => $primaryResume->id,
+                    'analysis_type' => $transientResult['analysis_type'],
+                    'status' => $transientResult['status'],
+                    'result' => $transientResult['result'],
+                    'score' => $transientResult['score'],
+                    'completed_at' => $transientResult['completed_at'],
+                ]);
+                $latestAnalysis->created_at = now();
+            }
+
             return view('app', [
                 'screen' => $screen,
                 'primaryResume' => $primaryResume,
                 'resumes' => $resumes,
-                'latestAnalysis' => $primaryResume?->aiAnalyses()->where('status', 'completed')->latest()->first(),
+                'latestAnalysis' => $latestAnalysis,
             ]);
         })->name($screen);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AiAnalysis;
 use App\Models\Resume;
 use App\Services\GroqAiService;
 use Illuminate\Http\RedirectResponse;
@@ -47,13 +48,24 @@ class AiAnalysisController extends Controller
         try {
             $groq->analyzeResume($resume, $analysis);
 
-            return redirect()->route('analyze', ['resume' => $resume->id])->with('status', 'AI analysis completed for '.$resume->name.'.');
+            $response = redirect()->route('analyze', ['resume' => $resume->id])
+                ->with('status', 'AI analysis completed for '.$resume->name.'.');
+
+            if (! $this->retainsHistory($request)) {
+                $response->with('transient_ai_result', $this->transientResult($analysis));
+                $analysis->delete();
+            }
+
+            return $response;
         } catch (\Throwable $exception) {
             $analysis->update([
                 'status' => 'failed',
                 'error_message' => 'The AI provider could not complete this request. Please try again shortly.',
                 'completed_at' => now(),
             ]);
+            if (! $this->retainsHistory($request)) {
+                $analysis->delete();
+            }
 
             report($exception);
 
@@ -102,17 +114,46 @@ class AiAnalysisController extends Controller
         try {
             $groq->matchJobDescription($resume, $analysis, $attributes['job_description'], $attributes['target_role'] ?? null);
 
-            return redirect()->route('match', ['resume' => $resume->id])->with('status', 'Job match completed.');
+            $response = redirect()->route('match', ['resume' => $resume->id])
+                ->with('status', 'Job match completed.');
+
+            if (! $this->retainsHistory($request)) {
+                $response->with('transient_ai_result', $this->transientResult($analysis));
+                $analysis->delete();
+            }
+
+            return $response;
         } catch (\Throwable $exception) {
             $analysis->update([
                 'status' => 'failed',
                 'error_message' => 'The AI provider could not complete this job match. Please try again shortly.',
                 'completed_at' => now(),
             ]);
+            if (! $this->retainsHistory($request)) {
+                $analysis->delete();
+            }
             report($exception);
 
             return redirect()->route('match', ['resume' => $resume->id])->withInput()->with('error', 'Job match could not finish right now. Please check your Groq setup and try again shortly.');
         }
+    }
+
+    private function retainsHistory(Request $request): bool
+    {
+        return $request->user()->preferences?->retain_ai_history !== false;
+    }
+
+    /** @return array<string, mixed> */
+    private function transientResult(AiAnalysis $analysis): array
+    {
+        return [
+            'resume_id' => $analysis->resume_id,
+            'analysis_type' => $analysis->analysis_type,
+            'status' => $analysis->status,
+            'result' => $analysis->result,
+            'score' => $analysis->score,
+            'completed_at' => now()->toISOString(),
+        ];
     }
 
     private function selectedResume(Request $request, Resume $routeResume): Resume

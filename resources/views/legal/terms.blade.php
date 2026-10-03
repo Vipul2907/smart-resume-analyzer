@@ -9,12 +9,13 @@
 </head>
 
 <body class="min-h-screen text-slate-900">
+    @include('components.skip-link')
     <header class="border-b border-slate-200 bg-white/90">
         <nav class="mx-auto flex max-w-5xl items-center justify-between px-5 py-5" aria-label="Main navigation"><a href="{{ route('home') }}" class="text-lg font-bold">SMART<span class="text-violet-600">CV</span></a>
             <div class="flex items-center gap-4 text-sm"><a href="{{ route('privacy') }}">Privacy</a>@auth<a class="btn btn-primary" href="{{ route('dashboard') }}">My workspace</a>@else<a href="{{ route('login') }}">Sign in</a>@endauth</div>
         </nav>
     </header>
-    <main class="mx-auto max-w-3xl px-5 py-12 sm:py-16">
+    <main class="mx-auto max-w-3xl px-5 py-12 sm:py-16" id="main-content" tabindex="-1">
         <p class="eyebrow">SmartCV policies</p>
         <h1 class="mt-3 text-4xl font-semibold">Terms of use</h1>
         <p class="mt-4 text-sm leading-6 text-slate-600">These plain-language terms describe responsible use of SmartCV. The service owner should review them for the laws and operating details that apply to the deployed service before launch.</p>

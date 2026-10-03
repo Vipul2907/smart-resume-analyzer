@@ -3,6 +3,11 @@
   $selectedResume = $primaryResume ?? $resumes->firstWhere('is_primary', true) ?? $resumes->first();
   $jobs = auth()->user()->jobApplications()->latest()->get(['id', 'company', 'role']);
   $latestMatch = $selectedResume?->aiAnalyses()->where('analysis_type', 'job_match')->where('status', 'completed')->latest()->first();
+  $transientResult = session('transient_ai_result');
+  if ($selectedResume && is_array($transientResult) && (int) ($transientResult['resume_id'] ?? 0) === $selectedResume->id && ($transientResult['analysis_type'] ?? '') === 'job_match') {
+      $latestMatch = new \App\Models\AiAnalysis(['resume_id' => $selectedResume->id, 'analysis_type' => 'job_match', 'status' => $transientResult['status'], 'result' => $transientResult['result'], 'score' => $transientResult['score'], 'completed_at' => $transientResult['completed_at']]);
+      $latestMatch->created_at = now();
+  }
   $result = $latestMatch?->result ?: [];
   $displayText = function (mixed $value) use (&$displayText): string {
       if (is_string($value) || is_numeric($value)) return trim((string) $value);
@@ -43,7 +48,7 @@
             <label class="block text-xs text-zinc-400">Related saved job<select class="input mt-2" name="job_application_id"><option value="">Not linked to a saved job</option>@foreach($jobs as $job)<option value="{{ $job->id }}" @selected(old('job_application_id') == $job->id)>{{ $job->company }} — {{ $job->role }}</option>@endforeach</select></label>
           </div>
           <label class="block text-xs text-zinc-400">Paste the full job description<textarea class="input mt-2 h-64 resize-y" name="job_description" required minlength="80" maxlength="12000" placeholder="Paste the responsibilities, required skills, qualifications, and preferred experience from the job post here.">{{ old('job_description') }}</textarea><span class="mt-2 block text-zinc-600">Minimum 80 characters. Do not include information you do not want processed by Groq.</span></label>
-          <label class="flex items-start gap-3 rounded-xl border border-white/[.08] p-4 text-sm leading-6 text-zinc-300"><input type="checkbox" name="accepted_ai_privacy" value="1" class="mt-1 accent-cyan-400" required><span>I understand SmartCV will send this selected resume and job description to Groq, then save this private match result in my history.</span></label>
+          <label class="flex items-start gap-3 rounded-xl border border-white/[.08] p-4 text-sm leading-6 text-zinc-300"><input type="checkbox" name="accepted_ai_privacy" value="1" class="mt-1 accent-cyan-400" required><span>I understand SmartCV will send this selected resume and job description to Groq. @if(auth()->user()->preferences?->retain_ai_history !== false) The result will be saved in my private history.@else The result will be shown once and not saved in my history.@endif</span></label>
           <button class="btn btn-primary" @disabled(in_array($selectedResume->parse_status, ['empty', 'image_only'], true))>Run job match</button>
         </form>
       </article>

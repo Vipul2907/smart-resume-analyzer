@@ -33,6 +33,7 @@
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-900">
+    @include('components.skip-link')
   @php
   $personal = $content['personal']; $settings = $content['settings'];
   $collections = ['experience' => $content['experience'], 'education' => $content['education'], 'projects' => $content['projects'], 'certifications' => $content['certifications'], 'awards' => $content['awards'], 'languages' => $content['languages'], 'custom_sections' => $content['custom_sections']];
@@ -43,7 +44,7 @@
       <div class="flex gap-2">@if($resume)<a class="btn btn-secondary" target="_blank" href="{{ route('resumes.preview', $resume) }}">Preview / PDF</a><a class="btn btn-secondary" href="{{ route('resumes.export.docx', $resume) }}">Export DOCX</a>@endif</div>
     </div>
   </header>
-  <main class="builder-shell mx-auto px-4 py-7 sm:px-7">
+  <main class="builder-shell mx-auto px-4 py-7 sm:px-7" id="main-content" tabindex="-1">
     <div class="mb-7 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
       <div>
         <p class="eyebrow">Resume builder</p>

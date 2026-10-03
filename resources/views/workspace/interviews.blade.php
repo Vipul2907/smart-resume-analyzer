@@ -7,6 +7,7 @@
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
 <div class="min-h-screen">
   <x-workspace-sidebar active-screen="interviews" />
   <div class="min-h-screen lg:pl-64">
@@ -15,7 +16,7 @@
       <p class="hidden text-sm text-zinc-500 sm:block">Private interview practice</p>
       <a href="{{ route('profile') }}" class="text-sm font-medium">{{ auth()->user()->name }}</a>
     </header>
-    <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+    <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
       <p class="eyebrow">Career workspace</p>
       <h1 class="mt-2 text-3xl font-semibold">Advanced interview lab</h1>
       <p class="mt-2 text-sm text-zinc-400">Practice realistic questions, save answers, replay private recordings, and receive readiness coaching.</p>

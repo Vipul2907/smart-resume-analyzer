@@ -53,7 +53,16 @@
           <div>
             <p class="eyebrow">Resume details</p>
             <h2 class="mt-2 text-xl font-semibold">{{ $activeResume->name }}</h2>
-            <p class="mt-1 text-sm text-zinc-500">{{ $activeResume->parse_status === 'image_only' ? 'Image-only PDF detected. OCR can be added later.' : 'Extracted text and structured data are saved privately.' }}</p>
+            <p class="mt-1 text-sm text-zinc-500">
+              @switch($activeResume->parse_status)
+                @case('parsed') SmartCV extracted readable text. Review the fields below and correct anything that looks wrong. @break
+                @case('image_only') This PDF contains images instead of selectable text, so SmartCV could not read it. Try uploading a text-based PDF or add the resume with the builder. @break
+                @case('empty') No readable text was found. Check the file and try a text-based PDF, DOCX, or TXT copy. @break
+                @case('failed') SmartCV could not process this file. You can retry parsing or upload a different copy. @break
+                @case('pending') SmartCV is preparing this resume for review. Refresh the page in a moment. @break
+                @default Resume text and structured data are stored privately.
+              @endswitch
+            </p>
           </div>
           <div class="flex flex-wrap gap-2">
             <form method="POST" action="{{ route('resumes.primary', $activeResume) }}">@csrf<button class="btn btn-secondary" @disabled($activeResume->is_primary)>Set primary</button></form>

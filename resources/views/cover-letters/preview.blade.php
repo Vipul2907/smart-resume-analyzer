@@ -124,10 +124,11 @@
 </head>
 
 <body>
+    @include('components.skip-link')
   <div class="toolbar">
     <a href="{{ route('cover-letters.edit', $letter) }}">Back to editor</a><a href="{{ route('cover-letters.download.docx', $letter) }}">Download DOCX</a><button onclick="window.print()">Print / Save PDF</button>
   </div>
-  <main class="preview-stage" data-paginated-document aria-label="A4 cover letter preview. Each visible paper section is one A4 print page.">
+  <main class="preview-stage" data-paginated-document aria-label="A4 cover letter preview. Each visible paper section is one A4 print page." id="main-content" tabindex="-1">
     <section class="page-source" data-page-source>
       <div class="meta" data-page-block>{{ auth()->user()->name }}<br>{{ auth()->user()->email }}<br>{{ now()->format('F j, Y') }}</div>
       @if($letter->recipient_name || $letter->company_name)<p class="meta" data-page-block>{{ $letter->recipient_name }}@if($letter->recipient_name && $letter->company_name)<br>@endif{{ $letter->company_name }}</p>@endif

@@ -9,6 +9,7 @@
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-900">
+    @include('components.skip-link')
   <x-workspace-sidebar active-screen="cover-letters" />
   <div class="min-h-screen lg:pl-64">
     <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -17,7 +18,7 @@
         <a href="{{ route('profile') }}" class="profile-chip text-sm font-semibold text-slate-700" data-initial="{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}">{{ auth()->user()->name }}</a>
       </div>
     </header>
-    <main class="mx-auto max-w-7xl px-5 py-9 sm:px-8">
+    <main class="mx-auto max-w-7xl px-5 py-9 sm:px-8" id="main-content" tabindex="-1">
       <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <p class="eyebrow">Cover letter builder</p>

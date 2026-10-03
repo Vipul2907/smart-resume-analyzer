@@ -7,7 +7,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-ink text-zinc-100">
-    <main class="grid min-h-screen place-items-center p-5">
+    @include('components.skip-link')
+    <main class="grid min-h-screen place-items-center p-5" id="main-content" tabindex="-1">
         <section class="card glow w-full max-w-md p-7 text-center sm:p-9">
             <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-violet-100 to-cyan-100 text-xl text-violet-700">✉</div>
             <p class="eyebrow mt-7">One last step</p>

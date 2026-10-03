@@ -9,6 +9,7 @@
 </head>
 
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
   <div class="min-h-screen">
     <x-workspace-sidebar active-screen="analytics" />
     <div class="min-h-screen lg:pl-64">
@@ -17,7 +18,7 @@
         <p class="hidden text-sm text-zinc-500 sm:block">Private career analytics</p>
         <a href="{{ route('profile') }}" class="flex items-center gap-2 text-sm font-medium"><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-cyan-300 text-slate-950">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>{{ auth()->user()->name }}</a>
       </header>
-      <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+      <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
         <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p class="eyebrow">Reports and analytics</p>

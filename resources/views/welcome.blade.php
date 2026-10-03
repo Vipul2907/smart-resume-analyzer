@@ -67,6 +67,7 @@
     </style>
 </head>
 <body>
+    @include('components.skip-link')
 <div class="page">
     <div class="shell">
         <nav aria-label="Main navigation">
@@ -91,7 +92,7 @@
             </div>
         </nav>
 
-        <main>
+        <main id="main-content" tabindex="-1">
             <section class="hero" id="how-it-works">
                 <div class="eyebrow"><i></i> Your free AI career workspace</div>
                 <h1>Build a stronger career, <span>one focused action at a time.</span></h1>

@@ -8,13 +8,14 @@
 </head>
 
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
     <div class="min-h-screen">
         <x-workspace-sidebar active-screen="learning-paths" />
         <div class="min-h-screen lg:pl-64">
             <header class="sticky top-0 z-20 flex items-center justify-between border-b border-white/[.07] bg-[#090e20]/95 px-5 py-4 backdrop-blur lg:px-9"><a href="{{ route('dashboard') }}" class="font-bold lg:hidden">SMART<span class="text-violet-300">CV</span></a>
                 <p class="hidden text-sm text-zinc-500 sm:block">Your private career growth plan</p><a href="{{ route('profile') }}" class="flex items-center gap-2 text-sm font-medium"><span class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-cyan-300 text-slate-950">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>{{ auth()->user()->name }}</a>
             </header>
-            <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+            <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
                 <p class="eyebrow">Career intelligence</p>
                 <div class="mt-2 flex flex-wrap items-end justify-between gap-4">
                     <div>

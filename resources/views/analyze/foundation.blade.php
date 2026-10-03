@@ -63,7 +63,7 @@
           <input type="hidden" name="analysis_type" value="{{ $analysisType }}">
           <label class="flex items-start gap-3 rounded-xl border border-white/[.08] p-4 text-sm leading-6 text-zinc-300">
             <input type="checkbox" name="accepted_ai_privacy" value="1" class="mt-1 accent-cyan-400" required>
-            <span>I understand SmartCV will send this resume text to Groq for this analysis and save the result in my private history.</span>
+            <span>I understand SmartCV will send this resume text to Groq. @if(auth()->user()->preferences?->retain_ai_history !== false) The result will be saved in my private history.@else The result will be shown once and not saved in my history.@endif</span>
           </label>
           <button class="btn btn-primary" @disabled($primaryResume->parse_status === 'image_only' || $primaryResume->parse_status === 'empty')>Run AI analysis</button>
         </form>

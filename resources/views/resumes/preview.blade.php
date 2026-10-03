@@ -139,10 +139,11 @@
 </head>
 
 <body>
+    @include('components.skip-link')
   <div class="toolbar">
     <a href="{{ route('resumes.builder.edit', $resume) }}">← Back to editor</a><button onclick="window.print()">Print / Save as PDF</button>
   </div>
-  <main class="preview-stage" data-paginated-document aria-label="A4 resume preview. Each visible paper section is one A4 print page.">
+  <main class="preview-stage" data-paginated-document aria-label="A4 resume preview. Each visible paper section is one A4 print page." id="main-content" tabindex="-1">
     <section class="page-source" data-page-source>
       <header data-page-block>
         <h1>{{ $content['personal']['name'] }}</h1>

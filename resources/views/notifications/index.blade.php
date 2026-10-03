@@ -8,10 +8,11 @@
 </head>
 
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
     <div class="min-h-screen"><x-workspace-sidebar active-screen="notifications" />
         <div class="min-h-screen lg:pl-64">
             <header class="sticky top-0 z-20 flex items-center justify-between border-b border-white/[.07] bg-[#090e20]/95 px-5 py-4 backdrop-blur lg:px-9"><a href="{{ route('dashboard') }}" class="font-bold lg:hidden">SMART<span class="text-violet-300">CV</span></a><span class="hidden text-sm text-zinc-500 sm:block">Your private career action centre</span><a href="{{ route('profile') }}" class="text-sm font-medium">{{ auth()->user()->name }}</a></header>
-            <main class="mx-auto max-w-5xl px-5 py-8 lg:px-9">
+            <main class="mx-auto max-w-5xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
                 <p class="eyebrow">Career productivity</p>
                 <div class="mt-2 flex flex-wrap items-end justify-between gap-4">
                     <div>

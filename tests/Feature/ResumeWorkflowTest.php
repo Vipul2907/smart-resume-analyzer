@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Resume;
 use App\Models\User;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -34,7 +35,7 @@ class ResumeWorkflowTest extends TestCase
         $this->assertSame('parsed', $resume->parse_status);
         $this->assertStringContainsString('Laravel developer', $resume->extracted_text);
         $this->assertDatabaseHas('resume_versions', ['resume_id' => $resume->id, 'is_current' => true]);
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        /** @var FilesystemAdapter $disk */
         $disk = Storage::disk('local');
         $disk->assertExists($resume->file_path);
     }
@@ -86,7 +87,7 @@ class ResumeWorkflowTest extends TestCase
 
         $this->assertDatabaseHas('resumes', ['id' => $first->id, 'name' => 'Updated', 'is_primary' => true]);
         $this->assertSoftDeleted('resumes', ['id' => $second->id]);
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        /** @var FilesystemAdapter $disk */
         $disk = Storage::disk('local');
         $disk->assertMissing($second->file_path);
     }
@@ -132,6 +133,46 @@ class ResumeWorkflowTest extends TestCase
             'score' => 84,
             'provider' => 'groq',
         ]);
+    }
+
+    public function test_ai_result_is_shown_once_but_not_retained_when_history_is_disabled(): void
+    {
+        config(['services.groq.key' => 'test-key']);
+        Http::fake([
+            'api.groq.com/*' => Http::response([
+                'choices' => [[
+                    'message' => ['content' => json_encode([
+                        'score' => 84,
+                        'strengths' => ['Clear Laravel experience'],
+                        'weaknesses' => [],
+                        'missing_sections' => [],
+                        'next_actions' => ['Add impact numbers'],
+                    ])],
+                ]],
+            ]),
+        ]);
+
+        $user = $this->onboardedUser();
+        $user->preferences()->create(['retain_ai_history' => false]);
+        $resume = $user->resumes()->create([
+            'name' => 'Private AI Resume', 'original_filename' => 'private.txt',
+            'file_path' => 'resumes/'.$user->id.'/private.txt', 'mime_type' => 'text/plain',
+            'file_size' => 50, 'extracted_text' => 'Laravel engineer with production experience.',
+            'parse_status' => 'parsed', 'is_primary' => true,
+        ]);
+
+        $this->actingAs($user)->post(route('ai-analyses.store', $resume), [
+            'analysis_type' => 'resume_review', 'accepted_ai_privacy' => '1',
+        ])->assertRedirect(route('analyze', ['resume' => $resume->id]))
+            ->assertSessionHas('transient_ai_result', fn (array $result) => $result['score'] === 84);
+
+        $this->assertDatabaseMissing('ai_analyses', ['resume_id' => $resume->id]);
+        $this->get(route('analyze', ['resume' => $resume->id]))
+            ->assertOk()
+            ->assertSee('Clear Laravel experience')
+            ->assertSee('shown once and not saved in my history');
+        $this->get(route('analyze', ['resume' => $resume->id]))
+            ->assertDontSee('Clear Laravel experience');
     }
 
     public function test_ai_analysis_allows_a_non_primary_resume(): void

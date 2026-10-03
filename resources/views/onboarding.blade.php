@@ -9,7 +9,8 @@
 </head>
 
 <body class="min-h-screen bg-ink text-zinc-100">
-    <main class="mx-auto grid min-h-screen max-w-2xl place-items-center p-5">
+    @include('components.skip-link')
+    <main class="mx-auto grid min-h-screen max-w-2xl place-items-center p-5" id="main-content" tabindex="-1">
         <section class="card glow w-full p-7 sm:p-10">
             <div class="flex items-center justify-between gap-4"><a href="{{ route('home') }}" class="text-sm font-extrabold">SMART<span class="text-violet-500">CV</span></a><span class="rounded-full bg-violet-50 px-3 py-1 text-[10px] font-extrabold tracking-wider text-violet-700">FREE FOREVER</span></div>
             <p class="eyebrow mt-10">Set up your workspace</p>

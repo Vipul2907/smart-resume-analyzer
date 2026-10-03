@@ -105,7 +105,8 @@
 </head>
 
 <body>
-  <main>
+    @include('components.skip-link')
+  <main id="main-content" tabindex="-1">
     <p class="muted">SMARTCV · PRIVATE CAREER REPORT</p>
     <h1>{{ auth()->user()->name }}’s career progress</h1>
     <p class="muted">Generated {{ $generatedAt->format('M j, Y, g:i A') }}. This report is based only on data saved in this SmartCV account.</p>

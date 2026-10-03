@@ -71,7 +71,8 @@
 </head>
 
 <body>
-  <main>
+    @include('components.skip-link')
+  <main id="main-content" tabindex="-1">
     <p class="muted">SMARTCV · PROFESSIONAL PROFILE</p><span class="score">{{ $latestScore !== null ? 'Resume score '.$latestScore.'/100' : 'Resume ready' }}</span>
     <h1>{{ auth()->user()->name }}</h1>
     <p class="muted">{{ $profile?->headline ?: auth()->user()->target_role ?: 'Professional candidate' }}{{ $profile?->location ? ' · '.$profile->location : '' }}</p>

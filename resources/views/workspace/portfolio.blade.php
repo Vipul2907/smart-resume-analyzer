@@ -2,10 +2,11 @@
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Portfolio Studio · SmartCV</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
 <body class="min-h-screen bg-[#070b18] text-zinc-100">
+    @include('components.skip-link')
 <div class="min-h-screen"><x-workspace-sidebar active-screen="portfolio" />
 <div class="min-h-screen lg:pl-64">
   <header class="sticky top-0 z-20 flex items-center justify-between border-b border-white/[.07] bg-[#090e20]/95 px-5 py-4 backdrop-blur lg:px-9"><a href="{{ route('dashboard') }}" class="font-bold lg:hidden">SMART<span class="text-violet-300">CV</span></a><span class="hidden text-sm text-zinc-500 sm:block">Your private portfolio studio</span><a href="{{ route('profile') }}" class="text-sm font-medium">{{ auth()->user()->name }}</a></header>
-  <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9">
+  <main class="mx-auto max-w-7xl px-5 py-8 lg:px-9" id="main-content" tabindex="-1">
     <p class="eyebrow">Career workspace</p><h1 class="mt-2 text-3xl font-semibold tracking-tight">Portfolio and public profile</h1><p class="mt-2 max-w-3xl text-sm text-zinc-400">Create honest case studies, choose exactly what is public, and share a recruiter-ready portfolio link.</p>
     @if(session('status'))<div class="mt-6 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-4 text-sm text-emerald-100">{{ session('status') }}</div>@endif
     @if($errors->any())<div class="mt-6 rounded-xl border border-rose-400/25 bg-rose-400/10 p-4 text-sm text-rose-100"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
