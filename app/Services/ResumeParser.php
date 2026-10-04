@@ -54,6 +54,7 @@ class ResumeParser
             if (is_string($matched)) {
                 $current = $matched;
                 $sections[$current] ??= [];
+
                 continue;
             }
 

@@ -1,8 +1,8 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
-use App\Models\User;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -13,6 +13,7 @@ Artisan::command('smartcv:grant-admin {email : Email address of the trusted team
 
     if (! $user) {
         $this->error('No SmartCV user exists with that email address.');
+
         return;
     }
 

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Skill;
 use App\Models\InterviewSession;
+use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;

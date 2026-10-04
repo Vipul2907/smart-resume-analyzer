@@ -70,10 +70,10 @@ class DocumentVaultController extends Controller
                 return $this->normalise((string) $disk->get($path));
             }
             if ($extension === 'pdf') {
-                return $this->normalise((new Parser())->parseFile($disk->path($path))->getText());
+                return $this->normalise((new Parser)->parseFile($disk->path($path))->getText());
             }
             if ($extension === 'docx') {
-                $archive = new ZipArchive();
+                $archive = new ZipArchive;
                 if ($archive->open($disk->path($path)) === true) {
                     $xml = $archive->getFromName('word/document.xml') ?: '';
                     $archive->close();

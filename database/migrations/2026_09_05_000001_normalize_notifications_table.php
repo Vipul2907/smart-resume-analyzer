@@ -10,7 +10,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (! Schema::hasTable('notifications')) return;
+        if (! Schema::hasTable('notifications')) {
+            return;
+        }
 
         Schema::table('notifications', function (Blueprint $table): void {
             if (! Schema::hasColumn('notifications', 'notifiable_type')) {

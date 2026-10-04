@@ -8,7 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('private_documents')) return;
+        if (Schema::hasTable('private_documents')) {
+            return;
+        }
 
         Schema::create('private_documents', function (Blueprint $table): void {
             $table->id();

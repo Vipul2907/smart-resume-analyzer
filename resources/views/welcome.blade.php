@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Make your next career move with resume tools, job matching, interview practice, and one focused workspace.">
+    <meta name="description"
+        content="Make your next career move with resume tools, job matching, interview practice, and one focused workspace.">
     <meta name="theme-color" content="#f7f8fc">
     <title>SmartCV — Make your next move clearer</title>
     <style>
@@ -2244,17 +2245,23 @@
         <div class="shell">
             <header>
                 <nav class="nav" aria-label="Main navigation">
-                    <a class="brand" href="{{ route('home') }}"><span class="brand-mark" aria-hidden="true">✦</span>SmartCV</a>
-                    <div class="links"><a href="#tools">Explore tools</a><a href="#journey">How it works</a><a href="{{ route('help') }}">Help center</a></div>
+                    <a class="brand" href="{{ route('home') }}"><span class="brand-mark"
+                            aria-hidden="true">✦</span>SmartCV</a>
+                    <div class="links"><a href="#tools">Explore tools</a><a href="#journey">How it works</a><a
+                            href="{{ route('help') }}">Help center</a></div>
                     <div class="actions">
                         @auth
-                        <span class="signed">Welcome, {{ auth()->user()->name }}</span>
-                        <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn secondary" type="submit">Sign out</button></form>
-                        <a class="btn primary" href="{{ route('dashboard') }}">Open workspace <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                                <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg></a>
+                            <span class="signed">Welcome, {{ auth()->user()->name }}</span>
+                            <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn secondary"
+                                    type="submit">Sign out</button></form>
+                            <a class="btn primary" href="{{ route('dashboard') }}">Open workspace <svg viewBox="0 0 20 20"
+                                    fill="none" aria-hidden="true">
+                                    <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg></a>
                         @else
-                        <a class="btn secondary" href="{{ route('login') }}">Log in</a><a class="btn primary" href="{{ route('register') }}">Get started</a>
+                            <a class="btn secondary" href="{{ route('login') }}">Log in</a><a class="btn primary"
+                                href="{{ route('register') }}">Get started</a>
                         @endauth
                     </div>
                 </nav>
@@ -2264,35 +2271,52 @@
                 <section class="hero" aria-labelledby="hero-title">
                     <div class="hero-grid">
                         <div class="copy">
-                            <div class="kicker"><span class="spark" aria-hidden="true">✧</span>Your next move, made clearer</div>
+                            <div class="kicker"><span class="spark" aria-hidden="true">✧</span>Your next move, made
+                                clearer</div>
                             <h1 id="hero-title">Your experience deserves a <span>stronger story.</span></h1>
-                            <p class="intro">Shape your resume, see how it fits a role, and keep your job search moving—all from one focused career workspace.</p>
+                            <p class="intro">Shape your resume, see how it fits a role, and keep your job search
+                                moving—all from one focused career workspace.</p>
                             <div class="hero-actions">
                                 @auth
-                                <a class="btn primary" href="{{ route('dashboard') }}">Go to my workspace <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                                        <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg></a>
+                                    <a class="btn primary" href="{{ route('dashboard') }}">Go to my workspace <svg
+                                            viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                            <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg></a>
                                 @else
-                                <a class="btn primary" href="{{ route('register') }}">Build your career workspace <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                                        <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg></a><a class="btn secondary" href="{{ route('login') }}">I have an account</a>
+                                    <a class="btn primary" href="{{ route('register') }}">Build your career workspace <svg
+                                            viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                            <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg></a><a class="btn secondary" href="{{ route('login') }}">I have an account</a>
                                 @endauth
                             </div>
                             <p class="reassure"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                                    <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.3" />
-                                    <path d="m5.5 10 3 3 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>A practical toolkit for the steps between “I’m ready” and “I got the interview.”</p>
+                                    <circle cx="10" cy="10" r="8" stroke="currentColor"
+                                        stroke-width="1.3" />
+                                    <path d="m5.5 10 3 3 6-6" stroke="currentColor" stroke-width="1.6"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>A practical toolkit for the steps between “I’m ready” and “I got the interview.”
+                            </p>
                         </div>
                         <div class="visual" aria-label="Illustration of the SmartCV workspace">
                             <div class="glow" aria-hidden="true"></div>
-                            <div class="float top"><span class="float-icon">✓</span><span><b>One step at a time</b><small>Keep your next move in view</small></span></div>
+                            <div class="float top"><span class="float-icon">✓</span><span><b>One step at a
+                                        time</b><small>Keep your next move in view</small></span></div>
                             <div class="window">
-                                <div class="window-head"><span class="window-brand"><i>✦</i> SMARTCV / Workspace</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+                                <div class="window-head"><span class="window-brand"><i>✦</i> SMARTCV /
+                                        Workspace</span><span class="dots"
+                                        aria-hidden="true"><i></i><i></i><i></i></span></div>
                                 <div class="mock">
                                     <aside class="side" aria-hidden="true">
-                                        <div class="person"><span class="avatar">JD</span><span><b>Jordan Davis</b><small>Career workspace</small></span></div>
-                                        <div class="side-label">WORKSPACE</div><span class="side-link active">▦ &nbsp; Overview</span><span class="side-link">▤ &nbsp; Resumes</span><span class="side-link">⌕ &nbsp; Job match</span><span class="side-link">▣ &nbsp; Applications</span>
-                                        <div class="side-label">GROW</div><span class="side-link">◇ &nbsp; Interview prep</span><span class="side-link">✧ &nbsp; Skills & goals</span>
+                                        <div class="person"><span class="avatar">JD</span><span><b>Jordan
+                                                    Davis</b><small>Career workspace</small></span></div>
+                                        <div class="side-label">WORKSPACE</div><span class="side-link active">▦ &nbsp;
+                                            Overview</span><span class="side-link">▤ &nbsp; Resumes</span><span
+                                            class="side-link">⌕ &nbsp; Job match</span><span class="side-link">▣
+                                            &nbsp; Applications</span>
+                                        <div class="side-label">GROW</div><span class="side-link">◇ &nbsp; Interview
+                                            prep</span><span class="side-link">✧ &nbsp; Skills & goals</span>
                                     </aside>
                                     <div class="mock-main">
                                         <div class="mock-title">
@@ -2303,57 +2327,78 @@
                                         </div>
                                         <div class="stats">
                                             <div class="stat"><span>Resume versions</span><b>03</b></div>
-                                            <div class="stat"><span>Applications</span><b class="purple">08</b></div>
+                                            <div class="stat"><span>Applications</span><b class="purple">08</b>
+                                            </div>
                                             <div class="stat"><span>Skills tracked</span><b>12</b></div>
                                         </div>
                                         <div class="match">
-                                            <div class="match-top">Resume ↔ Product Designer <small>Example analysis</small></div>
+                                            <div class="match-top">Resume ↔ Product Designer <small>Example
+                                                    analysis</small></div>
                                             <div class="match-body">
-                                                <div class="ring" aria-label="Illustrative match score 74 percent"><b>74%</b></div>
+                                                <div class="ring" aria-label="Illustrative match score 74 percent">
+                                                    <b>74%</b>
+                                                </div>
                                                 <div class="match-copy"><b>Make your experience easier to see</b>
-                                                    <p>Compare your resume with a role and review skills that match or need more evidence.</p>
-                                                    <div class="pills"><span>Product strategy</span><span>Research</span><span>+ add impact</span></div>
+                                                    <p>Compare your resume with a role and review skills that match or
+                                                        need more evidence.</p>
+                                                    <div class="pills"><span>Product
+                                                            strategy</span><span>Research</span><span>+ add
+                                                            impact</span></div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="mock-bottom">
-                                            <div><small>INTERVIEW PRACTICE</small><b>Prepare with focused prompts</b></div>
+                                            <div><small>INTERVIEW PRACTICE</small><b>Prepare with focused prompts</b>
+                                            </div>
                                             <div><small>NEXT STEP</small><b>Keep an application moving</b></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="float bottom"><span class="float-icon" style="color:#5f59c9;background:#f0efff">↗</span><span><b>Resume + role insights</b><small>Understand the match, then choose</small></span></div>
+                            <div class="float bottom"><span class="float-icon"
+                                    style="color:#5f59c9;background:#f0efff">↗</span><span><b>Resume + role
+                                        insights</b><small>Understand the match, then choose</small></span></div>
                         </div>
                     </div>
-                    <div class="tool-strip"><span class="strip-intro">The pieces of a career search,<br>together in one workspace.</span><span class="strip-item">▤ &nbsp; Resume tools</span><span class="strip-item">⌕ &nbsp; Job matching</span><span class="strip-item">◇ &nbsp; Interview prep</span><span class="strip-item">↗ &nbsp; Career growth</span></div>
+                    <div class="tool-strip"><span class="strip-intro">The pieces of a career search,<br>together in
+                            one workspace.</span><span class="strip-item">▤ &nbsp; Resume tools</span><span
+                            class="strip-item">⌕ &nbsp; Job matching</span><span class="strip-item">◇ &nbsp; Interview
+                            prep</span><span class="strip-item">↗ &nbsp; Career growth</span></div>
                 </section>
 
                 <section class="section" id="tools" aria-labelledby="tools-title">
                     <div class="heading"><span class="label">One connected toolkit</span>
                         <h2 id="tools-title">More than a resume.<br>A clearer way forward.</h2>
-                        <p>Bring your career materials and your next steps together. Use the tools you need, when you need them.</p>
+                        <p>Bring your career materials and your next steps together. Use the tools you need, when you
+                            need them.</p>
                     </div>
                     <div class="tool-grid">
-                        <article class="tool"><span class="tool-num">01 / BUILD</span><span class="tool-icon">▤</span>
+                        <article class="tool"><span class="tool-num">01 / BUILD</span><span
+                                class="tool-icon">▤</span>
                             <h3>Resume studio</h3>
                             <p>Build, organize, and tailor resume versions for the opportunities you care about.</p>
                         </article>
-                        <article class="tool"><span class="tool-num">02 / MATCH</span><span class="tool-icon">⌕</span>
+                        <article class="tool"><span class="tool-num">02 / MATCH</span><span
+                                class="tool-icon">⌕</span>
                             <h3>Role matching</h3>
                             <p>Compare your resume with a job description and review relevant strengths and gaps.</p>
                         </article>
-                        <article class="tool"><span class="tool-num">03 / PREPARE</span><span class="tool-icon">▱</span>
+                        <article class="tool"><span class="tool-num">03 / PREPARE</span><span
+                                class="tool-icon">▱</span>
                             <h3>Interview practice</h3>
                             <p>Prepare with guided prompts, save your answers, and review your practice.</p>
                         </article>
-                        <article class="tool wide"><span class="tool-num">04 / ORGANIZE</span><span class="tool-icon">▣</span>
+                        <article class="tool wide"><span class="tool-num">04 / ORGANIZE</span><span
+                                class="tool-icon">▣</span>
                             <h3>Job search tracker</h3>
-                            <p>Keep applications, interviews, and follow-ups together so your next action is easier to find.</p>
+                            <p>Keep applications, interviews, and follow-ups together so your next action is easier to
+                                find.</p>
                         </article>
-                        <article class="tool wide"><span class="tool-num">05 / GROW</span><span class="tool-icon">✧</span>
+                        <article class="tool wide"><span class="tool-num">05 / GROW</span><span
+                                class="tool-icon">✧</span>
                             <h3>Skills, goals & insights</h3>
-                            <p>Track the skills you are building, set career goals, and reflect on your progress over time.</p>
+                            <p>Track the skills you are building, set career goals, and reflect on your progress over
+                                time.</p>
                         </article>
                     </div>
                 </section>
@@ -2369,12 +2414,14 @@
                     <article class="step">
                         <div class="step-num"><span>STEP 01</span><i>01</i></div>
                         <h3>Bring your experience together</h3>
-                        <p>Add or build a resume, save your skills, and choose the direction you want to explore.</p><span class="connector" aria-hidden="true"></span>
+                        <p>Add or build a resume, save your skills, and choose the direction you want to explore.</p>
+                        <span class="connector" aria-hidden="true"></span>
                     </article>
                     <article class="step">
                         <div class="step-num"><span>STEP 02</span><i>02</i></div>
                         <h3>Prepare for a real opportunity</h3>
-                        <p>Review how your resume fits a role, improve your materials, and practise interview answers.</p><span class="connector" aria-hidden="true"></span>
+                        <p>Review how your resume fits a role, improve your materials, and practise interview answers.
+                        </p><span class="connector" aria-hidden="true"></span>
                     </article>
                     <article class="step">
                         <div class="step-num"><span>STEP 03</span><i>03</i></div>
@@ -2389,10 +2436,14 @@
             <section class="privacy" aria-labelledby="privacy-title">
                 <h2 id="privacy-title">Your career story.<br><span>Your call.</span></h2>
                 <div class="privacy-grid">
-                    <div class="privacy-point"><b>✓</b><span>Manage resumes and career details from your signed-in workspace.</span></div>
-                    <div class="privacy-point"><b>✓</b><span>Choose whether portfolio projects are private or public.</span></div>
-                    <div class="privacy-point"><b>✓</b><span>Control whether AI analysis history is retained in your account.</span></div>
-                    <div class="privacy-point"><b>✓</b><span>Read the <a href="{{ route('privacy') }}">privacy details</a> before you get started.</span></div>
+                    <div class="privacy-point"><b>✓</b><span>Manage resumes and career details from your signed-in
+                            workspace.</span></div>
+                    <div class="privacy-point"><b>✓</b><span>Choose whether portfolio projects are private or
+                            public.</span></div>
+                    <div class="privacy-point"><b>✓</b><span>Control whether AI analysis history is retained in your
+                            account.</span></div>
+                    <div class="privacy-point"><b>✓</b><span>Read the <a href="{{ route('privacy') }}">privacy
+                                details</a> before you get started.</span></div>
                 </div>
             </section>
 
@@ -2404,19 +2455,23 @@
                 <div class="faq-list">
                     <details>
                         <summary>What can I do with SmartCV?</summary>
-                        <p>You can build and manage resumes, compare one with a job description, practise interviews, track applications, work on skills and goals, and create a portfolio.</p>
+                        <p>You can build and manage resumes, compare one with a job description, practise interviews,
+                            track applications, work on skills and goals, and create a portfolio.</p>
                     </details>
                     <details>
                         <summary>Does a match score guarantee an interview?</summary>
-                        <p>No. A match score is a guide to help you review how your resume relates to a job description. It cannot predict an employer’s decision.</p>
+                        <p>No. A match score is a guide to help you review how your resume relates to a job description.
+                            It cannot predict an employer’s decision.</p>
                     </details>
                     <details>
                         <summary>Who can see the information I add?</summary>
-                        <p>Your workspace is connected to your account. Portfolio projects can be set to private or public. See the privacy page for details about stored information and AI analysis.</p>
+                        <p>Your workspace is connected to your account. Portfolio projects can be set to private or
+                            public. See the privacy page for details about stored information and AI analysis.</p>
                     </details>
                     <details>
                         <summary>Can I keep different resume versions?</summary>
-                        <p>Yes. You can manage more than one resume version and choose which one to use for a particular opportunity.</p>
+                        <p>Yes. You can manage more than one resume version and choose which one to use for a particular
+                            opportunity.</p>
                     </details>
                 </div>
             </section>
@@ -2425,17 +2480,26 @@
             <section class="cta" aria-labelledby="cta-title">
                 <div class="cta-box"><span class="label">Your next chapter starts with one step</span>
                     <h2 id="cta-title">Make your next move with a little more clarity.</h2>
-                    <p>Get your resume, role preparation, and career to-dos into one place—then take it one step at a time.</p>
-                    @auth<a class="btn primary" href="{{ route('dashboard') }}">Open my workspace <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                            <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg></a>@else<a class="btn primary" href="{{ route('register') }}">Create your workspace <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                            <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                    <p>Get your resume, role preparation, and career to-dos into one place—then take it one step at a
+                        time.</p>
+                    @auth<a class="btn primary" href="{{ route('dashboard') }}">Open my workspace <svg
+                                viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                        </svg></a>@else<a class="btn primary" href="{{ route('register') }}">Create your workspace
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7"
+                                    stroke-linecap="round" stroke-linejoin="round" />
                         </svg></a>@endauth
                 </div>
             </section>
             <footer class="footer">
-                <div class="footer-row"><a class="footer-brand" href="{{ route('home') }}"><span class="brand-mark">S</span>SmartCV <span style="color:#929bad;font-weight:500">© {{ date('Y') }}</span></a><span>Tools to help you make your next career move.</span>
-                    <nav class="footer-links" aria-label="Footer navigation"><a href="{{ route('privacy') }}">Privacy</a><a href="{{ route('terms') }}">Terms</a><a href="{{ route('help') }}">Help center</a></nav>
+                <div class="footer-row"><a class="footer-brand" href="{{ route('home') }}"><span
+                            class="brand-mark">S</span>SmartCV <span style="color:#929bad;font-weight:500">©
+                            {{ date('Y') }}</span></a><span>Tools to help you make your next career move.</span>
+                    <nav class="footer-links" aria-label="Footer navigation"><a
+                            href="{{ route('privacy') }}">Privacy</a><a href="{{ route('terms') }}">Terms</a><a
+                            href="{{ route('help') }}">Help center</a></nav>
                 </div>
             </footer>
         </div>

@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Models\AiAnalysis;
-use App\Models\Resume;
-use App\Models\InterviewSession;
 use App\Models\CareerGoal;
+use App\Models\InterviewSession;
+use App\Models\Resume;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -137,6 +137,7 @@ PROMPT;
      * receives only the user's goal and the career data needed for suggestions.
      *
      * @return array{title: string, summary: string, steps: array<int, array{skill_name: string, title: string, description: string, estimated_hours: int}>}
+     *
      * @throws RequestException
      */
     public function createLearningPlan(string $goal, ?string $targetRole, array $knownSkills, array $jobGaps): array
@@ -192,6 +193,7 @@ PROMPT
      * nonsense first, while Groq checks relevance, clarity, examples, and impact.
      *
      * @return array{score: int, strengths: array, improvements: array}
+     *
      * @throws RequestException
      */
     public function evaluateInterviewResponses(InterviewSession $interview): array
@@ -220,6 +222,7 @@ PROMPT
      * unrelated engineering plan.
      *
      * @return array{summary: string, readiness_score: int, next_actions: array<int, string>, gaps: array<int, string>, weekly_plan: array<int, string>}
+     *
      * @throws RequestException
      */
     public function createCareerAdvice(CareerGoal $goal, array $context): array
@@ -265,6 +268,7 @@ PROMPT
             ->throw();
 
         $content = data_get($response->json(), 'choices.0.message.content', '{}');
+
         return $this->decodedResult($content);
     }
 
@@ -280,7 +284,7 @@ PROMPT
     }
 
     /** @param array<string, mixed> $result
-     *  @return array<string, mixed>
+     * @return array<string, mixed>
      */
     private function resumeReviewResult(array $result): array
     {
@@ -295,7 +299,7 @@ PROMPT
     }
 
     /** @param array<string, mixed> $result
-     *  @return array<string, mixed>
+     * @return array<string, mixed>
      */
     private function jobMatchResult(array $result): array
     {

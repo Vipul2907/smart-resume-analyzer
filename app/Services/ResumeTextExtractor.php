@@ -50,7 +50,7 @@ class ResumeTextExtractor
             throw new RuntimeException('The PHP zip extension is required to read DOCX files.');
         }
 
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         $path = Storage::disk($resume->file_disk)->path($resume->file_path);
 
         if ($zip->open($path) !== true) {
@@ -115,7 +115,7 @@ class ResumeTextExtractor
     private function extractPdf(Resume $resume, string $contents): string
     {
         try {
-            $parser = new PdfParser();
+            $parser = new PdfParser;
             $text = $parser->parseFile(Storage::disk($resume->file_disk)->path($resume->file_path))->getText();
 
             if ($normalized = $this->normalizeText($text)) {

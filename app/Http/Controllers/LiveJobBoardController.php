@@ -46,9 +46,9 @@ class LiveJobBoardController extends Controller
                 $payload = $response->json();
                 $meta = is_array($payload['meta'] ?? null) ? $payload['meta'] : [];
                 $jobs = collect($payload['data'] ?? [])
-                    ->filter(fn($job) => is_array($job) && $this->isTechnologyOpening($job))
-                    ->map(fn(array $job) => $this->normaliseJob($job))
-                    ->filter(fn(array $job) => $query === '' || $this->matchesQuery($job, $query))
+                    ->filter(fn ($job) => is_array($job) && $this->isTechnologyOpening($job))
+                    ->map(fn (array $job) => $this->normaliseJob($job))
+                    ->filter(fn (array $job) => $query === '' || $this->matchesQuery($job, $query))
                     ->values();
             } else {
                 $error = 'Live jobs are temporarily unavailable. Please try again in a moment.';
@@ -105,7 +105,7 @@ class LiveJobBoardController extends Controller
     }
 
     /** @param array<string, mixed> $job
-     *  @return array{title: string, company: string, location: string, tags: array<int, string>, description: string, url: string, remote: bool, created_at: int|null}
+     * @return array{title: string, company: string, location: string, tags: array<int, string>, description: string, url: string, remote: bool, created_at: int|null}
      */
     private function normaliseJob(array $job): array
     {
@@ -115,7 +115,7 @@ class LiveJobBoardController extends Controller
             'title' => trim((string) ($job['title'] ?? 'Untitled opening')),
             'company' => trim((string) ($job['company_name'] ?? 'Unknown company')),
             'location' => trim((string) ($job['location'] ?? '')),
-            'tags' => collect($job['tags'] ?? [])->filter(fn($tag) => is_string($tag))->map(fn(string $tag) => trim($tag))->filter()->take(8)->values()->all(),
+            'tags' => collect($job['tags'] ?? [])->filter(fn ($tag) => is_string($tag))->map(fn (string $tag) => trim($tag))->filter()->take(8)->values()->all(),
             'description' => Str::limit($description, 11500, ''),
             'url' => (string) ($job['url'] ?? ''),
             'remote' => (bool) ($job['remote'] ?? false),

@@ -18,7 +18,7 @@ class AdminController extends Controller
         $this->authorizeAdmin($request);
         $search = trim($request->string('q')->toString());
         $users = User::query()
-            ->when($search !== '', fn($query) => $query->where(fn($builder) => $builder->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
+            ->when($search !== '', fn ($query) => $query->where(fn ($builder) => $builder->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -84,7 +84,7 @@ class AdminController extends Controller
             User::query()->whereNotNull('email_verified_at')->select('id')->chunkById(100, function ($users) use ($announcement, $notifications): void {
                 foreach ($users as $recipient) {
                     $notifications->create($recipient, 'platform_announcement', [
-                        'key' => 'announcement-' . $announcement->id,
+                        'key' => 'announcement-'.$announcement->id,
                         'title' => $announcement->title,
                         'body' => $announcement->body,
                         'url' => route('help'),
@@ -135,6 +135,6 @@ class AdminController extends Controller
             ->groupBy('analysis_type', 'status')
             ->orderByDesc('total')
             ->get()
-            ->map(fn($item) => ['type' => str_replace('_', ' ', (string) $item->analysis_type), 'status' => $item->status, 'total' => (int) $item->total]);
+            ->map(fn ($item) => ['type' => str_replace('_', ' ', (string) $item->analysis_type), 'status' => $item->status, 'total' => (int) $item->total]);
     }
 }

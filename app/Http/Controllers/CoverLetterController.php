@@ -87,7 +87,7 @@ class CoverLetterController extends Controller
         $this->owns($request, $coverLetter);
         abort_unless(class_exists(ZipArchive::class), 503, 'DOCX export requires the PHP Zip extension. Enable it in XAMPP and try again.');
         $file = tempnam(sys_get_temp_dir(), 'smartcv_letter_');
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         abort_unless($zip->open($file, ZipArchive::CREATE) === true, 500, 'Could not prepare the DOCX export.');
         $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
         $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
