@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminAnnouncement;
+use App\Models\AiAnalysis;
+use App\Models\JobApplication;
+use App\Models\Resume;
 use App\Models\SupportRequest;
 use App\Models\User;
 use App\Services\UserNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
@@ -20,7 +24,7 @@ class AdminController extends Controller
         $users = User::query()
             ->when($search !== '', fn ($query) => $query->where(fn ($builder) => $builder->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
             ->latest()
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
         $tickets = SupportRequest::query()->with('user')->latest()->limit(12)->get();
 
@@ -32,6 +36,35 @@ class AdminController extends Controller
             'aiUsage' => $this->aiUsage(),
             'search' => $search,
         ]);
+    }
+
+    public function showUser(Request $request, User $user): View
+    {
+        $this->authorizeAdmin($request);
+
+        $user->load([
+            'careerProfile',
+            'preferences',
+            'resumes' => fn ($query) => $query->withTrashed()->with('versions')->latest(),
+            'jobApplications' => fn ($query) => $query->withTrashed()->with(['contacts', 'attachments'])->latest(),
+            'interviewSessions' => fn ($query) => $query->latest(),
+            'skills' => fn ($query) => $query->with('milestones')->latest(),
+            'careerGoals' => fn ($query) => $query->latest(),
+            'portfolioProjects' => fn ($query) => $query->withTrashed()->latest(),
+            'aiAnalyses' => fn ($query) => $query->latest(),
+            'coverLetters' => fn ($query) => $query->withTrashed()->latest(),
+            'learningPaths' => fn ($query) => $query->with('items')->latest(),
+            'jobSearches' => fn ($query) => $query->latest(),
+            'privateDocuments' => fn ($query) => $query->latest(),
+            'supportRequests' => fn ($query) => $query->latest(),
+        ]);
+
+        $activities = $user->activities()->latest()->paginate(50, ['*'], 'activity_page')->withQueryString();
+        $notifications = Schema::hasTable('notifications')
+            ? $user->notifications()->latest()->get()
+            : collect();
+
+        return view('admin.users.show', compact('user', 'activities', 'notifications'));
     }
 
     public function updateUser(Request $request, User $user): RedirectResponse
@@ -116,21 +149,21 @@ class AdminController extends Controller
         return [
             'users' => User::count(),
             'verified_users' => User::whereNotNull('email_verified_at')->count(),
-            'resumes' => Schema::hasTable('resumes') ? \App\Models\Resume::count() : 0,
-            'applications' => Schema::hasTable('job_applications') ? \App\Models\JobApplication::count() : 0,
+            'resumes' => Schema::hasTable('resumes') ? Resume::count() : 0,
+            'applications' => Schema::hasTable('job_applications') ? JobApplication::count() : 0,
             'open_tickets' => SupportRequest::whereIn('status', ['open', 'in_progress'])->count(),
             'announcements' => AdminAnnouncement::count(),
         ];
     }
 
-    /** @return \Illuminate\Support\Collection<int, array<string, mixed>> */
-    private function aiUsage(): \Illuminate\Support\Collection
+    /** @return Collection<int, array<string, mixed>> */
+    private function aiUsage(): Collection
     {
         if (! Schema::hasTable('ai_analyses')) {
             return collect();
         }
 
-        return \App\Models\AiAnalysis::query()
+        return AiAnalysis::query()
             ->selectRaw('analysis_type, status, count(*) as total')
             ->groupBy('analysis_type', 'status')
             ->orderByDesc('total')

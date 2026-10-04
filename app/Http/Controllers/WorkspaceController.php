@@ -44,11 +44,6 @@ class WorkspaceController extends Controller
 
         if ($screen === 'skills') {
             $data['skills'] = $user->skills()->with('milestones')->latest()->get();
-            $data['recommendedSkills'] = $user->aiAnalyses()
-                ->where('analysis_type', 'job_match')->where('status', 'completed')->latest()->limit(5)->get()
-                ->flatMap(fn ($analysis) => is_array($analysis->result) ? ($analysis->result['missing_skills'] ?? []) : [])
-                ->filter(fn ($skill) => is_string($skill) && trim($skill) !== '')
-                ->map(fn (string $skill) => trim($skill))->unique()->values();
 
             return view('workspace.skills', $data);
         }

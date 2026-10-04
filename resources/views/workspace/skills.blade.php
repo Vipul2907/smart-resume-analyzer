@@ -54,18 +54,10 @@
                                         class="input mt-1" type="file" name="certificate"
                                         accept=".pdf,.jpg,.jpeg,.png,.webp"></label><button
                                     class="btn btn-primary w-full">Save skill</button></form>
-                            <div class="mt-5 border-t border-white/[.07] pt-4">
-                                <p class="text-xs font-semibold">Job-match skill gaps</p>
-                                @forelse($recommendedSkills as $recommended)
-                                <p class="mt-2 text-xs text-cyan-200">{{ $recommended }}</p>@empty<p
-                                        class="mt-2 text-xs text-zinc-500">Run a Job Match to see role-specific skill
-                                        gaps.</p>
-                                @endforelse
-                            </div>
                         </aside>
-                        <div class="grid gap-3 md:grid-cols-2">
+                    <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
                             @forelse($skills as $skill)
-                                <article class="card p-5">
+                            <article class="card p-4">
                                     <div class="flex justify-between gap-3">
                                         <div>
                                             <h2 class="font-semibold">{{ $skill->name }}</h2>
@@ -76,7 +68,7 @@
                                             <span class="text-xs text-cyan-200">PRIORITY</span>
                                         @endif
                                     </div>
-                                    <progress class="mt-5 h-2 w-full overflow-hidden rounded-full accent-cyan-300"
+                                    <progress class="mt-3 h-2 w-full overflow-hidden rounded-full accent-cyan-300"
                                         value="{{ min(100, (int) ($skill->proficiency ?? 0)) }}"
                                         max="100"></progress>
                                     <p class="mt-2 text-xs text-zinc-400">{{ $skill->proficiency ?? 0 }}% current
@@ -91,7 +83,7 @@
                                                 href="{{ route('skills.certificate.download', $skill) }}">Download
                                                 certificate</a>
                                         @endif
-                                        <details class="mt-4">
+                                    <details class="mt-3">
                                             <summary class="cursor-pointer text-xs text-violet-300">Update progress and
                                                 milestones</summary>
                                             <form method="POST" action="{{ route('skills.update', $skill) }}"

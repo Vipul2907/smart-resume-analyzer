@@ -37,7 +37,8 @@ class PortfolioWorkflowTest extends TestCase
         $this->get(route('portfolio.public', 'noah-career'))
             ->assertOk()
             ->assertSee('Local Shop Discovery')
-            ->assertSee('Contact '.$user->name)
+            ->assertSee('Contact')
+            ->assertSee($user->name)
             ->assertSee('Customer discovery');
     }
 

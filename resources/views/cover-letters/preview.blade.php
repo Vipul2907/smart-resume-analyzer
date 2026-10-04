@@ -69,6 +69,16 @@
         }
 
         .page-source {
+            width: 210mm;
+            max-width: 100%;
+            min-height: 297mm;
+            padding: 22mm 20mm;
+            flex: 0 0 auto;
+            background: #fff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .18);
+        }
+
+        .is-paginated .page-source {
             display: none;
         }
 
@@ -91,8 +101,11 @@
 
         @media print {
 
-            .toolbar,
-            .page-source {
+            .toolbar {
+                display: none;
+            }
+
+            .is-paginated .page-source {
                 display: none;
             }
 
@@ -115,7 +128,16 @@
                 page-break-after: always;
             }
 
-            .page:last-child {
+            .page-source {
+                width: 210mm;
+                max-width: none;
+                min-height: 0;
+                padding: 22mm 20mm;
+                margin: 0;
+                box-shadow: none;
+            }
+
+            .page:last-of-type {
                 break-after: auto;
                 page-break-after: auto;
             }
@@ -187,9 +209,11 @@
                 return current;
             };
             const paginate = () => {
+                root.classList.remove('is-paginated');
                 root.querySelectorAll('.page').forEach((page) => page.remove());
                 let page = newPage();
-                [...source.children].forEach((block) => {
+                [...source.children].forEach((originalBlock) => {
+                    const block = originalBlock.cloneNode(true);
                     page.append(block);
                     if (fits(page)) return;
                     page.removeChild(block);
@@ -202,6 +226,7 @@
                         page = splitTextBlock(block, page);
                     }
                 });
+                root.classList.add('is-paginated');
             };
             paginate();
             window.addEventListener('beforeprint', paginate);

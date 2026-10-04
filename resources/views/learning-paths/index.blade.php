@@ -89,7 +89,14 @@
                                     </div><progress class="h-2 w-full overflow-hidden rounded-full accent-cyan-300"
                                         value="{{ $progress }}" max="100">{{ $progress }}%</progress>
                                 </div>
-                                <div class="mt-6 space-y-3">
+                                <details class="group mt-5">
+                                    <summary
+                                        class="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg border border-white/[.10] bg-white/[.04] px-3 py-2 text-xs font-medium text-cyan-200 transition hover:bg-white/[.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300">
+                                        <span class="group-open:hidden">Show {{ $total }} steps</span>
+                                        <span class="hidden group-open:inline">Hide steps</span>
+                                        <span aria-hidden="true" class="transition group-open:rotate-180">⌄</span>
+                                    </summary>
+                                    <div class="mt-4 space-y-3">
                                     @forelse($path->items as $item)
                                         <div class="rounded-xl border border-white/[.08] bg-white/[.02] p-4">
                                             <div class="flex flex-wrap justify-between gap-3">
@@ -119,7 +126,8 @@
                                             class="rounded-xl border border-dashed border-white/[.1] p-5 text-sm text-zinc-500">
                                             This plan has no steps yet.</p>
                                     @endforelse
-                                </div>
+                                    </div>
+                                </details>
                         </article>@empty<div class="card border-dashed p-10 text-center"><span
                                     class="grid mx-auto h-12 w-12 place-items-center rounded-2xl bg-cyan-400/10 text-xl text-cyan-200">✦</span>
                                 <h2 class="mt-4 font-semibold">Your next steps will appear here.</h2>

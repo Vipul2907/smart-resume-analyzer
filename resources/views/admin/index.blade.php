@@ -101,18 +101,19 @@
                                 members.</p>
                         </div>
                         <form method="GET" action="{{ route('admin.index') }}" class="flex gap-2"><input
-                                class="input !w-56" name="q" value="{{ $search }}"
-                                placeholder="Search name or email"><button class="btn btn-secondary">Search</button>
+                                class="input !w-56" type="search" name="q" value="{{ $search }}"
+                                placeholder="Search by email or name" aria-label="Search user email or name"><button class="btn btn-secondary">Search</button>
                         </form>
                     </div>
                     <div class="mt-5 overflow-x-auto">
-                        <table class="w-full min-w-[700px] text-left text-sm">
+                        <table class="w-full min-w-[800px] text-left text-sm">
                             <thead class="border-b border-white/[.08] text-xs uppercase tracking-[.12em] text-zinc-500">
                                 <tr>
                                     <th class="pb-3 font-medium">User</th>
                                     <th class="pb-3 font-medium">Verified</th>
                                     <th class="pb-3 font-medium">Joined</th>
                                     <th class="pb-3 font-medium">Access</th>
+                                    <th class="pb-3 font-medium">Account details</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -134,15 +135,28 @@
                                                     class="text-xs text-cyan-200 hover:underline">{{ $user->is_admin ? 'Remove admin' : 'Make admin' }}</button>
                                             </form>
                                         </td>
-                                </tr>@empty<tr>
-                                        <td colspan="4" class="py-8 text-center text-zinc-500">No users match that
+                                        <td class="py-4">
+                                            <a class="text-cyan-200 hover:underline"
+                                                href="{{ route('admin.users.show', $user) }}">View account</a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="py-8 text-center text-zinc-500">No users match that
                                             search.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    <div class="mt-5">{{ $users->links() }}</div>
+                    <div
+                        class="mt-5 flex flex-col justify-between gap-3 border-t border-white/[.07] pt-4 sm:flex-row sm:items-center">
+                        <p class="text-xs text-zinc-400">
+                            Showing {{ $users->firstItem() ?? 0 }}–{{ $users->lastItem() ?? 0 }} of
+                            {{ $users->total() }} total accounts · <span>Page {{ $users->currentPage() }}/{{ $users->lastPage() }}</span>
+                        </p>
+                        <div>{{ $users->links() }}</div>
+                    </div>
                 </section>
                 <section class="mt-5 grid gap-5 xl:grid-cols-2">
                     <article class="card p-5 sm:p-6">

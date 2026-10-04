@@ -147,15 +147,19 @@
                                     </form>
                                 </div>
 
-                                <div class="mt-6 border-t border-white/[.07] pt-5">
-                                    <div class="flex flex-wrap items-center justify-between gap-2">
-                                        <div>
-                                            <h3 class="font-semibold">Career milestones</h3>
-                                            <p class="mt-1 text-xs text-zinc-500">
+                                <details class="group mt-6 border-t border-white/[.07] pt-5">
+                                    <summary
+                                        class="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300">
+                                        <span>
+                                            <span class="block font-semibold">Career milestones</span>
+                                            <span class="mt-1 block text-xs text-zinc-500">
                                                 {{ $goal->milestone_summary['completed'] ?? 0 }} of
-                                                {{ $goal->milestone_summary['total'] ?? 0 }} completed</p>
-                                        </div>
-                                    </div>
+                                                {{ $goal->milestone_summary['total'] ?? 0 }} completed · click to view
+                                            </span>
+                                        </span>
+                                        <span aria-hidden="true"
+                                            class="rounded-lg border border-white/[.10] bg-white/[.04] px-3 py-2 text-xs text-cyan-200 transition group-open:rotate-180">⌄</span>
+                                    </summary>
                                     <div class="mt-4 space-y-2">
                                         @forelse($milestones as $milestone)
                                             <div class="rounded-xl border border-white/[.07] p-3">
@@ -204,7 +208,7 @@
                                             placeholder="Add a measurable milestone" required><input class="input"
                                             type="date" name="target_date"><button class="btn btn-secondary">Add
                                             milestone</button></form>
-                                </div>
+                                </details>
 
                                 <div class="mt-6 border-t border-white/[.07] pt-5">
                                     <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -218,6 +222,12 @@
                                                 class="btn btn-primary">{{ $advice ? 'Refresh AI advice' : 'Get AI advice' }}</button>
                                         </form>
                                     </div>
+                                    <details class="group mt-4">
+                                        <summary
+                                            class="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg border border-white/[.10] bg-white/[.04] px-3 py-2 text-xs font-medium text-cyan-200 transition hover:bg-white/[.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300">
+                                            View recommendations
+                                            <span aria-hidden="true" class="transition group-open:rotate-180">⌄</span>
+                                        </summary>
                                     @if ($advice)
                                         <div class="mt-4 rounded-xl border border-cyan-400/20 bg-cyan-400/[.05] p-4">
                                             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -261,6 +271,7 @@
                                             Ask for advice after saving a goal. SmartCV does not use generic career tips
                                             or unrelated skills.</div>
                                     @endif
+                                    </details>
                                 </div>
                             </article>
                         @empty

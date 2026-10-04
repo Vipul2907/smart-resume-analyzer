@@ -166,7 +166,13 @@ class AnalyticsController extends Controller
         $applicationCount = $jobs->count();
         $skillAverage = $skills->filter(fn ($skill) => is_numeric($skill->proficiency))->avg('proficiency');
         $goalAverage = $goals->filter(fn ($goal) => is_numeric($goal->progress))->avg('progress');
-        $latestResumeScore = $analyses->filter(fn ($analysis) => is_numeric($analysis->score))->sortByDesc('created_at')->first()?->score;
+        $latestResumeScore = $analyses
+            ->filter(fn ($analysis) => is_numeric($analysis->score ?? data_get($analysis->result, 'score')))
+            ->sortByDesc(fn ($analysis) => $analysis->completed_at ?? $analysis->created_at)
+            ->first();
+        $latestResumeScore = $latestResumeScore
+            ? ($latestResumeScore->score ?? data_get($latestResumeScore->result, 'score'))
+            : null;
 
         $sources = $jobs
             ->groupBy(fn (JobApplication $job) => trim((string) ($job->source ?: 'Manual entry')) ?: 'Manual entry')
@@ -186,14 +192,18 @@ class AnalyticsController extends Controller
             ->values();
 
         $analysisHistory = $analyses
-            ->filter(fn ($analysis) => is_numeric($analysis->score))
-            ->sortBy('created_at')
+            ->map(fn ($analysis): array => [
+                'analysis' => $analysis,
+                'score' => $analysis->score ?? data_get($analysis->result, 'score'),
+            ])
+            ->filter(fn (array $entry) => is_numeric($entry['score']))
+            ->sortBy(fn (array $entry) => $entry['analysis']->completed_at ?? $entry['analysis']->created_at)
             ->take(-8)
             ->values()
-            ->map(fn ($analysis): array => [
-                'date' => $analysis->created_at?->format('M j') ?? 'Saved',
-                'score' => (int) $analysis->score,
-                'type' => str_replace('_', ' ', $analysis->analysis_type),
+            ->map(fn (array $entry): array => [
+                'date' => ($entry['analysis']->completed_at ?? $entry['analysis']->created_at)?->format('M j') ?? 'Saved',
+                'score' => (int) $entry['score'],
+                'type' => str_replace('_', ' ', $entry['analysis']->analysis_type),
             ]);
 
         $topSkills = $skills

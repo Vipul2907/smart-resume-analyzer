@@ -24,6 +24,7 @@ use App\Http\Controllers\ResumeParseController;
 use App\Http\Controllers\ResumeVersionController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\WorkspaceController;
+use App\Http\Middleware\RecordUserActivity;
 use App\Models\AiAnalysis;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -64,7 +65,7 @@ Route::middleware('auth')->group(function (): void {
 
 $screens = ['dashboard', 'analyze', 'ats', 'match', 'jobs', 'interviews', 'skills', 'insights', 'portfolio', 'analytics', 'profile', 'settings', 'help'];
 
-Route::middleware(['auth', 'verified'])->group(function () use ($screens): void {
+Route::middleware(['auth', 'verified', RecordUserActivity::class])->group(function () use ($screens): void {
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 
@@ -173,6 +174,7 @@ Route::middleware(['auth', 'verified'])->group(function () use ($screens): void 
     Route::post('/help/requests', [HelpCenterController::class, 'store'])->middleware('throttle:5,1')->name('help.requests.store');
 
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/users/{user}', [AdminController::class, 'showUser'])->name('admin.users.show');
     Route::patch('/admin/users/{user}', [AdminController::class, 'updateUser'])->name('admin.users.update');
     Route::patch('/admin/support-requests/{supportRequest}', [AdminController::class, 'updateTicket'])->name('admin.tickets.update');
     Route::post('/admin/announcements', [AdminController::class, 'storeAnnouncement'])->name('admin.announcements.store');

@@ -18,6 +18,79 @@ class AdminAreaTest extends TestCase
         $this->actingAs($member)->get(route('admin.index'))->assertForbidden();
     }
 
+    public function test_admin_user_list_shows_ten_accounts_per_page_and_searches_email(): void
+    {
+        $admin = $this->user(['is_admin' => true]);
+
+        foreach (range(1, 12) as $number) {
+            $this->user(['email' => "member{$number}@example.test"]);
+        }
+
+        $this->actingAs($admin)->get(route('admin.index'))
+            ->assertOk()
+            ->assertSee('13 total accounts')
+            ->assertSee('Page 1/2');
+
+        $this->actingAs($admin)->get(route('admin.index', ['page' => 2]))
+            ->assertOk()
+            ->assertSee('Page 2/2');
+
+        $this->actingAs($admin)->get(route('admin.index', ['q' => 'member7@example.test']))
+            ->assertOk()
+            ->assertSee('member7@example.test')
+            ->assertDontSee('member2@example.test');
+    }
+
+    public function test_admin_can_view_private_user_records_and_normal_user_cannot(): void
+    {
+        $admin = $this->user(['is_admin' => true]);
+        $member = $this->user(['name' => 'Private Member', 'email' => 'private@example.test']);
+        $member->resumes()->create([
+            'name' => 'Senior Developer Resume',
+            'original_filename' => 'senior-resume.pdf',
+            'file_path' => 'resumes/private/senior-resume.pdf',
+            'mime_type' => 'application/pdf',
+            'file_size' => 2048,
+            'extracted_text' => 'Private resume text for authorized support review.',
+            'parse_status' => 'parsed',
+        ]);
+        $member->privateDocuments()->create([
+            'name' => 'Training certificate',
+            'original_filename' => 'certificate.pdf',
+            'file_path' => 'documents/private/certificate.pdf',
+            'mime_type' => 'application/pdf',
+            'file_size' => 1024,
+            'category' => 'certificate',
+        ]);
+
+        $this->actingAs($admin)->get(route('admin.users.show', $member))
+            ->assertOk()
+            ->assertSee('Private Member')
+            ->assertSee('Senior Developer Resume')
+            ->assertSee('Private resume text for authorized support review.')
+            ->assertSee('Training certificate')
+            ->assertSee('Resume records (1)')
+            ->assertSee('Private document vault (1)')
+            ->assertSee('older actions were not logged');
+
+        $this->actingAs($member)->get(route('admin.users.show', $member))->assertForbidden();
+    }
+
+    public function test_verified_account_page_visits_are_recorded_without_form_contents(): void
+    {
+        $member = $this->user();
+
+        $this->actingAs($member)->get(route('dashboard'))->assertOk();
+
+        $this->assertDatabaseHas('user_activities', [
+            'user_id' => $member->id,
+            'route_name' => 'dashboard',
+            'http_method' => 'GET',
+            'response_code' => 200,
+            'route_parameters' => null,
+        ]);
+    }
+
     public function test_admin_can_manage_support_and_publish_announcements(): void
     {
         $admin = $this->user(['is_admin' => true]);

@@ -68,7 +68,10 @@ class ResumeBuilderWorkflowTest extends TestCase
             ->assertSee('size: A4;', false)
             ->assertSee('margin: 0;', false)
             ->assertSee('height: 297mm', false)
+            ->assertSee('.page:last-of-type', false)
             ->assertSee('data-paginated-document', false)
+            ->assertSee('cloneNode(true)', false)
+            ->assertSee("window.addEventListener('beforeprint', paginate)", false)
             ->assertSee('splitTextBlock', false)
             ->assertSee('Delivered a measurable project outcome.');
     }
