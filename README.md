@@ -127,7 +127,7 @@ Resume and job-match scores are SmartCV guidance. They summarise structured info
 
 ## Live job board
 
-The live board requests public data from Arbeitnow. SmartCV cleans description HTML before rendering it, filters results, and caches a page briefly to avoid unnecessary external requests. If Arbeitnow is unavailable, the rest of SmartCV keeps working and the page shows a clear fallback message. Applying happens on the employer’s original listing.
+The live board requests public data from Arbeitnow. SmartCV cleans description HTML before rendering it, filters results, and caches each provider page for 10 minutes to avoid unnecessary external requests. If Arbeitnow is unavailable, the rest of SmartCV keeps working and the page shows a clear fallback message. Applying happens on the employer’s original listing.
 
 ## Security and privacy
 
@@ -139,8 +139,9 @@ The live board requests public data from Arbeitnow. SmartCV cleans description H
 - Upload routes validate file input, extension, and the 10 MB size limit.
 - Forms use Laravel CSRF protection and server-side validation.
 - Login, registration, reset, uploads, and AI routes are throttled where appropriate.
+- User feature-use and administrator account-access history are retained for 90 days, then removed by a daily scheduled command. Logs contain route/action names, numeric record IDs, request method, response code, and time; they do not store form contents or IP addresses.
 - Groq keys come from environment variables. Never put real credentials in Blade, JavaScript, Git commits, or documentation.
-- Administrator access can only be changed from the protected admin area, and the last administrator cannot be removed.
+- Administrator access can only be changed from the protected admin area, the last administrator cannot be removed, and private-account reads and changes are separately audited.
 
 Before deployment, set `APP_DEBUG=false`, use HTTPS, configure a production mail service, rotate test credentials, and review server permissions.
 
@@ -200,6 +201,18 @@ npm run build
 php artisan serve
 ```
 
+### Set up the first administrator
+
+First, register the trusted team member and verify their email. Then run this command from a trusted project terminal; it asks you to confirm before granting the first administrator role:
+
+```bash
+php artisan smartcv:grant-admin trusted@example.com
+```
+
+The command refuses to run if an administrator already exists. Use the admin area to grant access to any additional trusted administrators.
+
+The default database seeder intentionally creates no shared demo login. For sample accounts during development, create users through the registration page or test factories.
+
 Open the Laravel URL, usually `http://127.0.0.1:8000`. Use `npm run dev` in another terminal during frontend development.
 
 > `php artisan migrate:fresh` deletes existing tables. Use it only for a completely fresh local database.
@@ -250,10 +263,11 @@ Use a staging deployment first. Do not copy your local `.env` file to the server
 4. Use HTTPS and secure session cookies (`SESSION_SECURE_COOKIE=true`). Configure real mail and verify signup, email verification, and password reset delivery.
 5. Take a database backup before running `php artisan migrate --force`. Keep uploads on persistent private storage; never expose Laravel’s private storage directory through the web server.
 6. Configure production cache and session stores. If background jobs are enabled, run a supervised queue worker; a queue setting alone does not move synchronous controller work into the background.
-7. Give write permissions only to Laravel’s `storage` and `bootstrap/cache` directories. Keep `.env`, logs, backups, and uploads outside the public web root.
-8. Schedule database and file backups, then perform a restore rehearsal. Confirm a redeploy does not erase user uploads.
-9. Check the public Privacy and Terms pages against the actual hosting, mail, storage, and AI-provider setup. Add a working support contact before inviting public users.
-10. Run the automated tests and finish the staging smoke check before switching production traffic.
+7. Run Laravel's scheduler every minute so activity records older than 90 days are removed daily: configure the host to run `php artisan schedule:run` (Windows Task Scheduler on Windows, cron on Linux).
+8. Give write permissions only to Laravel’s `storage` and `bootstrap/cache` directories. Keep `.env`, logs, backups, and uploads outside the public web root.
+9. Schedule database and file backups, then perform a restore rehearsal. Confirm a redeploy does not erase user uploads.
+10. Check the public Privacy and Terms pages against the actual hosting, mail, storage, and AI-provider setup. Add a working support contact before inviting public users.
+11. Run the automated tests and finish the staging smoke check before switching production traffic.
 
 ### Staging smoke check
 

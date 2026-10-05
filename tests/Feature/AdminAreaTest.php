@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdminActivity;
 use App\Models\SupportRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class AdminAreaTest extends TestCase
@@ -73,6 +75,19 @@ class AdminAreaTest extends TestCase
             ->assertSee('Private document vault (1)')
             ->assertSee('older actions were not logged');
 
+        $this->assertDatabaseHas('admin_activities', [
+            'admin_user_id' => $admin->id,
+            'subject_user_id' => $member->id,
+            'route_name' => 'admin.users.show',
+            'http_method' => 'GET',
+            'response_code' => 200,
+        ]);
+
+        $this->actingAs($admin)->get(route('admin.index'))
+            ->assertOk()
+            ->assertSee('Recent administrator access')
+            ->assertSee('private@example.test');
+
         $this->actingAs($member)->get(route('admin.users.show', $member))->assertForbidden();
     }
 
@@ -114,6 +129,12 @@ class AdminAreaTest extends TestCase
         ])->assertSessionHas('status');
 
         $this->assertDatabaseHas('support_requests', ['id' => $ticket->id, 'status' => 'resolved']);
+        $this->assertDatabaseHas('admin_activities', [
+            'admin_user_id' => $admin->id,
+            'subject_user_id' => $member->id,
+            'route_name' => 'admin.tickets.update',
+            'http_method' => 'PATCH',
+        ]);
 
         $this->actingAs($admin)->post(route('admin.announcements.store'), [
             'title' => 'New interview guide',
@@ -122,6 +143,55 @@ class AdminAreaTest extends TestCase
 
         $this->assertDatabaseHas('admin_announcements', ['title' => 'New interview guide']);
         $this->assertDatabaseHas('notifications', ['notifiable_id' => $member->id, 'type' => 'platform_announcement']);
+    }
+
+    public function test_first_admin_command_requires_verified_account_and_refuses_to_replace_an_existing_admin(): void
+    {
+        $unverified = User::factory()->create(['email' => 'unverified@example.test', 'email_verified_at' => null]);
+        $this->assertSame(1, Artisan::call('smartcv:grant-admin', ['email' => $unverified->email, '--force' => true]));
+        $this->assertFalse($unverified->fresh()->is_admin);
+
+        $firstAdmin = $this->user(['email' => 'admin@example.test']);
+        $this->assertSame(0, Artisan::call('smartcv:grant-admin', ['email' => $firstAdmin->email, '--force' => true]));
+        $this->assertTrue($firstAdmin->fresh()->is_admin);
+
+        $second = $this->user(['email' => 'second@example.test']);
+        $this->assertSame(1, Artisan::call('smartcv:grant-admin', ['email' => $second->email, '--force' => true]));
+        $this->assertFalse($second->fresh()->is_admin);
+    }
+
+    public function test_activity_cleanup_removes_only_records_older_than_ninety_days(): void
+    {
+        $user = $this->user();
+        $oldActivity = $user->activities()->create([
+            'route_name' => 'dashboard', 'http_method' => 'GET', 'response_code' => 200,
+            'created_at' => now()->subDays(91),
+        ]);
+        $recentActivity = $user->activities()->create([
+            'route_name' => 'jobs', 'http_method' => 'GET', 'response_code' => 200,
+            'created_at' => now()->subDays(2),
+        ]);
+        $oldAdminActivity = AdminActivity::query()->create([
+            'admin_user_id' => $user->id,
+            'route_name' => 'admin.index',
+            'http_method' => 'GET',
+            'response_code' => 200,
+            'created_at' => now()->subDays(91),
+        ]);
+        $recentAdminActivity = AdminActivity::query()->create([
+            'admin_user_id' => $user->id,
+            'route_name' => 'admin.users.show',
+            'http_method' => 'GET',
+            'response_code' => 200,
+            'created_at' => now()->subDays(2),
+        ]);
+
+        Artisan::call('smartcv:prune-activity');
+
+        $this->assertDatabaseMissing('user_activities', ['id' => $oldActivity->id]);
+        $this->assertDatabaseHas('user_activities', ['id' => $recentActivity->id]);
+        $this->assertDatabaseMissing('admin_activities', ['id' => $oldAdminActivity->id]);
+        $this->assertDatabaseHas('admin_activities', ['id' => $recentAdminActivity->id]);
     }
 
     /** @param array<string, mixed> $attributes */

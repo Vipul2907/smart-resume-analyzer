@@ -62,6 +62,10 @@
                     account workspace records and associated private files managed by SmartCV.</p>
             </section>
             <section>
+                <h2 class="text-lg font-semibold">Activity records and administrator access</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-600">SmartCV records signed-in feature use using the page or action name, request type, result code, time, and numeric record IDs when relevant. These records do not include form text, passwords, IP addresses, or uploaded file contents. They are scheduled for removal after 90 days when the application scheduler is enabled. Authorized administrators can review private workspace information for support and platform administration. SmartCV records which administrator opened or changed an account, the action, its time, and result.</p>
+            </section>
+            <section>
                 <h2 class="text-lg font-semibold">Questions and updates</h2>
                 <p class="mt-2 text-sm leading-6 text-slate-600">For account help, use the Help area after signing in.
                     The service owner should provide a working contact address and update this page when data handling

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -37,13 +38,22 @@ class LiveJobBoardController extends Controller
         $error = null;
 
         try {
-            $response = Http::acceptJson()
-                ->timeout(12)
-                ->retry(2, 250)
-                ->get(self::API_URL, ['page' => $page]);
+            $cacheKey = 'arbeitnow.jobs.page.'.$page;
+            $payload = Cache::get($cacheKey);
 
-            if ($response->successful()) {
-                $payload = $response->json();
+            if (! is_array($payload)) {
+                $response = Http::acceptJson()
+                    ->timeout(12)
+                    ->retry(2, 250)
+                    ->get(self::API_URL, ['page' => $page]);
+
+                if ($response->successful() && is_array($response->json())) {
+                    $payload = $response->json();
+                    Cache::put($cacheKey, $payload, now()->addMinutes(10));
+                }
+            }
+
+            if (is_array($payload)) {
                 $meta = is_array($payload['meta'] ?? null) ? $payload['meta'] : [];
                 $jobs = collect($payload['data'] ?? [])
                     ->filter(fn ($job) => is_array($job) && $this->isTechnologyOpening($job))

@@ -102,6 +102,27 @@ class LiveJobBoardTest extends TestCase
             ->assertSee('Live jobs are temporarily unavailable');
     }
 
+    public function test_provider_page_is_cached_and_user_search_is_applied_after_cache(): void
+    {
+        Cache::forget('arbeitnow.jobs.page.1');
+        $user = User::factory()->create(['email_verified_at' => now(), 'onboarding_completed_at' => now()]);
+        Http::fake([
+            'https://www.arbeitnow.com/api/job-board-api*' => Http::response([
+                'data' => [[
+                    'title' => 'Laravel Developer', 'company_name' => 'Smart Company',
+                    'location' => 'Remote', 'description' => 'Build Laravel products.',
+                    'tags' => ['Laravel'], 'url' => 'https://example.test/jobs/1',
+                ]],
+                'meta' => [],
+            ]),
+        ]);
+
+        $this->actingAs($user)->get(route('discover', ['q' => 'Laravel']))->assertOk()->assertSee('Laravel Developer');
+        $this->actingAs($user)->get(route('discover', ['q' => 'missing']))->assertOk()->assertDontSee('Laravel Developer');
+
+        Http::assertSentCount(1);
+    }
+
     public function test_job_match_page_displays_nested_ai_suggestions_without_crashing(): void
     {
         $user = User::factory()->create(['email_verified_at' => now(), 'onboarding_completed_at' => now()]);

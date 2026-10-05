@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminActivity;
 use App\Models\AdminAnnouncement;
 use App\Models\AiAnalysis;
 use App\Models\JobApplication;
@@ -32,6 +33,7 @@ class AdminController extends Controller
             'users' => $users,
             'tickets' => $tickets,
             'announcements' => AdminAnnouncement::query()->with('author')->latest()->limit(10)->get(),
+            'adminActivities' => AdminActivity::query()->with(['admin:id,name,email', 'subject:id,name,email'])->latest('created_at')->limit(30)->get(),
             'metrics' => $this->metrics(),
             'aiUsage' => $this->aiUsage(),
             'search' => $search,
@@ -60,11 +62,17 @@ class AdminController extends Controller
         ]);
 
         $activities = $user->activities()->latest()->paginate(50, ['*'], 'activity_page')->withQueryString();
+        $adminActivities = AdminActivity::query()
+            ->with('admin:id,name,email')
+            ->where('subject_user_id', $user->id)
+            ->latest('created_at')
+            ->paginate(25, ['*'], 'admin_activity_page')
+            ->withQueryString();
         $notifications = Schema::hasTable('notifications')
             ? $user->notifications()->latest()->get()
             : collect();
 
-        return view('admin.users.show', compact('user', 'activities', 'notifications'));
+        return view('admin.users.show', compact('user', 'activities', 'adminActivities', 'notifications'));
     }
 
     public function updateUser(Request $request, User $user): RedirectResponse

@@ -38,8 +38,9 @@
 
                 <div class="mt-6 rounded-xl border border-amber-300/20 bg-amber-300/[.06] p-4 text-sm leading-6 text-amber-100">
                     This screen contains private account information. Use it only for authorized support or administration.
-                    SmartCV records feature and operation history from now on; older actions were not logged. History stores
-                    the feature, numeric record IDs, request type, and response result, not form text, passwords, or uploaded file contents.
+                    SmartCV records account feature use and administrator access from now on; older actions were not logged.
+                    These logs are kept for 90 days and store page/action names, numeric record IDs, request type, and response result,
+                    not form text, passwords, IP addresses, or uploaded file contents.
                 </div>
 
                 <section class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
@@ -428,6 +429,43 @@
                     </div>
                     @if ($activities->hasPages())
                     <div class="mt-4">{{ $activities->links() }}</div>
+                    @endif
+                </section>
+
+                <section class="mt-5 card p-5 sm:p-6">
+                    <div>
+                        <p class="eyebrow">Administrator audit</p>
+                        <h2 class="mt-2 text-xl font-semibold">Admin access to this account</h2>
+                        <p class="mt-1 text-xs text-zinc-500">{{ $adminActivities->total() }} recorded accesses or actions · kept for 90 days</p>
+                    </div>
+                    <div class="mt-4 overflow-x-auto">
+                        <table class="w-full min-w-[620px] text-left text-sm">
+                            <thead class="border-b border-white/[.08] text-xs uppercase tracking-wide text-zinc-500">
+                                <tr>
+                                    <th class="pb-2 font-medium">Time</th>
+                                    <th class="pb-2 font-medium">Administrator</th>
+                                    <th class="pb-2 font-medium">Action</th>
+                                    <th class="pb-2 font-medium">Request / result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($adminActivities as $activity)
+                                <tr class="border-b border-white/[.06]">
+                                    <td class="py-3 text-xs text-zinc-400">{{ $activity->created_at?->format('M j, Y g:i A') }}</td>
+                                    <td class="py-3">{{ $activity->admin?->email ?? 'Administrator account deleted' }}</td>
+                                    <td class="py-3">{{ \Illuminate\Support\Str::headline(str_replace('.', ' ', $activity->route_name)) }}</td>
+                                    <td class="py-3 text-xs text-zinc-400">{{ $activity->http_method }} · {{ $activity->response_code }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="py-6 text-center text-zinc-500">No administrator access recorded yet.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    @if ($adminActivities->hasPages())
+                    <div class="mt-4">{{ $adminActivities->links() }}</div>
                     @endif
                 </section>
             </main>

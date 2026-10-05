@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
 class AuthenticationFlowTest extends TestCase
@@ -57,5 +59,40 @@ class AuthenticationFlowTest extends TestCase
             'target_role' => 'Product Designer',
             'experience_level' => 'mid',
         ]);
+    }
+
+    public function test_a_valid_password_reset_token_changes_the_password_and_rotates_remember_token(): void
+    {
+        $user = User::factory()->create(['password' => 'old-password']);
+        $rememberToken = $user->remember_token;
+        $token = Password::createToken($user);
+
+        $this->post(route('password.update'), [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ])->assertRedirect(route('login'))->assertSessionHas('status');
+
+        $this->assertTrue(Hash::check('new-password-123', $user->fresh()->password));
+        $this->assertNotSame($rememberToken, $user->fresh()->remember_token);
+    }
+
+    public function test_an_invalid_password_reset_token_never_reports_success_or_changes_password(): void
+    {
+        $user = User::factory()->create(['password' => 'old-password']);
+
+        $this->from(route('password.reset', ['token' => 'invalid-token']))
+            ->post(route('password.update'), [
+                'token' => 'invalid-token',
+                'email' => $user->email,
+                'password' => 'new-password-123',
+                'password_confirmation' => 'new-password-123',
+            ])
+            ->assertRedirect(route('password.reset', ['token' => 'invalid-token']))
+            ->assertSessionHasErrors('email')
+            ->assertSessionMissing('status');
+
+        $this->assertTrue(Hash::check('old-password', $user->fresh()->password));
     }
 }

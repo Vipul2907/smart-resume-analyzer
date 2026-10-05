@@ -216,6 +216,38 @@
                         </div>
                     </article>
                 </section>
+
+                <section class="mt-5 card p-5 sm:p-6">
+                    <p class="eyebrow">Security trail · 90-day retention</p>
+                    <h2 class="mt-2 text-xl font-semibold">Recent administrator access</h2>
+                    <p class="mt-1 text-sm text-zinc-400">This log records which admin page or action was used and who it concerned. It never stores form contents.</p>
+                    <div class="mt-4 overflow-x-auto">
+                        <table class="w-full min-w-[680px] text-left text-sm">
+                            <thead class="border-b border-white/[.08] text-xs uppercase tracking-wide text-zinc-500">
+                                <tr>
+                                    <th class="pb-2 font-medium">Time</th>
+                                    <th class="pb-2 font-medium">Administrator</th>
+                                    <th class="pb-2 font-medium">Account affected</th>
+                                    <th class="pb-2 font-medium">Action</th>
+                                    <th class="pb-2 font-medium">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($adminActivities as $activity)
+                                <tr class="border-b border-white/[.06]">
+                                    <td class="py-3 text-xs text-zinc-400">{{ $activity->created_at?->format('M j, Y g:i A') }}</td>
+                                    <td class="py-3">{{ $activity->admin?->email ?? 'Deleted administrator' }}</td>
+                                    <td class="py-3">{{ $activity->subject?->email ?? 'Platform-wide action' }}</td>
+                                    <td class="py-3">{{ \Illuminate\Support\Str::headline(str_replace('.', ' ', $activity->route_name)) }} · {{ $activity->http_method }}</td>
+                                    <td class="py-3 text-xs {{ $activity->response_code < 400 ? 'text-emerald-200' : 'text-rose-200' }}">{{ $activity->response_code }}</td>
+                                </tr>
+                                @empty
+                                <tr><td colspan="5" class="py-6 text-center text-zinc-500">No administrator activity recorded yet.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </main>
         </div>
     </div>
