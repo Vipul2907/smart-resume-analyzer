@@ -11,6 +11,8 @@ class JobApplication extends Model
 {
     use SoftDeletes;
 
+    public const ACTIVE_STATUSES = ['saved', 'applied', 'interviewing', 'offer'];
+
     protected $guarded = [];
 
     public function user(): BelongsTo

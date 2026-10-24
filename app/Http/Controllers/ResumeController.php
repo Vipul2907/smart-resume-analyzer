@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Resume;
 use App\Services\ResumeParser;
 use App\Services\ResumeTextExtractor;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,8 @@ use Illuminate\View\View;
 
 class ResumeController extends Controller
 {
+    private const RESUMES_PER_PAGE = 10;
+
     public function index(Request $request): View|RedirectResponse
     {
         if ($redirect = $this->ensureOnboarded($request)) {
@@ -23,7 +26,7 @@ class ResumeController extends Controller
 
         return view('app', [
             'screen' => 'resumes',
-            'resumes' => $request->user()->resumes()->withCount('versions')->latest()->get(),
+            'resumes' => $request->user()->resumes()->withCount('versions')->latest()->paginate(self::RESUMES_PER_PAGE)->withQueryString(),
             'selectedResume' => null,
         ]);
     }
@@ -38,7 +41,7 @@ class ResumeController extends Controller
 
         return view('app', [
             'screen' => 'resumes',
-            'resumes' => $request->user()->resumes()->withCount('versions')->latest()->get(),
+            'resumes' => $request->user()->resumes()->withCount('versions')->latest()->paginate(self::RESUMES_PER_PAGE)->withQueryString(),
             'selectedResume' => $resume->load(['versions' => fn ($query) => $query->latest()]),
         ]);
     }
@@ -152,9 +155,11 @@ class ResumeController extends Controller
     public function download(Request $request, Resume $resume)
     {
         $this->authorizeUser($request, $resume);
-        abort_unless(Storage::disk($resume->file_disk)->exists($resume->file_path), 404);
+        /** @var FilesystemAdapter $storage */
+        $storage = Storage::disk($resume->file_disk);
+        abort_unless($storage->exists($resume->file_path), 404);
 
-        return Storage::disk($resume->file_disk)->download($resume->file_path, $resume->original_filename);
+        return $storage->download($resume->file_path, $resume->original_filename);
     }
 
     private function parseResume(Resume $resume, ResumeTextExtractor $extractor, ResumeParser $parser): bool

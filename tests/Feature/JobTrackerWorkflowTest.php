@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -45,7 +46,7 @@ class JobTrackerWorkflowTest extends TestCase
 
         $this->actingAs($user)->post(route('jobs.attachments.store', $job), ['attachment' => UploadedFile::fake()->create('job-notes.pdf', 200, 'application/pdf')])->assertSessionHas('status');
         $attachment = $job->attachments()->firstOrFail();
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        /** @var FilesystemAdapter $disk */
         $disk = Storage::disk('local');
         $disk->assertExists($attachment->file_path);
 

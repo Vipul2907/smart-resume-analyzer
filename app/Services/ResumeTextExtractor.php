@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\Resume;
+use DOMDocument;
+use DOMNode;
+use DOMXPath;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Smalot\PdfParser\Parser as PdfParser;
@@ -63,19 +66,76 @@ class ResumeTextExtractor
             $xml = $zip->getFromName($entry);
 
             if ($xml !== false) {
-                $xml = preg_replace('/>\s+</', '><', $xml) ?? $xml;
-                $xml = preg_replace('/<w:tab\b[^>]*\/>/i', ' ', $xml) ?? $xml;
-                $xml = preg_replace('/<w:br\b[^>]*\/>/i', "\n", $xml) ?? $xml;
-                $xml = preg_replace('/<\/w:tc\s*>/i', "\t", $xml) ?? $xml;
-                $xml = preg_replace('/<\/w:tr\s*>/i', "\n", $xml) ?? $xml;
-                $xml = preg_replace('/<\/w:p\s*>/i', "\n", $xml) ?? $xml;
-                $parts[] = $xml;
+                $parts[] = $this->extractDocxXml($xml);
             }
         }
 
         $zip->close();
 
         return $this->normalizeText(html_entity_decode(strip_tags(implode("\n", $parts))));
+    }
+
+    private function extractDocxXml(string $xml): string
+    {
+        $document = new DOMDocument;
+        $document->preserveWhiteSpace = true;
+
+        if (@$document->loadXML($xml, LIBXML_NONET)) {
+            $paragraphs = (new DOMXPath($document))->query('//*[local-name()="p"]');
+
+            if ($paragraphs !== false && $paragraphs->length > 0) {
+                $text = [];
+
+                foreach ($paragraphs as $paragraph) {
+                    $line = $this->readWordNode($paragraph);
+
+                    if (trim($line) !== '') {
+                        $text[] = $line;
+                    }
+                }
+
+                return implode("\n", $text);
+            }
+        }
+
+        // Keep a tolerant fallback for unusual or malformed DOCX XML.
+        $xml = preg_replace('/>\s+</', '><', $xml) ?? $xml;
+        $xml = preg_replace('/<[^>]*:tab\b[^>]*\/>/i', ' ', $xml) ?? $xml;
+        $xml = preg_replace('/<[^>]*:(?:br|cr)\b[^>]*\/>/i', "\n", $xml) ?? $xml;
+        $xml = preg_replace('/<\/[^>]*:tc\s*>/i', "\t", $xml) ?? $xml;
+        $xml = preg_replace('/<\/[^>]*:tr\s*>/i', "\n", $xml) ?? $xml;
+        $xml = preg_replace('/<\/[^>]*:p\s*>/i', "\n", $xml) ?? $xml;
+
+        return html_entity_decode(strip_tags($xml), ENT_QUOTES | ENT_XML1, 'UTF-8');
+    }
+
+    private function readWordNode(DOMNode $node): string
+    {
+        if ($node->nodeType === XML_TEXT_NODE || $node->nodeType === XML_CDATA_SECTION_NODE) {
+            return $node->nodeValue ?? '';
+        }
+
+        $name = strtolower($node->localName ?? '');
+
+        if (in_array($name, ['tab', 'ptab'], true)) {
+            return ' ';
+        }
+
+        if (in_array($name, ['br', 'cr'], true)) {
+            return "\n";
+        }
+
+        $text = '';
+
+        foreach ($node->childNodes as $child) {
+            $text .= $this->readWordNode($child);
+        }
+
+        if ($name === 'tc') {
+            $text .= "\t";
+        }
+
+        return $text;
     }
 
     private function extractPdfText(string $contents): string

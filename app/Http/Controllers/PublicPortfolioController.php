@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CareerProfile;
 use App\Models\PortfolioProject;
-use Illuminate\Http\Request;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -50,9 +50,11 @@ class PublicPortfolioController extends Controller
         $profile = $this->profile($slug);
         abort_unless($project->user_id === $profile->user_id && $project->visibility === 'public' && $project->image_path, 404);
         $disk = $project->image_disk ?: 'local';
-        abort_unless(Storage::disk($disk)->exists($project->image_path), 404);
+        /** @var FilesystemAdapter $storage */
+        $storage = Storage::disk($disk);
+        abort_unless($storage->exists($project->image_path), 404);
 
-        return Storage::disk($disk)->response($project->image_path, $project->image_original_filename ?: basename($project->image_path), [
+        return $storage->response($project->image_path, $project->image_original_filename ?: basename($project->image_path), [
             'Content-Type' => $project->image_mime_type ?: 'application/octet-stream',
         ]);
     }
@@ -62,9 +64,13 @@ class PublicPortfolioController extends Controller
         $profile = $this->profile($slug);
         abort_unless($profile->show_resume, 404);
         $resume = $profile->user->resumes()->where('is_primary', true)->first() ?: $profile->user->resumes()->latest()->first();
-        abort_unless($resume && Storage::disk($resume->file_disk)->exists($resume->file_path), 404);
+        abort_unless($resume, 404);
 
-        return Storage::disk($resume->file_disk)->download($resume->file_path, $resume->original_filename);
+        /** @var FilesystemAdapter $storage */
+        $storage = Storage::disk($resume->file_disk);
+        abort_unless($storage->exists($resume->file_path), 404);
+
+        return $storage->download($resume->file_path, $resume->original_filename);
     }
 
     private function profile(string $slug): CareerProfile

@@ -102,6 +102,19 @@ class LiveJobBoardTest extends TestCase
             ->assertSee('Live jobs are temporarily unavailable');
     }
 
+    public function test_an_oversized_job_api_response_is_rejected_without_crashing(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => now(), 'onboarding_completed_at' => now()]);
+
+        Http::fake([
+            'https://www.arbeitnow.com/api/job-board-api*' => Http::response(str_repeat('x', 6 * 1024 * 1024 + 1)),
+        ]);
+
+        $this->actingAs($user)->get(route('discover'))
+            ->assertOk()
+            ->assertSee('Live jobs are temporarily unavailable');
+    }
+
     public function test_provider_page_is_cached_and_user_search_is_applied_after_cache(): void
     {
         Cache::forget('arbeitnow.jobs.page.1');

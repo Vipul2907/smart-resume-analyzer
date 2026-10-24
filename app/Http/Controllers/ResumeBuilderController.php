@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Resume;
-use App\Models\ResumeVersion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -132,7 +131,7 @@ class ResumeBuilderController extends Controller
                 $row[$key] = trim((string) ($item[$key] ?? ''));
             }
 
-return $row;
+            return $row;
         })->filter(fn ($row) => collect($row)->filter()->isNotEmpty())->values()->all();
         $experience = $clean($request->input('experience'), ['title', 'company', 'location', 'start', 'end', 'highlights_text']);
         $experience = collect($experience)->map(function ($item) {

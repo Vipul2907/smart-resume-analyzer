@@ -162,7 +162,7 @@ class AnalyticsController extends Controller
 
         $completedInterviews = $interviews->where('status', 'completed')->count();
         $responded = $jobs->whereIn('status', ['interviewing', 'offer'])->count();
-        $active = $jobs->whereIn('status', ['saved', 'applied', 'interviewing', 'offer'])->count();
+        $active = $jobs->whereIn('status', JobApplication::ACTIVE_STATUSES)->count();
         $applicationCount = $jobs->count();
         $skillAverage = $skills->filter(fn ($skill) => is_numeric($skill->proficiency))->avg('proficiency');
         $goalAverage = $goals->filter(fn ($goal) => is_numeric($goal->progress))->avg('progress');

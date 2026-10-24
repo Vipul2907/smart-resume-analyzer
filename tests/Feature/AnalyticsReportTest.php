@@ -73,4 +73,27 @@ class AnalyticsReportTest extends TestCase
             ->assertSee('Latest resume score')
             ->assertSee('89/100');
     }
+
+    public function test_dashboard_and_analytics_use_the_same_active_application_statuses(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => now(),
+            'onboarding_completed_at' => now(),
+        ]);
+
+        foreach (['saved', 'applied', 'interviewing', 'offer', 'closed', 'withdrawn', 'rejected'] as $status) {
+            JobApplication::query()->create([
+                'user_id' => $user->id,
+                'company' => 'Example company',
+                'role' => 'Example role',
+                'status' => $status,
+            ]);
+        }
+
+        $dashboard = $this->actingAs($user)->get(route('dashboard'))->assertOk();
+        $analytics = $this->actingAs($user)->get(route('analytics'))->assertOk();
+
+        $this->assertSame(4, $dashboard->viewData('dashboardStats')['activeApplications']);
+        $this->assertSame(4, $analytics->viewData('metrics')['active']);
+    }
 }

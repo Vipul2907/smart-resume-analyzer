@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\InterviewSession;
 use App\Models\Skill;
 use App\Models\User;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -52,7 +53,7 @@ class WorkspaceCompatibilityTest extends TestCase
         $skill = Skill::firstOrFail();
         $this->assertSame(100, $skill->proficiency);
         $this->assertNotEmpty($skill->certificate_path);
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        /** @var FilesystemAdapter $disk */
         $disk = Storage::disk('local');
         $disk->assertExists($skill->certificate_path);
         $this->actingAs($user)->get(route('skills.certificate.download', $skill))->assertOk();

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\InteractsWithWorkspaceRecords;
 use App\Models\CareerGoal;
 use App\Models\CareerProfile;
+use App\Models\JobApplication;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -78,7 +79,7 @@ class WorkspaceController extends Controller
             $data['primaryResume'] = $user->resumes()->where('is_primary', true)->first() ?: $user->resumes()->latest()->first();
             $data['dashboardStats'] = [
                 'applications' => $user->jobApplications()->count(),
-                'activeApplications' => $user->jobApplications()->whereIn('status', ['applied', 'interviewing', 'offer'])->count(),
+                'activeApplications' => $user->jobApplications()->whereIn('status', JobApplication::ACTIVE_STATUSES)->count(),
                 'completedInterviews' => $user->interviewSessions()->where('status', 'completed')->count(),
                 'skills' => $user->skills()->count(),
             ];

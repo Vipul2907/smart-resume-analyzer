@@ -31,10 +31,12 @@ class ResumeTextExtractionTest extends TestCase
             $this->assertSame(true, $zip->open($temporaryFile, ZipArchive::OVERWRITE));
             $zip->addFromString('word/document.xml', <<<'XML'
                 <?xml version="1.0" encoding="UTF-8"?>
-                <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>
-                    <w:p><w:r><w:t>Bangalore, India(555) 123-4567</w:t></w:r></w:p>
-                    <w:p><w:r><w:t>Next paragraph</w:t></w:r></w:p>
-                </w:body></w:document>
+                <x:document xmlns:x="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><x:body>
+                    <x:p><x:r><x:t>Bangalore, India</x:t></x:r><x:r><x:t>(555) 123-4567</x:t></x:r></x:p>
+                    <x:p><x:r><x:t>Next paragraph</x:t></x:r></x:p>
+                    <x:p><x:r><x:t>Skills</x:t></x:r></x:p>
+                    <x:p><x:r><x:t>PHP, Laravel, XML</x:t></x:r></x:p>
+                </x:body></x:document>
                 XML);
             $zip->close();
             Storage::disk('local')->put($path, (string) file_get_contents($temporaryFile));
@@ -51,6 +53,7 @@ class ResumeTextExtractionTest extends TestCase
         $this->assertSame('parsed', $result['status']);
         $this->assertStringContainsString('Bangalore, India (555) 123-4567', $result['text']);
         $this->assertStringContainsString("123-4567\nNext paragraph", $result['text']);
+        $this->assertStringContainsString("Skills\nPHP, Laravel, XML", $result['text']);
     }
 
     public function test_pdf_parser_separates_a_phone_number_from_a_location(): void
@@ -97,6 +100,28 @@ class ResumeTextExtractionTest extends TestCase
         $this->actingAs($user)->get(route('resumes.show', $resume))
             ->assertOk()
             ->assertSee('id="resume-details"', false);
+    }
+
+    public function test_resume_library_paginates_large_collections(): void
+    {
+        $user = $this->user();
+
+        foreach (range(1, 12) as $number) {
+            $user->resumes()->create([
+                'name' => 'Resume '.$number,
+                'original_filename' => 'resume-'.$number.'.txt',
+                'file_path' => 'resumes/'.$user->id.'/resume-'.$number.'.txt',
+                'mime_type' => 'text/plain',
+                'file_size' => 10,
+            ]);
+        }
+
+        $firstPage = $this->actingAs($user)->get(route('resumes'))->assertOk()->viewData('resumes');
+        $secondPage = $this->actingAs($user)->get(route('resumes', ['page' => 2]))->assertOk()->viewData('resumes');
+
+        $this->assertSame(12, $firstPage->total());
+        $this->assertCount(10, $firstPage->items());
+        $this->assertCount(2, $secondPage->items());
     }
 
     private function user(): User

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\CareerGoal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;

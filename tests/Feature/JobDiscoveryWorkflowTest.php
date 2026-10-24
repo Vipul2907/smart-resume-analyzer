@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\JobSearch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

@@ -70,6 +70,12 @@
             </article>
         @endforelse
 
+        @if (method_exists($resumes, 'hasPages') && $resumes->hasPages())
+            <nav class="card p-4" aria-label="Resume pages">
+                {{ $resumes->links() }}
+            </nav>
+        @endif
+
         @if ($activeResume)
             <article id="resume-details" tabindex="-1" class="card scroll-mt-24 p-5 sm:p-6">
                 <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
