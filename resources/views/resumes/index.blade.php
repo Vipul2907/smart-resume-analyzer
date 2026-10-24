@@ -33,7 +33,7 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <a href="{{ route('resumes.show', $resume) }}" class="btn btn-secondary">Details</a>
+                        <a href="{{ route('resumes.show', $resume) }}#resume-details" class="btn btn-secondary">Details</a>
                         <a href="{{ route('resumes.builder.edit', $resume) }}" class="btn btn-secondary">Edit
                             builder</a>
                         <a href="{{ route('resumes.download', $resume) }}" class="btn btn-secondary">Download</a>
@@ -71,7 +71,7 @@
         @endforelse
 
         @if ($activeResume)
-            <article class="card p-5 sm:p-6">
+            <article id="resume-details" tabindex="-1" class="card scroll-mt-24 p-5 sm:p-6">
                 <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                     <div>
                         <p class="eyebrow">Resume details</p>

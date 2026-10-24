@@ -63,7 +63,13 @@ class ResumeTextExtractor
             $xml = $zip->getFromName($entry);
 
             if ($xml !== false) {
-                $parts[] = preg_replace('/<w:tab\/>/', ' ', $xml);
+                $xml = preg_replace('/>\s+</', '><', $xml) ?? $xml;
+                $xml = preg_replace('/<w:tab\b[^>]*\/>/i', ' ', $xml) ?? $xml;
+                $xml = preg_replace('/<w:br\b[^>]*\/>/i', "\n", $xml) ?? $xml;
+                $xml = preg_replace('/<\/w:tc\s*>/i', "\t", $xml) ?? $xml;
+                $xml = preg_replace('/<\/w:tr\s*>/i', "\n", $xml) ?? $xml;
+                $xml = preg_replace('/<\/w:p\s*>/i', "\n", $xml) ?? $xml;
+                $parts[] = $xml;
             }
         }
 
@@ -130,6 +136,8 @@ class ResumeTextExtractor
 
     private function normalizeText(string $text): string
     {
+        // PDF and DOCX text runs can join a location directly to a phone number.
+        $text = preg_replace('/(?<=\p{L})\(/u', ' (', $text) ?? $text;
         $text = preg_replace('/[ \t]+/', ' ', $text) ?? $text;
         $text = preg_replace('/\R{3,}/', "\n\n", $text) ?? $text;
 

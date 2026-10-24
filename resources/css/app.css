@@ -12,6 +12,15 @@
     --color-violet: #635bff;
 }
 
+.brand-logo {
+    margin-left: 4.5rem;
+}
+@media (min-width: 1024px) {
+    .brand-logo {
+        margin-left: 0;
+    }
+}
+
 :root {
     color-scheme: light;
 }

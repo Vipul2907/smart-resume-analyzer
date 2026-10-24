@@ -27,7 +27,7 @@
         <div class="min-h-screen lg:pl-64">
             <header
                 class="sticky top-0 z-20 flex items-center justify-between border-b border-white/[.07] bg-[#090e20]/95 px-5 py-4 backdrop-blur lg:px-9">
-                <a href="{{ route('dashboard') }}" class="font-bold lg:hidden">SMART<span
+                <a href="{{ route('dashboard') }}" class="brand-logo font-bold lg:hidden">SMART<span
                         class="text-violet-500">CV</span></a>
                 <div class="hidden w-full max-w-sm sm:block"><label class="relative block"><span
                             class="pointer-events-none absolute left-3 top-2.5 text-slate-400">⌕</span><input
