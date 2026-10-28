@@ -127,6 +127,7 @@
                         @foreach (['name' => 'Full name', 'email' => 'Email', 'phone' => 'Phone', 'location' => 'Location', 'website' => 'Website', 'linkedin' => 'LinkedIn URL'] as $key => $label)
                             <label class="text-xs text-zinc-400">{{ $label }}<input
                                     name="personal[{{ $key }}]" class="input mt-1"
+                                    @if (in_array($key, ['name', 'email'], true)) required @endif
                                     value="{{ old('personal.' . $key, $personal[$key] ?? '') }}"></label>
                         @endforeach
                     </div>
@@ -134,7 +135,7 @@
                 <section class="builder-card p-5 sm:p-6">
                     <p class="eyebrow">Your pitch</p>
                     <h2 class="mt-1 text-xl font-semibold">Professional summary</h2>
-                    <textarea name="summary" class="input mt-5 h-36 resize-y" placeholder="Write 3–5 lines about the value you bring.">{{ old('summary', $content['summary']) }}</textarea>
+                    <textarea name="summary" required class="input mt-5 h-36 resize-y" placeholder="Write 3–5 lines about the value you bring.">{{ old('summary', $content['summary']) }}</textarea>
                 </section>
 
                 @foreach ($collections as $collection => $items)
@@ -207,6 +208,7 @@
                                                     @if ($key === 'details')
                                                     <textarea class="input mt-1 h-20" name="education[{{ $index }}][{{ $key }}]">{{ $item[$key] ?? '' }}</textarea>@else<input class="input mt-1"
                                                             name="education[{{ $index }}][{{ $key }}]"
+                                                            @if (in_array($key, ['degree', 'school'], true)) required @endif
                                                             value="{{ $item[$key] ?? '' }}">
                                                     @endif
                                                 </label>
@@ -255,6 +257,24 @@
                                 value="{{ old('interests', implode(', ', $content['interests'])) }}"
                                 placeholder="Running, accessibility, photography"></label></div>
                 </section>
+                <section class="builder-card p-5 sm:p-6">
+                    <p class="eyebrow">Optional closing</p>
+                    <h2 class="mt-1 text-xl font-semibold">Declaration line</h2>
+                    <label class="mt-5 block text-xs text-zinc-400">Would you like to add this declaration to the end of your resume?
+                        <select name="declaration_enabled" class="input mt-1" data-declaration-choice>
+                            <option value="0" @selected((string) old('declaration_enabled', !empty($content['declaration_enabled']) ? '1' : '0') === '0')>No, leave it out</option>
+                            <option value="1" @selected((string) old('declaration_enabled', !empty($content['declaration_enabled']) ? '1' : '0') === '1')>Yes, add it</option>
+                        </select>
+                    </label>
+                    <div class="mt-4 space-y-3" data-declaration-fields @if ((string) old('declaration_enabled', !empty($content['declaration_enabled']) ? '1' : '0') !== '1') hidden @endif>
+                        <p class="rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-700">“I hereby declare that the information provided above is true and correct to the best of my knowledge and belief.”</p>
+                        <label class="block text-xs text-zinc-400">Name to print under the declaration
+                            <input name="declaration_name" class="input mt-1" data-declaration-name
+                                value="{{ old('declaration_name', $content['declaration_name'] ?: $personal['name']) }}"
+                                @if ((string) old('declaration_enabled', !empty($content['declaration_enabled']) ? '1' : '0') === '1') required @endif>
+                        </label>
+                    </div>
+                </section>
             </div>
             <aside class="space-y-5">
                 <section class="builder-card sticky top-24 p-5">
@@ -274,8 +294,7 @@
                                 <option value="one" @selected($settings['page_length'] === 'one')>One page</option>
                                 <option value="two" @selected($settings['page_length'] === 'two')>Two pages</option>
                             </select></label></div>
-                    <div class="preview-note mt-5 rounded-xl p-4 text-xs leading-5 text-zinc-300">Choose a template
-                        without losing any writing. Open Preview to print or choose “Save as PDF” in your browser.</div>
+                    <div class="preview-note mt-5 rounded-xl p-4 text-xs leading-5 text-zinc-300">The one-page print preview keeps all your details and adjusts the layout to fit one A4 page. Long resumes may have smaller text. Open Preview to print or choose “Save as PDF” in your browser.</div>
                     <button
                         class="btn btn-primary mt-5 w-full">{{ $resume ? 'Save resume' : 'Create resume' }}</button>
                     @if ($resume)
@@ -303,7 +322,7 @@
         </div>
     </template>
     @foreach ([
-        'education' => '<div class="grid gap-3 sm:grid-cols-2"><label class="text-xs text-zinc-400">Degree / qualification<input class="input mt-1" name="education[__i__][degree]"></label><label class="text-xs text-zinc-400">School<input class="input mt-1" name="education[__i__][school]"></label><label class="text-xs text-zinc-400">Location<input class="input mt-1" name="education[__i__][location]"></label><label class="text-xs text-zinc-400">Start<input class="input mt-1" name="education[__i__][start]"></label><label class="text-xs text-zinc-400">End<input class="input mt-1" name="education[__i__][end]"></label><label class="text-xs text-zinc-400 sm:col-span-2">Details<textarea class="input mt-1 h-20" name="education[__i__][details]"></textarea></label></div>',
+        'education' => '<div class="grid gap-3 sm:grid-cols-2"><label class="text-xs text-zinc-400">Degree / qualification<input class="input mt-1" required name="education[__i__][degree]"></label><label class="text-xs text-zinc-400">School<input class="input mt-1" required name="education[__i__][school]"></label><label class="text-xs text-zinc-400">Location<input class="input mt-1" name="education[__i__][location]"></label><label class="text-xs text-zinc-400">Start<input class="input mt-1" name="education[__i__][start]"></label><label class="text-xs text-zinc-400">End<input class="input mt-1" name="education[__i__][end]"></label><label class="text-xs text-zinc-400 sm:col-span-2">Details<textarea class="input mt-1 h-20" name="education[__i__][details]"></textarea></label></div>',
         'projects' => '<div class="grid gap-3 sm:grid-cols-2"><label class="text-xs text-zinc-400">Project name<input class="input mt-1" name="projects[__i__][name]"></label><label class="text-xs text-zinc-400">Your role<input class="input mt-1" name="projects[__i__][role]"></label><label class="text-xs text-zinc-400 sm:col-span-2">Project link<input class="input mt-1" name="projects[__i__][link]"></label><label class="text-xs text-zinc-400 sm:col-span-2">Details<textarea class="input mt-1 h-24" name="projects[__i__][details]"></textarea></label></div>',
         'certifications' => '<div class="grid gap-3 sm:grid-cols-3"><label class="text-xs text-zinc-400">Certification name<input class="input mt-1" name="certifications[__i__][name]"></label><label class="text-xs text-zinc-400">Issuer<input class="input mt-1" name="certifications[__i__][issuer]"></label><label class="text-xs text-zinc-400">Date<input class="input mt-1" name="certifications[__i__][date]"></label></div>',
         'awards' => '<div class="grid gap-3 sm:grid-cols-3"><label class="text-xs text-zinc-400">Award name<input class="input mt-1" name="awards[__i__][name]"></label><label class="text-xs text-zinc-400">Issuer<input class="input mt-1" name="awards[__i__][issuer]"></label><label class="text-xs text-zinc-400">Date<input class="input mt-1" name="awards[__i__][date]"></label></div>',
@@ -319,6 +338,15 @@
     @endforeach
     <script>
         const form = document.querySelector('[data-autosave]');
+        const declarationChoice = document.querySelector('[data-declaration-choice]');
+        const declarationFields = document.querySelector('[data-declaration-fields]');
+        const declarationName = document.querySelector('[data-declaration-name]');
+        declarationChoice?.addEventListener('change', () => {
+            const enabled = declarationChoice.value === '1';
+            declarationFields.hidden = !enabled;
+            declarationName.required = enabled;
+            form?.dispatchEvent(new Event('input', { bubbles: true }));
+        });
         document.addEventListener('click', e => {
             const add = e.target.closest('[data-add]');
             if (add) {

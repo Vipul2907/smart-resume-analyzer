@@ -123,7 +123,20 @@ class ResumeBuilderController extends Controller
 
     private function contentFromRequest(Request $request): array
     {
-        $request->validate(['summary' => ['nullable', 'string', 'max:6000'], 'template' => ['nullable', 'in:classic,modern,executive'], 'accent_color' => ['nullable', 'regex:/^#[A-Fa-f0-9]{6}$/'], 'page_length' => ['nullable', 'in:one,two']]);
+        $request->validate([
+            'personal' => ['required', 'array'],
+            'personal.name' => ['required', 'string', 'max:255'],
+            'personal.email' => ['required', 'email', 'max:255'],
+            'summary' => ['required', 'string', 'max:6000'],
+            'education' => ['required', 'array', 'min:1'],
+            'education.*.degree' => ['required', 'string', 'max:255'],
+            'education.*.school' => ['required', 'string', 'max:255'],
+            'declaration_enabled' => ['required', 'boolean'],
+            'declaration_name' => ['exclude_unless:declaration_enabled,1', 'required', 'string', 'max:255'],
+            'template' => ['nullable', 'in:classic,modern,executive'],
+            'accent_color' => ['nullable', 'regex:/^#[A-Fa-f0-9]{6}$/'],
+            'page_length' => ['nullable', 'in:one,two'],
+        ]);
         $clean = fn ($items, array $keys) => collect($items ?: [])->map(function ($item) use ($keys) {
             $item = is_array($item) ? $item : [];
             $row = [];
@@ -141,17 +154,17 @@ class ResumeBuilderController extends Controller
             return $item;
         })->all();
 
-        return $this->normalise(['personal' => array_map(fn ($value) => trim((string) $value), $request->input('personal', [])), 'summary' => trim((string) $request->input('summary')), 'experience' => $experience, 'education' => $clean($request->input('education'), ['degree', 'school', 'location', 'start', 'end', 'details']), 'skills' => collect(explode(',', (string) $request->input('skills')))->map(fn ($s) => trim($s))->filter()->values()->all(), 'projects' => $clean($request->input('projects'), ['name', 'role', 'link', 'details']), 'certifications' => $clean($request->input('certifications'), ['name', 'issuer', 'date']), 'awards' => $clean($request->input('awards'), ['name', 'issuer', 'date']), 'languages' => $clean($request->input('languages'), ['name', 'level']), 'interests' => collect(explode(',', (string) $request->input('interests')))->map(fn ($s) => trim($s))->filter()->values()->all(), 'custom_sections' => $clean($request->input('custom_sections'), ['title', 'content']), 'settings' => ['template' => $request->input('template', 'classic'), 'accent_color' => $request->input('accent_color', '#7c3aed'), 'font_family' => $request->input('font_family', 'Inter'), 'page_length' => $request->input('page_length', 'one')]]);
+        return $this->normalise(['personal' => array_map(fn ($value) => trim((string) $value), $request->input('personal', [])), 'summary' => trim((string) $request->input('summary')), 'experience' => $experience, 'education' => $clean($request->input('education'), ['degree', 'school', 'location', 'start', 'end', 'details']), 'skills' => collect(explode(',', (string) $request->input('skills')))->map(fn ($s) => trim($s))->filter()->values()->all(), 'projects' => $clean($request->input('projects'), ['name', 'role', 'link', 'details']), 'certifications' => $clean($request->input('certifications'), ['name', 'issuer', 'date']), 'awards' => $clean($request->input('awards'), ['name', 'issuer', 'date']), 'languages' => $clean($request->input('languages'), ['name', 'level']), 'interests' => collect(explode(',', (string) $request->input('interests')))->map(fn ($s) => trim($s))->filter()->values()->all(), 'custom_sections' => $clean($request->input('custom_sections'), ['title', 'content']), 'declaration_enabled' => $request->boolean('declaration_enabled'), 'declaration_name' => trim((string) $request->input('declaration_name')), 'settings' => ['template' => $request->input('template', 'classic'), 'accent_color' => $request->input('accent_color', '#7c3aed'), 'font_family' => $request->input('font_family', 'Inter'), 'page_length' => $request->input('page_length', 'one')]]);
     }
 
     private function emptyContent(Request $request): array
     {
-        return $this->normalise(['personal' => ['name' => $request->user()->name, 'email' => $request->user()->email, 'phone' => '', 'location' => '', 'website' => '', 'linkedin' => '']]);
+        return $this->normalise(['personal' => ['name' => $request->user()->name, 'email' => $request->user()->email, 'phone' => '', 'location' => '', 'website' => '', 'linkedin' => ''], 'education' => [['degree' => '', 'school' => '', 'location' => '', 'start' => '', 'end' => '', 'details' => '']]]);
     }
 
     private function normalise(array $content): array
     {
-        $defaults = ['personal' => ['name' => '', 'email' => '', 'phone' => '', 'location' => '', 'website' => '', 'linkedin' => ''], 'summary' => '', 'experience' => [], 'education' => [], 'skills' => [], 'projects' => [], 'certifications' => [], 'awards' => [], 'languages' => [], 'interests' => [], 'custom_sections' => [], 'settings' => ['template' => 'classic', 'accent_color' => '#7c3aed', 'font_family' => 'Inter', 'page_length' => 'one']];
+        $defaults = ['personal' => ['name' => '', 'email' => '', 'phone' => '', 'location' => '', 'website' => '', 'linkedin' => ''], 'summary' => '', 'experience' => [], 'education' => [], 'skills' => [], 'projects' => [], 'certifications' => [], 'awards' => [], 'languages' => [], 'interests' => [], 'custom_sections' => [], 'declaration_enabled' => false, 'declaration_name' => '', 'settings' => ['template' => 'classic', 'accent_color' => '#7c3aed', 'font_family' => 'Inter', 'page_length' => 'one']];
 
         return array_replace_recursive($defaults, $content);
     }
@@ -174,25 +187,97 @@ class ResumeBuilderController extends Controller
 
     private function plainText(array $content): string
     {
-        return trim(collect([$content['personal']['name'] ?? '', $content['summary'] ?? '', collect($content['experience'] ?? [])->pluck('title')->implode("\n"), collect($content['skills'] ?? [])->implode(', ')])->filter()->implode("\n\n"));
+        $sections = [$content['personal']['name'] ?? '', collect($content['personal'] ?? [])->except('name')->filter()->implode(' · '), $content['summary'] ?? ''];
+        foreach (['experience', 'education', 'projects', 'certifications', 'awards', 'languages', 'custom_sections'] as $key) {
+            foreach ($content[$key] ?? [] as $item) {
+                $sections[] = collect($item)->flatten()->filter()->implode(' · ');
+            }
+        }
+        $sections[] = collect($content['skills'] ?? [])->implode(', ');
+        $sections[] = collect($content['interests'] ?? [])->implode(', ');
+        if (! empty($content['declaration_enabled'])) {
+            $sections[] = 'I hereby declare that the information provided above is true and correct to the best of my knowledge and belief.';
+            $sections[] = $content['declaration_name'] ?? '';
+        }
+
+        return trim(collect($sections)->filter()->implode("\n\n"));
     }
 
     private function docxXml(array $content): string
     {
-        $lines = [$content['personal']['name'] ?? 'Resume', $content['summary'] ?? ''];
-        foreach (['experience' => 'Experience', 'education' => 'Education', 'projects' => 'Projects', 'certifications' => 'Certifications', 'awards' => 'Awards', 'languages' => 'Languages'] as $key => $title) {
+        $template = in_array($content['settings']['template'] ?? 'classic', ['classic', 'modern', 'executive'], true)
+            ? $content['settings']['template']
+            : 'classic';
+        $accent = ltrim((string) ($content['settings']['accent_color'] ?? '#7c3aed'), '#');
+        if (! preg_match('/^[A-Fa-f0-9]{6}$/', $accent)) {
+            $accent = '7C3AED';
+        }
+        $accent = strtoupper($accent);
+        $font = $template === 'executive' ? 'Georgia' : 'Arial';
+        $paragraphs = [];
+        $addParagraph = function (string $text, string $role = 'body') use (&$paragraphs, $template, $accent, $font): void {
+            if ($text === '') {
+                return;
+            }
+
+            $size = match ($role) {
+                'title' => $template === 'modern' ? 44 : 40,
+                'section' => $template === 'executive' ? 24 : 22,
+                'meta' => 18,
+                default => 20,
+            };
+            $color = match ([$template, $role]) {
+                ['modern', 'title'], ['modern', 'section'] => $accent,
+                ['executive', 'title'], ['executive', 'section'] => '24344D',
+                default => '1F2937',
+            };
+            $paragraphStyle = '';
+            if ($role === 'section') {
+                $paragraphStyle .= $template === 'modern'
+                    ? '<w:pBdr><w:left w:val="single" w:sz="18" w:space="8" w:color="'.$accent.'"/></w:pBdr><w:shd w:val="clear" w:color="auto" w:fill="F1F5F9"/>'
+                    : '<w:pBdr><w:bottom w:val="single" w:sz="'.($template === 'executive' ? '8' : '4').'" w:space="3" w:color="'.($template === 'executive' ? $accent : '64748B').'"/></w:pBdr>';
+            }
+            $paragraphStyle .= '<w:spacing w:after="'.($role === 'section' ? '100' : '60').'" w:line="'.($template === 'executive' ? '260' : '240').'" w:lineRule="auto"/>';
+            if ($template === 'executive' && in_array($role, ['title', 'meta'], true)) {
+                $paragraphStyle .= '<w:jc w:val="center"/>';
+            }
+            $bold = in_array($role, ['title', 'section'], true) ? '<w:b/>' : '';
+            $runStyle = '<w:rFonts w:ascii="'.$font.'" w:hAnsi="'.$font.'"/><w:sz w:val="'.$size.'"/><w:color w:val="'.$color.'"/>'.$bold;
+            $paragraphs[] = '<w:p><w:pPr>'.$paragraphStyle.'</w:pPr><w:r><w:rPr>'.$runStyle.'</w:rPr><w:t xml:space="preserve">'.htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</w:t></w:r></w:p>';
+        };
+
+        $addParagraph((string) ($content['personal']['name'] ?? 'Resume'), 'title');
+        $addParagraph('CONTACT INFORMATION', 'section');
+        $addParagraph(collect($content['personal'] ?? [])->except('name')->filter()->implode(' | '), 'meta');
+        $addParagraph('PROFESSIONAL SUMMARY', 'section');
+        $addParagraph((string) ($content['summary'] ?? ''));
+        foreach (['education' => 'EDUCATION', 'experience' => 'EXPERIENCE', 'projects' => 'PROJECTS', 'certifications' => 'CERTIFICATIONS', 'awards' => 'AWARDS', 'languages' => 'LANGUAGES'] as $key => $title) {
             if (! empty($content[$key])) {
-                $lines[] = $title;
+                $addParagraph($title, 'section');
                 foreach ($content[$key] as $item) {
-                    $lines[] = implode(' | ', array_filter(is_array($item) ? array_map(fn ($v) => is_array($v) ? implode('; ', $v) : $v, $item) : []));
+                    $addParagraph(collect($item)->map(fn ($value) => is_array($value) ? implode('; ', $value) : $value)->filter()->implode(' | '));
                 }
             }
-        } if (! empty($content['skills'])) {
-            $lines[] = 'Skills';
-            $lines[] = implode(', ', $content['skills']);
-        } $paragraphs = collect($lines)->filter(fn ($line) => $line !== '')->map(fn ($line) => '<w:p><w:r><w:t xml:space="preserve">'.htmlspecialchars($line, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</w:t></w:r></w:p>')->implode('');
+        }
+        if (! empty($content['skills'])) {
+            $addParagraph('SKILLS', 'section');
+            $addParagraph(implode(', ', $content['skills']));
+        }
+        if (! empty($content['interests'])) {
+            $addParagraph('INTERESTS', 'section');
+            $addParagraph(implode(', ', $content['interests']));
+        }
+        foreach ($content['custom_sections'] ?? [] as $section) {
+            $addParagraph((string) ($section['title'] ?? 'Additional information'), 'section');
+            $addParagraph((string) ($section['content'] ?? ''));
+        }
+        if (! empty($content['declaration_enabled'])) {
+            $addParagraph('DECLARATION', 'section');
+            $addParagraph('I hereby declare that the information provided above is true and correct to the best of my knowledge and belief.');
+            $addParagraph((string) ($content['declaration_name'] ?? ''), 'meta');
+        }
 
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'.$paragraphs.$this->a4SectionXml().'</w:body></w:document>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'.implode('', $paragraphs).$this->a4SectionXml().'</w:body></w:document>';
     }
 
     private function a4SectionXml(): string

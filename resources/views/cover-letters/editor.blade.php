@@ -112,11 +112,14 @@
                                     <option value="{{ $value }}" @selected(old('template', $letter?->template ?? 'modern') === $value)>
                                         {{ $label }}</option>
                                 @endforeach
-                            </select></label><label class="mt-4 block text-xs text-zinc-400">Status<select
+                            </select></label>
+                        <p class="mt-2 text-xs leading-5 text-zinc-500">The selected style changes the page design in Preview, PDF, and DOCX. It keeps your own letter wording as written.</p>
+                        <label class="mt-4 block text-xs text-zinc-400">Status<select
                                 name="status" class="input mt-1">
                                 <option value="draft" @selected(old('status', $letter?->status ?? 'draft') === 'draft')>Draft</option>
-                                <option value="ready" @selected(old('status', $letter?->status) === 'ready')>Ready to send</option>
+                                <option value="ready" @selected(old('status', $letter?->status) === 'ready')>Ready to share</option>
                             </select></label>
+                        <p class="mt-2 text-xs leading-5 text-zinc-500">Draft or Ready to share is saved as a workspace status and does not add extra wording to your letter.</p>
                         <div
                             class="mt-5 rounded-xl border border-cyan-400/20 bg-cyan-400/[.06] p-4 text-xs leading-5 text-zinc-300">
                             Keep it truthful. A strong cover letter connects evidence from your actual experience to the

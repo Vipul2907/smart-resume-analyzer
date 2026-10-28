@@ -40,13 +40,13 @@
                         <div class="flex items-start justify-between gap-4">
                             <div>
                                 <p class="text-[10px] font-bold uppercase tracking-[.16em] text-violet-300">
-                                    {{ ucfirst($letter->template) }} template</p>
+                                    {{ ['modern' => 'Modern and direct', 'classic' => 'Classic and formal', 'warm' => 'Warm and personal'][$letter->template] ?? 'Classic and formal' }}</p>
                                 <h2 class="mt-2 text-lg font-semibold">{{ $letter->title }}</h2>
                                 <p class="mt-1 text-sm text-zinc-500">
                                     {{ $letter->company_name ?: 'Company not added' }}{{ $letter->job_title ? ' · ' . $letter->job_title : '' }}
                                 </p>
                             </div><span
-                                class="rounded-full bg-white/[.06] px-3 py-1 text-xs capitalize text-zinc-300">{{ $letter->status }}</span>
+                                class="rounded-full px-3 py-1 text-xs font-semibold {{ $letter->status === 'ready' ? 'bg-emerald-400/10 text-emerald-200' : 'bg-amber-400/10 text-amber-200' }}">{{ $letter->status === 'ready' ? 'Ready to share' : 'Draft' }}</span>
                         </div>
                         <p class="mt-5 line-clamp-3 text-sm leading-6 text-zinc-400">{{ $letter->body }}</p>
                         <div class="mt-auto flex flex-wrap gap-2 border-t border-white/[.07] pt-5"><a

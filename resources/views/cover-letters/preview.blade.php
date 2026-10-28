@@ -1,5 +1,8 @@
+@php
+    $letterTemplate = in_array($letter->template, ['modern', 'classic', 'warm'], true) ? $letter->template : 'classic';
+@endphp
 <!doctype html>
-<html lang="en">
+<html lang="en" class="cover-letter-template-{{ $letterTemplate }} cover-letter-status-{{ $letter->status === 'ready' ? 'ready' : 'draft' }}">
 
 <head>
     <meta charset="utf-8">
@@ -78,6 +81,77 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, .18);
         }
 
+        .cover-letter-template-modern body {
+            font-family: Arial, sans-serif;
+        }
+
+        .cover-letter-template-modern .page-source,
+        .cover-letter-template-modern .page {
+            border-top: 7px solid #3158a6;
+            padding-top: 17mm;
+        }
+
+        .cover-letter-template-modern .letter-sender {
+            padding-bottom: 12px;
+            border-bottom: 1px solid #d7deea;
+        }
+
+        .cover-letter-template-modern .subject {
+            margin-top: 24px;
+            color: #25457f;
+        }
+
+        .cover-letter-template-classic body {
+            font-family: "Times New Roman", serif;
+        }
+
+        .cover-letter-template-classic .subject {
+            padding-bottom: 8px;
+            border-bottom: 1px solid #64748b;
+        }
+
+        .cover-letter-template-classic p {
+            line-height: 1.8;
+        }
+
+        .cover-letter-template-warm body {
+            color: #4f4039;
+            font-family: Georgia, serif;
+        }
+
+        .cover-letter-template-warm .page-source,
+        .cover-letter-template-warm .page {
+            border-left: 5px solid #bd8067;
+            padding-left: 17mm;
+            background: #fffdfa;
+        }
+
+        .cover-letter-template-warm .subject {
+            color: #89543f;
+        }
+
+        .cover-letter-template-warm p {
+            line-height: 1.85;
+        }
+
+        .preview-status {
+            align-self: center;
+            padding: 8px 13px;
+            border-radius: 999px;
+            color: #fff;
+            font: 700 12px/1.2 Arial, sans-serif;
+        }
+
+        .cover-letter-status-draft .preview-status {
+            background: #fff7ed;
+            color: #9a3412;
+        }
+
+        .cover-letter-status-ready .preview-status {
+            background: #dcfce7;
+            color: #166534;
+        }
+
         .is-paginated .page-source {
             display: none;
         }
@@ -102,6 +176,10 @@
         @media print {
 
             .toolbar {
+                display: none;
+            }
+
+            .preview-status {
                 display: none;
             }
 
@@ -148,6 +226,7 @@
 <body>
     @include('components.skip-link')
     <div class="toolbar">
+        <span class="preview-status">{{ $letter->status === 'ready' ? 'Ready to share' : 'Draft' }}</span>
         <a href="{{ route('cover-letters.edit', $letter) }}">Back to editor</a><a
             href="{{ route('cover-letters.download.docx', $letter) }}">Download DOCX</a><button
             onclick="window.print()">Print / Save PDF</button>
@@ -156,7 +235,7 @@
         aria-label="A4 cover letter preview. Each visible paper section is one A4 print page." id="main-content"
         tabindex="-1">
         <section class="page-source" data-page-source>
-            <div class="meta" data-page-block>
+            <div class="meta letter-sender" data-page-block>
                 {{ auth()->user()->name }}<br>{{ auth()->user()->email }}<br>{{ now()->format('F j, Y') }}</div>
             @if ($letter->recipient_name || $letter->company_name)
                 <p class="meta" data-page-block>{{ $letter->recipient_name }}@if ($letter->recipient_name && $letter->company_name)

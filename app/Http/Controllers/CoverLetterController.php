@@ -74,7 +74,7 @@ class CoverLetterController extends Controller
     public function downloadText(Request $request, CoverLetter $coverLetter)
     {
         $this->owns($request, $coverLetter);
-        $coverLetter->update(['last_exported_at' => now(), 'status' => 'ready']);
+        $coverLetter->update(['last_exported_at' => now()]);
 
         return response($this->plainText($coverLetter), 200, [
             'Content-Type' => 'text/plain; charset=UTF-8',
@@ -93,7 +93,7 @@ class CoverLetterController extends Controller
         $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
         $zip->addFromString('word/document.xml', $this->docxXml($coverLetter));
         $zip->close();
-        $coverLetter->update(['last_exported_at' => now(), 'status' => 'ready']);
+        $coverLetter->update(['last_exported_at' => now()]);
 
         return response()->download($file, Str::slug($coverLetter->title ?: 'cover-letter').'.docx', ['Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])->deleteFileAfterSend(true);
     }
@@ -151,10 +151,34 @@ class CoverLetterController extends Controller
 
     private function docxXml(CoverLetter $letter): string
     {
+        $template = in_array($letter->template, ['modern', 'classic', 'warm'], true) ? $letter->template : 'classic';
+        $font = match ($template) {
+            'modern' => 'Arial',
+            'warm' => 'Georgia',
+            default => 'Times New Roman',
+        };
+        $accent = match ($template) {
+            'modern' => '3158A6',
+            'warm' => '9B604A',
+            default => '26344A',
+        };
         $paragraphs = collect(preg_split('/\R/', $this->plainText($letter)) ?: [])
-            ->map(fn ($line) => '<w:p><w:r><w:t xml:space="preserve">'.htmlspecialchars($line, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</w:t></w:r></w:p>')
+            ->map(function (string $line) use ($template, $font, $accent): string {
+                $isSubject = str_starts_with($line, 'Subject:');
+                $color = $isSubject ? $accent : '263238';
+                $size = $isSubject ? 24 : 22;
+                $bold = $isSubject ? '<w:b/>' : '';
+                $spacing = match ($template) {
+                    'modern' => '220',
+                    'warm' => '300',
+                    default => '180',
+                };
+                $paragraphStyle = '<w:spacing w:after="'.$spacing.'" w:line="'.($template === 'warm' ? '340' : '300').'" w:lineRule="auto"/>';
+                return '<w:p><w:pPr>'.$paragraphStyle.'</w:pPr><w:r><w:rPr><w:rFonts w:ascii="'.$font.'" w:hAnsi="'.$font.'"/>'.$bold.'<w:color w:val="'.$color.'"/><w:sz w:val="'.$size.'"/></w:rPr><w:t xml:space="preserve">'.htmlspecialchars($line, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</w:t></w:r></w:p>';
+            })
             ->implode('');
+        $margins = $template === 'modern' ? '900' : ($template === 'warm' ? '1077' : '1247');
 
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'.$paragraphs.'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1247" w:right="1134" w:bottom="1247" w:left="1134"/></w:sectPr></w:body></w:document>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'.$paragraphs.'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="'.$margins.'" w:right="1134" w:bottom="'.$margins.'" w:left="1134"/></w:sectPr></w:body></w:document>';
     }
 }
